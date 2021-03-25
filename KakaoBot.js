@@ -20,13 +20,17 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("명물");
   }
+  else if(msg_data[0]=="!명물")
+  {
+    replier.reply("반장");
+  }
   else if(msg_data[0]=="이뤘다")
   {
     replier.reply("네?");
   }
   else if(msg_data[0]=="!도움말")
   {
-    replier.reply("!과제 : 과제를 보여줍니다.\n!급식 : 급식을 보여줍니다.")
+    replier.reply("!과제 : 과제를 보여줍니다.\n!급식 [아침/점심/저녁] : 급식을 보여줍니다.")
   }
   else if(msg_data[0]=='!과제')
   {
@@ -38,12 +42,44 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
-    
-    if(MealDataDate != year+month+date) RenewMealData(year, month, date);
+    let day = today.getDay; //요일
 
-    replier.reply("아침" + "\u200b".repeat(500) + breakfast_Result);
-    replier.reply("점심" + "\u200b".repeat(500) + lunch_Result);
-    replier.reply("저녁" + "\u200b".repeat(500) + dinner_Result);
+    if(day==0||day==6)
+    {
+      random_Num = Math.random() * 10;
+      if(random_Num <= 1) replier.reply("집밥");
+      else if(random_Num <= 2) replier.reply("오늘 저녁은 치킨이닭!");
+      else if(random_Num <= 3) replier.reply("족발");
+      else if(random_Num <= 4) replier.reply("편의점");
+      else if(random_Num <= 5) replier.reply("싸다김밥");
+      else if(random_Num <= 6) replier.reply("주말에 왜 물어보는거야");
+      else if(random_Num <= 7) replier.reply("급식이 있을거라 생각했어?");
+      else if(random_Num <= 8) replier.reply("다이어트");
+      else if(random_Num <= 9) replier.reply("안알려줌");
+      else if(random_Num <= 10) replier.reply("우리가 어떤민족입니까!");
+    }
+    
+    if(MealDataDate != year+month+date)
+    {
+      replier.reply("급식 정보를 받아오는 중입니다.\n시간이 걸릴 수 있습니다.");
+      RenewMealData(year, month, date);
+    }
+    if(msg_data[1] == "아침")
+    {
+      replier.reply("아침\n--------\n" + "\u200b".repeat(500) + breakfast_Result);
+    }
+    else if(msg_data[1] == "점심")
+    {
+      replier.reply("점심\n--------\n" + "\u200b".repeat(500) + lunch_Result);
+    }
+    else if(msg_data[1] == "저녁")
+    {
+      replier.reply("저녁\n--------\n" + "\u200b".repeat(500) + dinner_Result);
+    }
+    else
+    {
+      replier.reply("오늘의 메뉴\n\n" + "\u200b".repeat(500) + "아침\n--------\n" +  breakfast_Result + "\n\n점심\n--------\n" +  lunch_Result + "\n\n저녁\n--------\n" +  dinner_Result);
+    }
   }
   /*
   else if(msg_data[0]=='!급식')
@@ -97,26 +133,44 @@ function RenewMealData(year, month, date)
   let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
   let SD_SCHUL_CODE = 7530851; //학교 코드
 
-  var meal_Link = "https://open.neis.go.kr/hub/mealServiceDietInfo?" + "ATPT_OFCDC_SC_CODE=" + ATPT_OFCDC_SC_CODE + "&SD_SCHUL_CODE=" + SD_SCHUL_CODE + "&MLSV_YMD=" + year + month + date + "KEY=" + KEY + "&TYPE=%E3%85%93%EB%82%B4%E3%85%9C";
+  var meal_Link = "https://open.neis.go.kr/hub/mealServiceDietInfo?" + "ATPT_OFCDC_SC_CODE=" + ATPT_OFCDC_SC_CODE + "&SD_SCHUL_CODE=" + SD_SCHUL_CODE + "&MLSV_YMD=" + year + month + date + "&KEY=" + KEY + "&TYPE=%E3%85%93%EB%82%B4%E3%85%9C";
   var meal_Data = Utils.getWebText(meal_Link
                                   ,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
                                   ,false
                                   ,false
                                   )
-  var breakfast_Data = ((((meal_Data.split("<DDISH_NM>"))[1].split("</DDISH_NM>"))[0]).replace("<![CDATA[","").replace("]]>","")).split("<br\/>");
+
+  var breakfast_Data = ((((meal_Data.split("<DDISH_NM>"))[1]
+                          .split("</DDISH_NM>"))[0])
+                          .replace("<![CDATA[","")
+                          .replace("]]>",""))
+                          .split("<br\/>");
   for(i=0;i<breakfast_Data.length;i++)
   {
     breakfast_Result+=(breakfast_Data[i].split("*"))[0] + "\n";
   }
-  var lunch_Data = ((((meal_Data.split("<DDISH_NM>"))[2].split("</DDISH_NM>"))[0]).replace("<![CDATA[","").replace("]]>","")).split("<br\/>");
+  var lunch_Data = ((((meal_Data.split("<DDISH_NM>"))[2]
+                                .split("</DDISH_NM>"))[0])
+                                .replace("<![CDATA[","")
+                                .replace("]]>",""))
+                                .split("<br\/>");
   for(i=0;i<lunch_Data.length;i++)
   {
     lunch_Result+=(lunch_Data[i].split("*"))[0] + "\n";
   }
-  var dinner_Data = ((((meal_Data.split("<DDISH_NM>"))[3].split("</DDISH_NM>"))[0]).replace("<![CDATA[","").replace("]]>","")).split("<br\/>");
-  for(i=0;i<dinner_Data.length;i++)
+
+  if(meal_Data.split("<DDISH_NM>").length<=3) dinner_Result+="오늘은 저녁밥이 없습니다.";
+  else
   {
-    dinner_Result+=(dinner_Data[i].split("*"))[0] + "\n";
+    var dinner_Data = ((((meal_Data.split("<DDISH_NM>"))[3]
+                                  .split("</DDISH_NM>"))[0])
+                                  .replace("<![CDATA[","")
+                                  .replace("]]>",""))
+                                  .split("<br\/>");
+    for(i=0;i<dinner_Data.length;i++)
+    {
+      dinner_Result+=(dinner_Data[i].split("*"))[0] + "\n";
+    }
   }
 
   MealDataDate = year+month+date;
