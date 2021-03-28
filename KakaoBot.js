@@ -1,8 +1,8 @@
 /**
- * 이뤘다
+ * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev3(20210327)
+ * 현재 버전 dev4(20210328)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -61,17 +61,19 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("반장");
   }
-  else if(msg_data[0]=="이뤘다")
+  else if(msg_data[0]=="북곽봇")
   {
     replier.reply("네?");
   }
+  else if(msg_data[0]=="!클래스카드") replier.reply("https://www.classcard.net/set/4720490");
   else if(msg_data[0]=="!도움말")
   {
     replier.reply("도움말\n"
                 + "!과제 : 과제를 보여줍니다.\n"
                 + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                 + "!시간표 (내일) : 시간표를 보여줍니다.\n"
-                + "!한강수온 : 오늘 한강의 온도를 알려줍니다."
+                + "!한강수온 : 오늘 한강의 온도를 알려줍니다.\n"
+                + "!클래스카드 : 영어 수행 클래스카드 링크를 보여줍니다."
                 );
   }
   else if(msg_data[0]=='!과제')
