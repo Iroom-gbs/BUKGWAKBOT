@@ -2,7 +2,7 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev4(20210328)
+ * 현재 버전 dev5(20210329)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -39,7 +39,7 @@ var breakfast_Result = String("");
 var lunch_Result = String("");
 var dinner_Result = String("");
 
-var hangang_temp, HangangDataDate;
+var hangang_temp, hangang_time, HangangDataDate;
 
 /**
  * (string) room
@@ -65,6 +65,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발지 : 나태양\n버전 : dev5(20210329)");
   else if(msg_data[0]=="!클래스카드") replier.reply("https://www.classcard.net/set/4720490");
   else if(msg_data[0]=="!도움말")
   {
@@ -72,10 +73,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 + "!과제 : 과제를 보여줍니다.\n"
                 + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                 + "!시간표 (내일) : 시간표를 보여줍니다.\n"
-                + "!한강수온 : 오늘 한강의 온도를 알려줍니다.\n"
-                + "!클래스카드 : 영어 수행 클래스카드 링크를 보여줍니다."
+                + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
+                + "!클래스카드 : 영어 수행 클래스카드 링크를 보여줍니다.\n"
+                + "!정보 : 북곽봇 정보를 알려줍니다."
                 );
   }
+  else if(msg_data[0]=="!공유기"||msg_data[0]=="!핫스팟") replier.reply("박주완의 핫스팟\n이름 : 핫스팟은 못참지 happygbs\n비밀번호 : happygbs");
+  else if(msg_data[0]=="!박주완") replier.reply("걸어다니는 공유기(7월까지)");
   else if(msg_data[0]=='!과제')
   {
     replier.reply("\u200b".repeat(500) + "아직 없음");
@@ -83,17 +87,22 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   else if(msg_data[0]=='!한강수온')
   {
     let today = new Date();
-    let year = String(today.getFullYear()); // 년도
-    let month = numberPad(today.getMonth() + 1, 2);  // 월
-    let date = numberPad(today.getDate(), 2);  // 날짜
+    let time = today.getTime();  // 날짜
     
-    if(HangangDataDate != year+month+date) //한강 수온 데이터가 최신이 아닐 경우 갱신
+    if(HangangDataDate + 3 <= time || time<HangangDataDate); //데이터가 최신이 아닐 경우 갱신
     {
       let HangangData = Jsoup.connect("https://api.hangang.msub.kr/").ignoreContentType(true).get().text();           
       hangang_temp = HangangData.split('"')[11];
-      HangangDataDate = year+month+date;
+      HangangDataDate = time;
+      hangang_time = HangangData.split('"')[15];
     }
-    replier.reply("오늘 한강의 수온은 " + hangang_temp +"℃"+ "(" + String(Number(hangang_temp)+273) +"K) 입니다.");
+
+    let temp_C = String(hangang_temp) + "°C";
+    let temp_K = String(hangang_temp + 273.15) + "K";
+    let temp_F = String(hangang_temp * 1.8 + 32) + "°F";
+    let temp_R = String((hangang_temp + 273.15*1.8) + "°R");
+    if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F +"°F"+ "(" + temp_R +"°R) 입니다.\n("+hangang_time+"기준)");
+    else replier.reply("지금 한강의 수온은 " + temp_C +"°C"+ "(" + temp_K +"K) 입니다.\n("+hangang_time+"기준)");
   }
   else if(msg_data[0]=="!시간표")
   {
