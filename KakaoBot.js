@@ -2,7 +2,7 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev5(20210329)
+ * 현재 버전 dev7(20210331)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -33,13 +33,25 @@ SOFTWARE.
 importClass(org.jsoup.Jsoup);
 const scriptName = "test";
 const comci = require('comci.js');
+const FS = FileStream;
 
 var MealDataDate;
+var mealdata = new Array("\n","\n","\n");
+/*
 var breakfast_Result = String("");
 var lunch_Result = String("");
 var dinner_Result = String("");
+*/
 
 var hangang_temp, hangang_time, HangangDataDate;
+
+let hotspot_file_route = "/sdcard/BUKGWAKBOT/hotspot.json";
+var hotspot_readed=false;
+var hotspot_data;
+
+let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log.txt";
+
+let today = new Date();
 
 /**
  * (string) room
@@ -51,8 +63,14 @@ var hangang_temp, hangang_time, HangangDataDate;
  * (string) packageName
  */
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+  if(room[0]!=".")
+  {
   msg_data = msg.split(' ');
 
+  //핫스팟 데이터 로드
+  if(hotspot_readed == false) ReadHotspot();
+
+  //여기부터 응답
   if(msg_data[0]=='!반장')
   {
     replier.reply("명물");
@@ -65,9 +83,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발지 : 나태양\n버전 : dev5(20210329)");
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : de7(20210331)");
   else if(msg_data[0]=="!클래스카드") replier.reply("https://www.classcard.net/set/4720490");
-  else if(msg_data[0]=="!도움말")
+  else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
   {
     replier.reply("도움말\n"
                 + "!과제 : 과제를 보여줍니다.\n"
@@ -78,35 +96,58 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 + "!정보 : 북곽봇 정보를 알려줍니다."
                 );
   }
-  else if(msg_data[0]=="!공유기"||msg_data[0]=="!핫스팟") replier.reply("박주완의 핫스팟\n이름 : 핫스팟은 못참지 happygbs\n비밀번호 : happygbs");
+  
+  else if(msg_data[0]=="!로그초기화"&&sender=="나태양")
+  {
+    FS.remove(chat_log_route);
+    replier.reply("로그 데이터가 초기화되었습니다.")
+  }
+  //핫스팟 관련
+  else if(msg_data[0]=="!공유기"||msg_data[0]=="!핫스팟")
+  {
+    if(msg_data[1]=="이름변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완"))
+    {
+      hotspot_data.이름 = msg.split("-")[1];
+      FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
+      replier.reply("핫스팟의 이름이 " + hotspot_data.이름 + "로 변경되었습니다.");
+    }
+    else if(msg_data[1]=="비밀번호변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완"))
+    {
+      hotspot_data.비밀번호 = msg.split("-")[1];
+      FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
+      replier.reply("핫스팟의 비밀번호가 " + hotspot_data.비밀번호 + "로 변경되었습니다.");
+    }
+    else replier.reply("박주완의 핫스팟\n이름 : " + hotspot_data.이름 + "\n비밀번호 : " + hotspot_data.비밀번호);
+  }
   else if(msg_data[0]=="!박주완") replier.reply("걸어다니는 공유기(7월까지)");
+
   else if(msg_data[0]=='!과제')
   {
     replier.reply("\u200b".repeat(500) + "아직 없음");
   }
+
   else if(msg_data[0]=='!한강수온')
   {
     let today = new Date();
-    let time = today.getTime();  // 날짜
+    let hour = today.getHours();  // 시간
     
-    if(HangangDataDate + 3 <= time || time<HangangDataDate); //데이터가 최신이 아닐 경우 갱신
+    if(HangangDataDate + 3 <= hour || hour<HangangDataDate); //데이터가 최신이 아닐 경우 갱신
     {
       let HangangData = Jsoup.connect("https://api.hangang.msub.kr/").ignoreContentType(true).get().text();           
-      hangang_temp = HangangData.split('"')[11];
-      HangangDataDate = time;
-      hangang_time = HangangData.split('"')[15];
+      hangang_temp = Number(HangangData.split('"')[11]); //온도
+      HangangDataDate = hour;
+      hangang_time = HangangData.split('"')[15]; //측정시간
     }
 
-    let temp_C = String(hangang_temp) + "°C";
-    let temp_K = String(hangang_temp + 273.15) + "K";
-    let temp_F = String(hangang_temp * 1.8 + 32) + "°F";
-    let temp_R = String((hangang_temp + 273.15*1.8) + "°R");
-    if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F +"°F"+ "(" + temp_R +"°R) 입니다.\n("+hangang_time+"기준)");
-    else replier.reply("지금 한강의 수온은 " + temp_C +"°C"+ "(" + temp_K +"K) 입니다.\n("+hangang_time+"기준)");
+    let temp_C = String(hangang_temp) + "°C"; //섭씨
+    let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
+    let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
+    let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
+    if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+"기준)");
+    else replier.reply("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+"기준)");
   }
   else if(msg_data[0]=="!시간표")
   {
-    let today = new Date();
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
@@ -127,14 +168,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       for(i=0;i<7;i++)
       {
         //replier.reply(TimeTableData.시간표[day][i]);
-        TimeTable+= String(i+1)+"교시 : " + TimeTableData.시간표[day][i] + "\n";
+        TimeTable+= String(i+1)+"교시 : " + TimeTableData.시간표[day][i] + "\n";  
       }
       replier.reply(year+"년 "+month+"월 "+date+"일 시간표\n"+TimeTable);
     }
   }
   else if(msg_data[0]=="!급식")
   {
-    let today = new Date();
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
@@ -156,36 +196,40 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
     else
     {
-      if(MealDataDate != year+month+date) //급식 정보가 최신이 아닐 경우 갱신
+      if(MealDataDate != year+month+date||msg_data[1]=="리로드") //급식 정보가 최신이 아닐 경우 갱신
       {
         replier.reply("급식 정보를 받아오는 중입니다.\n시간이 걸릴 수 있습니다.");
         RenewMealData(year, month, date);
       }
       if(msg_data[1] == "아침")
       {
-        replier.reply("아침\n--------\n" + breakfast_Result);
+        replier.reply("아침\n--------\n" + mealdata[0]);
       }
       else if(msg_data[1] == "점심")
       {
-        replier.reply("점심\n--------\n" + lunch_Result);
+        replier.reply("점심\n--------\n" + mealdata[1]);
       }
       else if(msg_data[1] == "저녁")
       {
-        replier.reply("저녁\n--------\n" + dinner_Result);
+        replier.reply("저녁\n--------\n" +mealdata[2]);
       }
       else
       {
         replier.reply("오늘의 메뉴\n\n"
                     + "\u200b".repeat(500)
                     + "아침\n--------\n"
-                    + breakfast_Result
+                    + mealdata[0]
                     + "\n\n점심\n--------\n"
-                    + lunch_Result
+                    + mealdata[1]
                     + "\n\n저녁\n--------\n"
-                    + dinner_Result
+                    + mealdata[2]
                     );
       }
     }
+  }
+
+  //로깅
+    FS.append(chat_log_route, today.toLocaleString() + " " +room + " " + sender + ":" + msg +"\n\n");
   }
   /*
   else if(msg_data[0]=='!급식')
@@ -233,6 +277,13 @@ function onPause(activity) {}
 
 function onStop(activity) {}
 
+//핫스팟 데이터 읽기
+function ReadHotspot()
+{
+  hotspot_data = JSON.parse(FS.read(hotspot_file_route));
+  hotspot_readed = true;
+}
+
 function RenewMealData(year, month, date)
 {
   let KEY = "d31921b2d9014e368cd685b00cea66c9"; //인증키
@@ -246,6 +297,23 @@ function RenewMealData(year, month, date)
                                   ,false
                                   );
 
+  for(var i=0;i<3;i++)
+  {
+    var temp_meal_data=((((meal_Data.split("<DDISH_NM>"))[i+1]
+                          .split("</DDISH_NM>"))[0])
+                          .replace("<![CDATA[","")
+                          .replace("]]>",""))
+                          .split("<br\/>");
+    for(j=0;j<temp_meal_data.length;j++)
+    {
+      var tempString = eraseNumber(replaceAll((String(temp_meal_data[j]).split("*")[0]), ".", ""));
+      var tempString2 = eraseNumber(replaceAll((String(temp_meal_data[j+1]).split("*")[0]), ".", ""));
+      if(j==0) mealdata[i] = tempString;
+      else mealdata[i] += "\n" + tempString;
+      if(tempString.substr(0,3)==tempString2.substr(0,3)) j++;
+    }
+  }
+  /*
   //아침                
   var breakfast_Data = ((((meal_Data.split("<DDISH_NM>"))[1]
                           .split("</DDISH_NM>"))[0])
@@ -284,6 +352,7 @@ function RenewMealData(year, month, date)
       dinner_Result+=(dinner_Data[i].split("*"))[0] + "\n";
     }
   }
+  */
 
   //갱신일시 저장
   MealDataDate = year+month+date;
@@ -293,4 +362,19 @@ function numberPad(n, width) //숫자 앞을 0으로 채움
 {
   n = n + '';
   return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+}
+
+function eraseNumber(string)
+{
+  var str = string;
+  for(i=0;i<=9;i++)
+  {
+    str = replaceAll(str, String(i), "");
+  }
+  return str;
+}
+
+function replaceAll(str, searchStr, replaceStr) {
+
+  return str.split(searchStr).join(replaceStr);
 }
