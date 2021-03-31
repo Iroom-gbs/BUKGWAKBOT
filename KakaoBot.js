@@ -35,8 +35,8 @@ const scriptName = "test";
 const comci = require('comci.js');
 const FS = FileStream;
 
-var MealDataDate;
-var mealdata = new Array("\n","\n","\n");
+var MealDataDate = new Array("-1","-1");
+var mealdata = new Array(new Array("\n","\n","\n"), new Array("\n","\n","\n"));
 /*
 var breakfast_Result = String("");
 var lunch_Result = String("");
@@ -50,6 +50,8 @@ var hotspot_readed=false;
 var hotspot_data;
 
 let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log.txt";
+
+let chat_log_route = "/sdcard/BUKGWAKBOT/todolist.txt";
 
 let today = new Date();
 
@@ -123,6 +125,14 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
   else if(msg_data[0]=='!과제')
   {
+    //과제 등록
+    //문법 : !과제 등록 (월) (일) (과목) -(내용)
+    /*
+    if(msg_data[1] == "등록")
+    {
+      let deadline = msg_dat
+    }
+    */
     replier.reply("\u200b".repeat(500) + "아직 없음");
   }
 
@@ -175,11 +185,46 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   }
   else if(msg_data[0]=="!급식")
   {
-    let year = String(today.getFullYear()); // 년도
-    let month = numberPad(today.getMonth() + 1, 2);  // 월
-    let date = numberPad(today.getDate(), 2);  // 날짜
+    replier.reply("오늘의 메뉴\n"
+    + "\u200b".repeat(500)
+    + "아침\n--------\n"
+    + "콘푸레이크\n"
+    + "콘푸라이크\n"
+    + "첵스초코\n"
+    + "첵스초코 파맛\n"
+    + "오레오 오즈\n"
+    + "코코볼\n"
+    + "우유"
+    + "\n점심\n--------\n"
+    + "애슐리 출장뷔페\n"
+    + "아웃백 스테이크 출장요리\n"
+    + "드마리스 출장뷔페\n"
+    + "수제맥주\n"
+    + "\n저냑\n--------\n"
+    + "뿌링클\n"
+    + "허니콤보\n"
+    + "황금올리브\n"
+    + "고추바사삭\n"
+    + "치킨무\n"
+    + "맥주\n"
+    )
+    /*
+    var year = String(today.getFullYear()); // 년도
+    var month = numberPad(today.getMonth() + 1, 2);  // 월
+    var date = numberPad(today.getDate(), 2);  // 날짜
     var day = today.getDay(); //요일
-    
+    var time = today.getTime()
+    var tommorrow = 0;
+    if(msg_data[1]=="내일")
+    {
+      tommorrow = 1;
+      tommorrow_time = new Date(time + 86400000);
+      year = String(tommorrow_time.getFullYear()); // 년도
+      month = numberPad(tommorrow_time.getMonth() + 1, 2);  // 월
+      date = numberPad(tommorrow_time.getDate(), 2);  // 날짜
+      day = tommorrow_time.getDay(); //요일
+      replier.reply(year + month + date);
+    }
     if(day==0||day==6)
     {
       random_Num = Math.random() * 10;
@@ -196,36 +241,38 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
     else
     {
-      if(MealDataDate != year+month+date||msg_data[1]=="리로드") //급식 정보가 최신이 아닐 경우 갱신
+      if(MealDataDate[tommorrow] != year+month+date||msg_data[1]=="리로드") //급식 정보가 최신이 아닐 경우 갱신
       {
         replier.reply("급식 정보를 받아오는 중입니다.\n시간이 걸릴 수 있습니다.");
-        RenewMealData(year, month, date);
+        RenewMealData(year, month, date, tommorrow);
       }
-      if(msg_data[1] == "아침")
+      if(msg_data[tommorrow+1] == "아침")
       {
-        replier.reply("아침\n--------\n" + mealdata[0]);
+        replier.reply("아침\n--------\n" + mealdata[tommorrow][0]);
       }
-      else if(msg_data[1] == "점심")
+      else if(msg_data[tommorrow+1] == "점심")
       {
-        replier.reply("점심\n--------\n" + mealdata[1]);
+        replier.reply("점심\n--------\n" + mealdata[tommorrow][1]);
       }
-      else if(msg_data[1] == "저녁")
+      else if(msg_data[tommorrow+1] == "저녁")
       {
-        replier.reply("저녁\n--------\n" +mealdata[2]);
+        replier.reply("저녁\n--------\n" +mealdata[tommorrow][2]);
       }
       else
       {
-        replier.reply("오늘의 메뉴\n\n"
+        replier.reply((tommorrow == 1? "내일":"오늘")
+                    + "의 메뉴\n\n"
                     + "\u200b".repeat(500)
                     + "아침\n--------\n"
-                    + mealdata[0]
+                    + mealdata[tommorrow][0]
                     + "\n\n점심\n--------\n"
-                    + mealdata[1]
+                    + mealdata[tommorrow][1]
                     + "\n\n저녁\n--------\n"
-                    + mealdata[2]
+                    + mealdata[tommorrow][2]
                     );
       }
     }
+    */
   }
 
   //로깅
@@ -284,7 +331,7 @@ function ReadHotspot()
   hotspot_readed = true;
 }
 
-function RenewMealData(year, month, date)
+function RenewMealData(year, month, date, tommorrow)
 {
   let KEY = "d31921b2d9014e368cd685b00cea66c9"; //인증키
   let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
@@ -308,8 +355,8 @@ function RenewMealData(year, month, date)
     {
       var tempString = eraseNumber(replaceAll((String(temp_meal_data[j]).split("*")[0]), ".", ""));
       var tempString2 = eraseNumber(replaceAll((String(temp_meal_data[j+1]).split("*")[0]), ".", ""));
-      if(j==0) mealdata[i] = tempString;
-      else mealdata[i] += "\n" + tempString;
+      if(j==0) mealdata[tommorrow][i] = tempString;
+      else mealdata[tommorrow][i] += "\n" + tempString;
       if(tempString.substr(0,3)==tempString2.substr(0,3)) j++;
     }
   }
@@ -355,7 +402,7 @@ function RenewMealData(year, month, date)
   */
 
   //갱신일시 저장
-  MealDataDate = year+month+date;
+  MealDataDate[tommorrow] = year+month+date;
 }
 
 function numberPad(n, width) //숫자 앞을 0으로 채움
