@@ -51,9 +51,7 @@ var hotspot_data;
 
 let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log.txt";
 
-let chat_log_route = "/sdcard/BUKGWAKBOT/todolist.txt";
-
-let today = new Date();
+//let chat_log_route = "/sdcard/BUKGWAKBOT/todolist.txt";
 
 /**
  * (string) room
@@ -68,6 +66,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   if(room[0]!=".")
   {
   msg_data = msg.split(' ');
+  let today = new Date();
 
   //핫스팟 데이터 로드
   if(hotspot_readed == false) ReadHotspot();
@@ -85,7 +84,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : de7(20210331)");
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev(20210331)");
   else if(msg_data[0]=="!클래스카드") replier.reply("https://www.classcard.net/set/4720490");
   else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
   {
@@ -135,9 +134,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     */
     replier.reply("\u200b".repeat(500) + "아직 없음");
   }
-
+  
   else if(msg_data[0]=='!한강수온')
   {
+    replier.reply("수리중입니다.\n시험끝나고 고칠 예정");
+    /*
     let today = new Date();
     let hour = today.getHours();  // 시간
     
@@ -155,6 +156,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
     if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+"기준)");
     else replier.reply("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+"기준)");
+  */
   }
   else if(msg_data[0]=="!시간표")
   {
@@ -185,6 +187,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   }
   else if(msg_data[0]=="!급식")
   {
+    /* 만우절 버전
     replier.reply("오늘의 메뉴\n"
     + "\u200b".repeat(500)
     + "아침\n--------\n"
@@ -208,7 +211,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     + "치킨무\n"
     + "맥주\n"
     )
-    /*
+    */
     var year = String(today.getFullYear()); // 년도
     var month = numberPad(today.getMonth() + 1, 2);  // 월
     var date = numberPad(today.getDate(), 2);  // 날짜
@@ -223,7 +226,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       month = numberPad(tommorrow_time.getMonth() + 1, 2);  // 월
       date = numberPad(tommorrow_time.getDate(), 2);  // 날짜
       day = tommorrow_time.getDay(); //요일
-      replier.reply(year + month + date);
+      //replier.reply(year + month + date);
     }
     if(day==0||day==6)
     {
@@ -272,12 +275,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                     );
       }
     }
-    */
-  }
-
-  //로깅
-    FS.append(chat_log_route, today.toLocaleString() + " " +room + " " + sender + ":" + msg +"\n\n");
-  }
+  FS.append(chat_log_route, today.toLocaleString() + " " +room + " " + sender + ":" + msg +"\n\n");
+}
+}
   /*
   else if(msg_data[0]=='!급식')
   {
