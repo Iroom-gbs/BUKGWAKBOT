@@ -2,7 +2,7 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev7(20210331)
+ * 현재 버전 dev9(20210426)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -84,8 +84,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev(20210331)");
-  else if(msg_data[0]=="!클래스카드") replier.reply("https://www.classcard.net/set/4720490");
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev9(20210426)");
+
   else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
   {
     replier.reply("도움말\n"
@@ -93,7 +93,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                 + "!시간표 (내일) : 시간표를 보여줍니다.\n"
                 + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
-                + "!클래스카드 : 영어 수행 클래스카드 링크를 보여줍니다.\n"
+                + "!클래스카드 : 클래스카드 링크를 보여줍니다.\n"
                 + "!정보 : 북곽봇 정보를 알려줍니다."
                 );
   }
@@ -120,9 +120,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
     else replier.reply("박주완의 핫스팟\n이름 : " + hotspot_data.이름 + "\n비밀번호 : " + hotspot_data.비밀번호);
   }
-  else if(msg_data[0]=="!박주완") replier.reply("걸어다니는 공유기(7월까지)");
-
-  else if(msg_data[0]=='!과제')
+  else if(msg_data[0]=="!박주완") replier.reply("걸어다니는 공유기(7월까지)\n과학고 락커 과락\nhttps://youtube.com/channel/UC7c6gBzola8zsfq4qshphjw");
+  else if(msg_data[0]=="!짜릿짜릿해") replier.reply("1.\nsoundcloud.com/seob88861/mp3\n2.\nyoutu.be/oq0VGRQ9J-0");
+    else if(msg_data[0]=='!과제')
   {
     //과제 등록
     //문법 : !과제 등록 (월) (일) (과목) -(내용)
@@ -137,27 +137,32 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   
   else if(msg_data[0]=='!한강수온')
   {
-    replier.reply("수리중입니다.\n시험끝나고 고칠 예정");
-    /*
     let today = new Date();
     let hour = today.getHours();  // 시간
-    
     if(HangangDataDate + 3 <= hour || hour<HangangDataDate); //데이터가 최신이 아닐 경우 갱신
     {
+      //옛날 코드
+      /*
       let HangangData = Jsoup.connect("https://api.hangang.msub.kr/").ignoreContentType(true).get().text();           
       hangang_temp = Number(HangangData.split('"')[11]); //온도
       HangangDataDate = hour;
       hangang_time = HangangData.split('"')[15]; //측정시간
+      */
+      let HangangData = JSON.parse(Jsoup.connect("http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/").ignoreContentType(true).get().text().split('[')[1].split(']')[0]);
+      hangang_temp = Number(HangangData.W_TEMP);
+      hangang_site = HangangData.SITE_ID;
+      HangangDataDate = hour;
+      hangang_time = HangangData.MSR_DATE;
     }
 
     let temp_C = String(hangang_temp) + "°C"; //섭씨
     let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
     let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
     let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
-    if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+"기준)");
-    else replier.reply("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+"기준)");
-  */
+    if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
+    else replier.reply("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
   }
+   
   else if(msg_data[0]=="!시간표")
   {
     let year = String(today.getFullYear()); // 년도
@@ -187,31 +192,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   }
   else if(msg_data[0]=="!급식")
   {
-    /* 만우절 버전
-    replier.reply("오늘의 메뉴\n"
-    + "\u200b".repeat(500)
-    + "아침\n--------\n"
-    + "콘푸레이크\n"
-    + "콘푸라이크\n"
-    + "첵스초코\n"
-    + "첵스초코 파맛\n"
-    + "오레오 오즈\n"
-    + "코코볼\n"
-    + "우유"
-    + "\n점심\n--------\n"
-    + "애슐리 출장뷔페\n"
-    + "아웃백 스테이크 출장요리\n"
-    + "드마리스 출장뷔페\n"
-    + "수제맥주\n"
-    + "\n저냑\n--------\n"
-    + "뿌링클\n"
-    + "허니콤보\n"
-    + "황금올리브\n"
-    + "고추바사삭\n"
-    + "치킨무\n"
-    + "맥주\n"
-    )
-    */
     var year = String(today.getFullYear()); // 년도
     var month = numberPad(today.getMonth() + 1, 2);  // 월
     var date = numberPad(today.getDate(), 2);  // 날짜
@@ -230,17 +210,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
     if(day==0||day==6)
     {
-      random_Num = Math.random() * 10;
-      if(random_Num <= 1) replier.reply("집밥");
-      else if(random_Num <= 2) replier.reply("오늘 저녁은 치킨이닭!");
-      else if(random_Num <= 3) replier.reply("족발");
-      else if(random_Num <= 4) replier.reply("편의점");
-      else if(random_Num <= 5) replier.reply("싸다김밥");
-      else if(random_Num <= 6) replier.reply("주말에 왜 물어보는거야");
-      else if(random_Num <= 7) replier.reply("급식이 있을거라 생각했어?");
-      else if(random_Num <= 8) replier.reply("다이어트");
-      else if(random_Num <= 9) replier.reply("안알려줌");
-      else if(random_Num <= 10) replier.reply("우리가 어떤민족입니까!");
+      random_Num = (Math.floor(Math.random() * 10));
+      weekendMeal = new Array("오늘 주말이야","있겠냐","집밥","굶어","편의점","치킨","피자","족발","싸다김밥","우리가 어떤 민족입니까?","궁금하면 500원")
+      replier.reply(weekendMeal[random_Num]);
     }
     else
     {
@@ -275,8 +247,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                     );
       }
     }
+    }
   FS.append(chat_log_route, today.toLocaleString() + " " +room + " " + sender + ":" + msg +"\n\n");
-}
 }
   /*
   else if(msg_data[0]=='!급식')
@@ -353,7 +325,9 @@ function RenewMealData(year, month, date, tommorrow)
                           .split("<br\/>");
     for(j=0;j<temp_meal_data.length;j++)
     {
+      
       var tempString = eraseNumber(replaceAll((String(temp_meal_data[j]).split("*")[0]), ".", ""));
+      Log.debug(tempString);
       var tempString2 = eraseNumber(replaceAll((String(temp_meal_data[j+1]).split("*")[0]), ".", ""));
       if(j==0) mealdata[tommorrow][i] = tempString;
       else mealdata[tommorrow][i] += "\n" + tempString;
