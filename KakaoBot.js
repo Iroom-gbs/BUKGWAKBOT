@@ -2,7 +2,7 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev10(20210426_2)
+ * 현재 버전 dev11(20210427)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -86,7 +86,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev10(20210426_2)");
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev11(20210427)");
 
   else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
   {
@@ -96,7 +96,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 + "!시간표 (내일) : 시간표를 보여줍니다.\n"
                 + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
                 + "!클래스카드 : 클래스카드 링크를 보여줍니다.\n"
-                + "!정보 : 북곽봇 정보를 알려줍니다."
+                + "!정보 : 북곽봇 정보를 알려줍니다.\n"
+                + "!날씨 (위치) : 날씨를 알려줍니다."
                 );
   }
   else if(msg_data[0]=="!자가진단"&&sender=="나태양")
