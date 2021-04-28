@@ -2,7 +2,7 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev11(20210427)
+ * 현재 버전 dev12(20210428)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -86,7 +86,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev11(20210427)");
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev12(20210428)");
 
   else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
   {
@@ -97,7 +97,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
                 + "!클래스카드 : 클래스카드 링크를 보여줍니다.\n"
                 + "!정보 : 북곽봇 정보를 알려줍니다.\n"
-                + "!날씨 (위치) : 날씨를 알려줍니다."
+                + "!날씨 (위치) : 날씨를 알려줍니다.\n"
+                + "!코로나 : 코로나 확진자 정보를 알려줍니다."
                 );
   }
   else if(msg_data[0]=="!자가진단"&&sender=="나태양")
@@ -138,31 +139,42 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
   else if(msg_data[0]=='!한강수온')
   {
-    let today = new Date();
-    let hour = today.getHours();  // 시간
-    if(HangangDataDate + 3 <= hour || hour<HangangDataDate); //데이터가 최신이 아닐 경우 갱신
-    {
-      let HangangData = JSON.parse(Jsoup.connect("http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/").ignoreContentType(true).get().text().split('[')[1].split(']')[0]);
-      hangang_temp = Number(HangangData.W_TEMP);
-      hangang_site = HangangData.SITE_ID;
-      HangangDataDate = hour;
-      hangang_time = HangangData.MSR_DATE;
-    }
+    try{
+      let today = new Date();
+      let hour = today.getHours();  // 시간
+      if(HangangDataDate + 3 <= hour || hour<HangangDataDate); //데이터가 최신이 아닐 경우 갱신
+      {
+        let HangangData = JSON.parse(Jsoup.connect("http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/").ignoreContentType(true).get().text().split('[')[1].split(']')[0]);
+        hangang_temp = Number(HangangData.W_TEMP);
+        hangang_site = HangangData.SITE_ID;
+        HangangDataDate = hour;
+        hangang_time = HangangData.MSR_DATE;
+      }
 
-    let temp_C = String(hangang_temp) + "°C"; //섭씨
-    let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
-    let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
-    let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
-    if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
-    else replier.reply("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
+      let temp_C = String(hangang_temp) + "°C"; //섭씨
+      let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
+      let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
+      let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
+      if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
+      else replier.reply("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
+    }catch(e){
+      replier.reply("에러!\n" + e);
+    }
   }
-   
+  
+  else if(msg_data[0]=="!코드업")
+  {
+    if(msg_data.length<2) replier.reply("찾으려는 아이디를 입력하세요.\n(!코드업 [아이디])");
+    else replier.reply(M.CodeUPRank_Function(msg_data[1]));
+  }
   else if(msg_data[0]=="!시간표")
   {
     var tm;
     if(msg_data[1]=="내일") tm=1;
     replier.reply(M.Timetable_Function(tm));
   }
+
+  else if(msg_data[0]=="!코로나") replier.reply(M.Corona_Function());
 
   else if(msg_data[0]=="!급식")
   {
