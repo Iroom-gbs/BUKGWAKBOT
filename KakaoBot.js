@@ -2,7 +2,7 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev12(20210428)
+ * 현재 버전 dev13(20210429)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -34,8 +34,9 @@ importClass(org.jsoup.Jsoup);
 const scriptName = "test";
 const FS = FileStream;
 
-const M = Bridge.getScopeOf("module");
-const AS = Bridge.getScopeOf("autoselfcheck")
+const M = Bridge.getScopeOf("module");;
+const AS = Bridge.getScopeOf("autoselfcheck");
+const G = Bridge.getScopeOf("gamemodule");
 /*
 const kalingModule = require('kaling').Kakao()
 const Kakao = new kalingModule;
@@ -86,19 +87,24 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev12(20210428)");
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev13(20210429)");
 
   else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
   {
     replier.reply("도움말\n"
-                + "!과제 : 과제를 보여줍니다.\n"
+                + "\u200b".repeat(500)
+                + "() : 선택  [] : 필수\n\n"
+                + "#개발예정# !과제 : 과제를 보여줍니다.)\n"
                 + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                 + "!시간표 (내일) : 시간표를 보여줍니다.\n"
                 + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
                 + "!클래스카드 : 클래스카드 링크를 보여줍니다.\n"
                 + "!정보 : 북곽봇 정보를 알려줍니다.\n"
                 + "!날씨 (위치) : 날씨를 알려줍니다.\n"
-                + "!코로나 : 코로나 확진자 정보를 알려줍니다."
+                + "!코로나 : 코로나 확진자 정보를 알려줍니다.\n"
+                + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n"
+                + "!랜덤숫자 [시작숫자] [끝숫자] : 시작숫자에서 끝 숫자 사이 랜덤 숫자가 나옵니다.\n"
+                + "!랜덤목록 [개수] : 1에서 개수까지의 수를 랜덤순서로 출력합니다."
                 );
   }
   else if(msg_data[0]=="!자가진단"&&sender=="나태양")
@@ -189,6 +195,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     replier.reply(M.Meal_Function(tm,type,reset))
   }
+  else if(msg_data[0]=="!상태") replier.reply(M.PhoneData_Function());
+
+  else if(msg_data[0]=="!가위바위보") replier.reply(G.RSP(msg_data[1]));
+  else if(msg_data[0]=="!랜덤숫자") replier.reply(G.RandNum(msg_data[1],msg_data[2]));
+  else if(msg_data[0]=="!랜덤목록") replier.reply(G.RandList(msg_data[1]));
 
   FS.append(chat_log_route, today.toLocaleString() + " " +room + " " + sender + ":" + msg +"\n\n");
 }

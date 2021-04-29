@@ -209,6 +209,11 @@ function CodeUPRank_Function(name)
   return result;
 }
 
+function PhoneData_Function()
+{
+  var device_profile_name = android.provider.Settings.Global.getString(Api.getContext().getContentResolver(), "device_name");
+  return "북곽봇상태\n\n휴대폰 이름 : "+device_profile_name+"\n안드로이드버전 : "+Device.getAndroidVersionName()+"\n\n배터리 : "+Device.getBatteryLevel()+"%\n온도 : "+Device.getBatteryTemperature()/10+"°c\n충전여부 : "+Device.isCharging()+"\n전압상태 : "+Device.getBatteryVoltage();
+}
 function numberPad(n, width) //숫자 앞을 0으로 채움
 {
   n = n + '';
