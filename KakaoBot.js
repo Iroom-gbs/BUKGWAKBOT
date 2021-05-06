@@ -2,7 +2,7 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev13(20210429)
+ * 현재 버전 dev14(20210505)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
@@ -87,7 +87,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   {
     replier.reply("네?");
   }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev13(20210429)");
+  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev14(20210505)");
 
   else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
   {
@@ -97,14 +97,16 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 + "#개발예정# !과제 : 과제를 보여줍니다.)\n"
                 + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                 + "!시간표 (내일) : 시간표를 보여줍니다.\n"
-                + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
+                + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n\n"
                 + "!클래스카드 : 클래스카드 링크를 보여줍니다.\n"
                 + "!정보 : 북곽봇 정보를 알려줍니다.\n"
                 + "!날씨 (위치) : 날씨를 알려줍니다.\n"
                 + "!코로나 : 코로나 확진자 정보를 알려줍니다.\n"
-                + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n"
+                + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n\n"
                 + "!랜덤숫자 [시작숫자] [끝숫자] : 시작숫자에서 끝 숫자 사이 랜덤 숫자가 나옵니다.\n"
-                + "!랜덤목록 [개수] : 1에서 개수까지의 수를 랜덤순서로 출력합니다."
+                + "!랜덤목록 [개수] : 1에서 개수까지의 수를 랜덤순서로 출력합니다.\n\n"
+                + "!산화수 [화학식](이온가수) : 산화수를 알려줍니다.\n"
+                + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다."
                 );
   }
   else if(msg_data[0]=="!자가진단"&&sender=="나태양")
@@ -138,9 +140,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
   else if(msg_data[0]=="!날씨")
   {
-    if(msg_data.length>1) area = msg_data[1];
-    else area = "";
-    replier.reply(M.Weather_Function(area));
+    if(msg_data.length<2||msg_data[1]=="내일"||msg_data[1]=="모레") area = "";
+    else area = msg_data[1];
+
+    if(msg_data[1]=="내일"||msg_data[2]=="내일") day=1;
+    else if(msg_data[1]=="모레"||msg_data[2]=="모레") day=2;
+    else day=0;
+    replier.reply(M.Weather_Function(area,day));
   }
 
   else if(msg_data[0]=='!한강수온')
@@ -195,6 +201,10 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     replier.reply(M.Meal_Function(tm,type,reset))
   }
+
+  else if(msg_data[0]=="!유효숫자") replier.reply(M.Significant_figures(msg_data[1]));
+  else if(msg_data[0]=="!산화수") replier.reply(M.Oxidation_Number(msg_data[1]));
+
   else if(msg_data[0]=="!상태") replier.reply(M.PhoneData_Function());
 
   else if(msg_data[0]=="!가위바위보") replier.reply(G.RSP(msg_data[1]));
