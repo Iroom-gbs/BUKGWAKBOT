@@ -47,4 +47,3 @@ function RandList(n)
     for(i=1;i<=n;i++) result+=String(i) + " : " + String(arr[i-1]) + "\n";
     return result;
 }
-
