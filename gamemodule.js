@@ -1,6 +1,8 @@
 const M = Bridge.getScopeOf("module");
 const AS = Bridge.getScopeOf("autoselfcheck")
 
+const FS = FileStream;
+
 function RSP(input)
 {
     var r;
@@ -48,3 +50,33 @@ function RandList(n)
     return result;
 }
 
+function Kkutu_Long(c)
+{
+    result = '"'+c+'"로 시작하는 긴 단어\n----------';
+    LongWords = (FS.read("/sdcard/BUKGWAKBOT/long.txt")).split("\n");
+    for(i=0;i<LongWords.length;i++)
+    {
+        if(LongWords[i][0]>c)
+        {
+            if(result) return result;
+            return '"'+c+'"로 시작하는 긴 단어가 없습니다. ';
+        }
+        if(LongWords[i][0]==c) result+="\n"+LongWords[i];
+    }
+    return result;
+}
+//초성 구하기
+/*
+https://cafe.naver.com/nameyee
+MIT License
+*/
+function cho_hangul(str) {
+    cho = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+    result = "";
+    for(i=0;i<str.length;i++) {
+        code = str.charCodeAt(i)-44032;
+        if(code>-1 && code<11172) result += cho[Math.floor(code/588)];
+        else result += str.charAt(i);
+    }
+    return result;
+}

@@ -2,13 +2,13 @@
  * 북곽봇(구 이뤘다)
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev14(20210505)
+ * 현재 버전 dev17(20210519)
  * 
  * 어짜피 이 코드 볼사람 나말고 두명밖에 없을거 같긴 함
  * MIT라이선스니까 너희도 내 코드 가져다쓸거면 출처 표기하셈
  * 
- * © 2021 Hegel, All rights reserved.
- * MIT License
+© 2021 HegelTY, All rights reserved.
+MIT License
 
 Copyright (c) 2021 HegelTY
 
@@ -34,206 +34,186 @@ importClass(org.jsoup.Jsoup);
 const scriptName = "test";
 const FS = FileStream;
 
-const M = Bridge.getScopeOf("module");;
+const M = Bridge.getScopeOf("module");
 const AS = Bridge.getScopeOf("autoselfcheck");
 const G = Bridge.getScopeOf("gamemodule");
-/*
-const kalingModule = require('kaling').Kakao()
-const Kakao = new kalingModule;
-Kakao.init("d1b87ff979264dd8186e3dda6e5d0524")
-Kakao.login('skxodid0305','sunej928200**');
-*/
-var hangang_temp, hangang_time, HangangDataDate;
+const P = Bridge.getScopeOf("pingpong");
 
 let hotspot_file_route = "/sdcard/BUKGWAKBOT/hotspot.json";
 var hotspot_readed=false;
 var hotspot_data;
 
-let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log.txt";
+let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log/";
 
 //let chat_log_route = "/sdcard/BUKGWAKBOT/todolist.txt";
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
-  if(room[0]!=".")
-  {
-  msg_data = msg.split(' ');
-  let today = new Date();
+  if(room[0]!="."){
+    msg_data = msg.split(' ');
+    let today = new Date();
 
-  //핫스팟 데이터 로드
-  if(hotspot_readed == false) ReadHotspot();
+    //핫스팟 데이터 로드
+    if(hotspot_readed == false) ReadHotspot();
 
-  //여기부터 응답
-  if(msg_data[0]=='!반장')
-  {
-    replier.reply("명물");
-  }
-  else if(msg_data[0]=="!명물")
-  {
-    replier.reply("반장");
-  }
-  /*
-  else if(msg_data[0]=="!카링")
-  {
-    Kakao.send(room,{
-      "link_ver" : "4.0",
-      "template_id" : 52513,
-      "template_args" : {
-      }
-      }, "custom");
-      }
-  }
-  */
-  else if(msg_data[0]=="북곽봇")
-  {
-    replier.reply("네?");
-  }
-  else if(msg_data[0]=="!정보") replier.reply("북곽봇\n개발자 : 나태양\n버전 : dev14(20210505)");
+    if(msg_data[0]=="북곽아"){replier.reply(M.PingPong(msg.substr(3)));}
+    if(msg_data[0]=="북아"){replier.reply(P.PingPong(sender,msg.substring(3)));}
+    if(msg[0]=="!"){
+      switch(msg_data[0].replace("!","")){
+        case "업데이트": replier.reply(
+                                      "업데이트 노트 - dev17(20210519)\n"
+                                      +"----------\n"+ "\u200b".repeat(500)
+                                      +"추가\n"
+                                      +'  URL단축 기능이 생겼습니다. "!단축 [url]"로 이용할 수 있습니다.\n'
+                                      +'  끄투 긴단어 검색이 생겼습니다. "!긴단어 [글자]로 이용할 수 있습니다.\n\n'
 
-  else if(msg_data[0]=="!도움말"||msg_data[0]=="!명령어")
-  {
-    replier.reply("도움말\n"
-                + "\u200b".repeat(500)
-                + "() : 선택  [] : 필수\n\n"
-                + "#개발예정# !과제 : 과제를 보여줍니다.)\n"
-                + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
-                + "!시간표 (내일) : 시간표를 보여줍니다.\n"
-                + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n\n"
-                + "!클래스카드 : 클래스카드 링크를 보여줍니다.\n"
-                + "!정보 : 북곽봇 정보를 알려줍니다.\n"
-                + "!날씨 (위치) : 날씨를 알려줍니다.\n"
-                + "!코로나 : 코로나 확진자 정보를 알려줍니다.\n"
-                + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n\n"
-                + "!랜덤숫자 [시작숫자] [끝숫자] : 시작숫자에서 끝 숫자 사이 랜덤 숫자가 나옵니다.\n"
-                + "!랜덤목록 [개수] : 1에서 개수까지의 수를 랜덤순서로 출력합니다.\n\n"
-                + "!산화수 [화학식](이온가수) : 산화수를 알려줍니다.\n"
-                + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다."
-                );
-  }
-  else if(msg_data[0]=="!자가진단"&&sender=="나태양")
-  {
-    replier.reply(AS.Autoselfcheck_Function());;
-  }
-  else if(msg_data[0]=="!로그초기화"&&sender=="나태양")
-  {
-    FS.remove(chat_log_route);
-    replier.reply("로그 데이터가 초기화되었습니다.")
-  }
-  //핫스팟 관련
-  else if(msg_data[0]=="!공유기"||msg_data[0]=="!핫스팟")
-  {
-    if(msg_data[1]=="이름변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완"))
-    {
-      hotspot_data.이름 = msg.split("-")[1];
-      FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
-      replier.reply("핫스팟의 이름이 " + hotspot_data.이름 + "로 변경되었습니다.");
-    }
-    else if(msg_data[1]=="비밀번호변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완"))
-    {
-      hotspot_data.비밀번호 = msg.split("-")[1];
-      FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
-      replier.reply("핫스팟의 비밀번호가 " + hotspot_data.비밀번호 + "로 변경되었습니다.");
-    }
-    else replier.reply("박주완의 핫스팟\n이름 : " + hotspot_data.이름 + "\n비밀번호 : " + hotspot_data.비밀번호);
-  }
-  else if(msg_data[0]=="!박주완") replier.reply("걸어다니는 공유기(7월까지)\n과학고 락커 과락\nhttps://youtube.com/channel/UC7c6gBzola8zsfq4qshphjw");
-  else if(msg_data[0]=="!짜릿짜릿해") replier.reply("1.\nsoundcloud.com/seob88861/mp3\n2.\nyoutu.be/oq0VGRQ9J-0");
+                                      +"개선\n"
+                                      +"급식이 개선되었습니다. 이제 급식이 더 깔끔하게 나타납니다."
+                                      );break;
+        //도움말
+        case "도움말":
+        case "명령어": replier.reply(
+                                    "도움말\n"
+                                  + "\u200b".repeat(500)
+                                  + "() : 선택  [] : 필수\n\n"
+                                  + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
+                                  + "!시간표 (내일) : 시간표를 보여줍니다.\n"
+                                  + "!자가진단 확인 : 자가진단 참여 여부를 알려줍니다.\n"
+                                  + "!책 [제목] : 도서관에서 책을 검색합니다.\n\n"
 
-  else if(msg_data[0]=="!날씨")
-  {
-    if(msg_data.length<2||msg_data[1]=="내일"||msg_data[1]=="모레") area = "";
-    else area = msg_data[1];
+                                  + "!정보 : 북곽봇 정보를 알려줍니다.\n"
+                                  + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n\n"
 
-    if(msg_data[1]=="내일"||msg_data[2]=="내일") day=1;
-    else if(msg_data[1]=="모레"||msg_data[2]=="모레") day=2;
-    else day=0;
-    replier.reply(M.Weather_Function(area,day));
-  }
+                                  + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
+                                  + "!날씨 (위치) : 날씨를 알려줍니다.\n"
+                                  + "!코로나 : 코로나 확진자 정보를 알려줍니다.\n"
+                                  + "!번역 [언어] [내용] : 해당 언어로 내용을 번역합니다.\n\t지원 언어 : 영어/일본어/중국어/네덜란드어/독일어/러시아어/말레이시아어/벵골어/베트남어/스페인어/아랍어/이탈리아어/인도네시아어/태국어/터키어/포르투갈어/프랑스어/힌디어\n이 기능은 이 소스는 조유리즈님의 번역 소스를 사용했습니다.\n"
+                                  + "!단축 [url] : url을 단축해줍니다.\n\n"
 
-  else if(msg_data[0]=='!한강수온')
-  {
-    try{
-      let today = new Date();
-      let hour = today.getHours();  // 시간
-      if(HangangDataDate + 3 <= hour || hour<HangangDataDate); //데이터가 최신이 아닐 경우 갱신
-      {
-        let HangangData = JSON.parse(Jsoup.connect("http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/").ignoreContentType(true).get().text().split('[')[1].split(']')[0]);
-        hangang_temp = Number(HangangData.W_TEMP);
-        hangang_site = HangangData.SITE_ID;
-        HangangDataDate = hour;
-        hangang_time = HangangData.MSR_DATE;
-      }
+                                  + "!랜덤숫자 [시작숫자] [끝숫자] : 시작숫자에서 끝 숫자 사이 랜덤 숫자가 나옵니다.\n"
+                                  + "!랜덤목록 [개수] : 1에서 개수까지의 수를 랜덤순서로 출력합니다.\n"
+                                  + "!긴단어 [글자] : 글자로 시작하는 긴 단어(끄투, 어인정 포함)를 알려줍니다.\n\n"
 
-      let temp_C = String(hangang_temp) + "°C"; //섭씨
-      let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
-      let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
-      let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
-      if(msg_data[1] == '화씨') replier.reply("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
-      else replier.reply("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n당신은 소중한 사람입니다.\n자살예방상담전화 1393\n청소년전화 1388");
-    }catch(e){
-      replier.reply("에러!\n" + e);
-    }
-  }
-  
-  else if(msg_data[0]=="!코드업")
-  {
-    if(msg_data.length<2) replier.reply("찾으려는 아이디를 입력하세요.\n(!코드업 [아이디])");
-    else replier.reply(M.CodeUPRank_Function(msg_data[1]));
-  }
-  else if(msg_data[0]=="!시간표")
-  {
-    var tm;
-    if(msg_data[1]=="내일") tm=1;
-    replier.reply(M.Timetable_Function(tm));
-  }
+                                  + "!산화수 [화학식](이온가수) : 산화수를 알려줍니다.\n"
+                                  + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다.\n\n"
 
-  else if(msg_data[0]=="!코로나") replier.reply(M.Corona_Function());
+                                  + "#개발예정# !과제 : 과제를 보여줍니다.\n"
+                                  );
+          break;
+        //정보
+        case "정보": replier.reply("북곽봇\n"
+                                    + "개발자 : 나태양\n"
+                                    + "버전 : dev 16(20210512)\n"
+                                    + "소스 : https://github.com/hegelty/BUKGWAKBOT\n"
+                                    + "\u200b".repeat(500)
+                                    + "라이선스\n\n"
+                                    + " ▣comcigan\nhttps://github.com/darkapplepower/comcigan\n"
+                                    + 'MIT License\n\nCopyright (c) 2020 darkapplepower\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.'
+                                    );
+          break;
+        //상태
+        case "상태": replier.reply(M.PhoneData_Function()); break;
 
-  else if(msg_data[0]=="!급식")
-  {
-    var tm=0,type=0,reset=false;
-    if(msg_data[1]=="내일") tm=1;
+        //단순응답
+        case "반장": replier.reply("명물"); break;
+        case "명물": replier.reply("반장"); break;
+        case "박주완": replier.reply("걸어다니는 공유기(7월까지)\n과학고 락커 과락\nhttps://youtube.com/channel/UC7c6gBzola8zsfq4qshphjw"); break;
+        case "짜릿짜릿해": replier.reply("1.\nsoundcloud.com/seob88861/mp3\n2.\nyoutu.be/oq0VGRQ9J-0"); break;
 
-    if(msg_data[tm+1]=="아침") type=1;
-    else if(msg_data[tm+1]=="점심") type=2;
-    else if(msg_data[tm+1]=="저녁") type=3;
+        //자가진단
+        case "자가진단":
+          if(msg_data[1]=="확인") replier.reply(AS.Check_SelfCheck());
+          else if(sender=="나태양")replier.reply(AS.Autoselfcheck_Function());
+          break;
+        
+        //핫스팟
+        case "공유기":
+        case "핫스팟":
+          if(msg_data[1]=="이름변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완")){
+            hotspot_data.이름 = msg.split("-")[1];
+            FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
+            replier.reply("핫스팟의 이름이 " + hotspot_data.이름 + "로 변경되었습니다.");
+          }
+          else if(msg_data[1]=="비밀번호변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완")){
+            hotspot_data.비밀번호 = msg.split("-")[1];
+            FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
+            replier.reply("핫스팟의 비밀번호가 " + hotspot_data.비밀번호 + "로 변경되었습니다.");
+          }
+          else replier.reply("박주완의 핫스팟\n이름 : " + hotspot_data.이름 + "\n비밀번호 : " + hotspot_data.비밀번호);
+          break;
 
-    if(msg_data[1]=="리로드") reset=true;
+        //급식
+        case "급식":
+          var tm=0,type=0,reset=false;
+          if(msg_data[1]=="내일") tm=1;
+      
+          if(msg_data[tm+1]=="아침") type=1;
+          else if(msg_data[tm+1]=="점심") type=2;
+          else if(msg_data[tm+1]=="저녁") type=3;
+      
+          if(msg_data[1]=="리로드") reset=true;
+      
+          replier.reply(M.Meal_Function(tm,type,reset));
+          break;
+        
+        //시간표
+        case "시간표":
+          var tm;
+          if(msg_data[1]=="내일") tm=1;
+          replier.reply(M.Timetable_Function(tm));
+          break;
 
-    replier.reply(M.Meal_Function(tm,type,reset))
-  }
+        //도서검색
+        case "책": replier.reply(M.Library_Search(msg.substr(2))); break;
+        
+        //코로나 현황
+        case "코로나": replier.reply(M.Corona_Function()); break;
 
-  else if(msg_data[0]=="!유효숫자") replier.reply(M.Significant_figures(msg_data[1]));
-  else if(msg_data[0]=="!산화수") replier.reply(M.Oxidation_Number(msg_data[1]));
+        //코드업 정보
+        case "코드업":
+          if(msg_data.length<2) replier.reply("찾으려는 아이디를 입력하세요.\n(!코드업 [아이디])");
+          else replier.reply(M.CodeUPRank_Function(msg_data[1]));
+          break;
 
-  else if(msg_data[0]=="!상태") replier.reply(M.PhoneData_Function());
+        //유효숫자 구하기
+        case "유효숫자": replier.reply(M.Significant_figures(msg_data[1])); break;
 
-  else if(msg_data[0]=="!가위바위보") replier.reply(G.RSP(msg_data[1]));
-  else if(msg_data[0]=="!랜덤숫자") replier.reply(G.RandNum(msg_data[1],msg_data[2]));
-  else if(msg_data[0]=="!랜덤목록") replier.reply(G.RandList(msg_data[1]));
+        //산화수 구하기
+        case "산화수": replier.reply(M.Oxidation_Number(msg_data[1])); break;
 
-  FS.append(chat_log_route, today.toLocaleString() + " " +room + " " + sender + ":" + msg +"\n\n");
-}
-}
+        //가위바위보
+        case "가위바위보": replier.reply(G.RSP(msg_data[1])); break;
 
-//아래 4개의 메소드는 액티비티 화면을 수정할때 사용됩니다.
-function onCreate(savedInstanceState, activity) {
-  var textView = new android.widget.TextView(activity);
-  textView.setText("Hello, World!");
-  textView.setTextColor(android.graphics.Color.DKGRAY);
-  activity.setContentView(textView);
-}
+        //날씨
+        case "날씨" : 
+          if(msg_data.length<2||msg_data[1]=="내일"||msg_data[1]=="모레") area = "";
+          else area = msg_data[1];
+      
+          if(msg_data[1]=="내일"||msg_data[2]=="내일") day=1;
+          else if(msg_data[1]=="모레"||msg_data[2]=="모레") day=2;
+          else day=0;
+          replier.reply(M.Weather_Function(area,day)); 
 
-function onStart(activity) {
-}
-function onResume(activity) {}
+          break;
+        
+        //한강 수온
+        case "한강수온": replier.reply(M.Hangang_Function(msg_data[1])); break;
 
-function onPause(activity) {}
+        //번역
+        case "번역": replier.reply(M.getTranslate(msg_data[1],msg.replace(msg_data[0],"").replace(msg_data[1],""))); break;
+        case "단축": replier.reply(M.shorten(msg.replace("!단축 ",""))); break;
 
-function onStop(activity) {}
+        //랜덤숫자 뽑기
+        case "랜덤숫자": replier.reply(G.RandNum(msg_data[1],msg_data[2])); break;
+        //랜덤목록 뽑기
+        case "랜덤목록": replier.reply(G.RandList(msg_data[1])); break;
+
+        //끄투 긴단어검색
+        case "긴단어": replier.reply(G.Kkutu_Long(msg_data[1][0])); break;
+    }}FS.append(chat_log_route + room + ".txt", today.toLocaleString() + " " + sender + ":" + msg +"\n\n");
+}}
 
 //핫스팟 데이터 읽기
-function ReadHotspot()
-{
+function ReadHotspot() {
   hotspot_data = JSON.parse(FS.read(hotspot_file_route));
   hotspot_readed = true;
 }

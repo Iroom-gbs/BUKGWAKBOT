@@ -14,21 +14,25 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
           let today = new Date();
           hour = today.getHours();
           min = today.getMinutes();
+          day=today.getDay();
+          if(day!=0&&day!=6){
           if(hour==7&&min>=50&&!morning)
           {
             morning=true;
             replier.reply(AS.Autoselfcheck_Function());
             replier.reply(M.Meal_Function(0,0,0));
             replier.reply(M.Timetable_Function(0));
+            replier.reply(AS.Check_SelfCheck());
+            dinner=false;
           }
-          else if(hour==12&&min>=0&&!launch) {replier.reply(M.Meal_Function(0,2,0));launch=true;}
-          else if(hour==17&&min>=10&&!dinner) {replier.reply(M.Meal_Function(0,2,0));dinner=true;}
-          
+          else if(hour==12&&min>=0&&!launch) {replier.reply(M.Meal_Function(0,2,0));morning=false;launch=true;}
+          else if(hour==17&&min>=10&&!dinner) {replier.reply(M.Meal_Function(0,3,0));launch=false;dinner=true;}
+          }
           Log.debug(M.numberPad(String(hour),2) + M.numberPad(String(min),2));
           java.lang.Thread.sleep(1000*60);
         }
     }
-    else if(sender=="나태양"&&msg=="!정지")
+    else if(sender=="나태양"&&msg=="!멈춰")
     {
         while(loop) loop=0;
         replier.reply("정지합니다");
