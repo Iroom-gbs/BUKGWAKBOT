@@ -65,8 +65,9 @@ function Kkutu_Long(c)
     }
     return result;
 }
-//초성 구하기
+
 /*
+/초성 구하기
 https://cafe.naver.com/nameyee
 MIT License
 */

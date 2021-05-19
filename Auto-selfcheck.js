@@ -29,6 +29,7 @@ function Autoselfcheck_Function() {
   return result;
 }
 
+//확인
 function Check_SelfCheck() {
     url = JSON.parse(Jsoup.connect("http://193.123.246.37/api/isSurvey")
                     .data("org","J100005167")

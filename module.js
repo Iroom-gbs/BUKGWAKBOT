@@ -5,7 +5,7 @@ const FS = FileStream;
 
 //급식에 필요한 변수들
 var MealDataDate = new Array("-1","-1");
-var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
+var mealdata = new Array(new Array("","",""), new Array("","",""));
 
 ///////////////시간표///////////////
 function Timetable_Function(tm) //tm : 오늘(false)/내일(true)
