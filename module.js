@@ -3,13 +3,19 @@ const comci = require('comci.js');
 const scriptName = "module";
 const FS = FileStream;
 
+const kalingModule = require('kaling').Kakao()
+const Kakao = new kalingModule;
+Kakao.init("d1b87ff979264dd8186e3dda6e5d0524")
+Kakao.login('id','pw'); 
+
+const Lw = "\u200b".repeat(500);
+
 //급식에 필요한 변수들
 var MealDataDate = new Array("-1","-1");
-var mealdata = new Array(new Array("","",""), new Array("","",""));
+var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
 
 ///////////////시간표///////////////
-function Timetable_Function(tm) //tm : 오늘(false)/내일(true)
-{
+function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
   try {
     let today = new Date();
     let year = String(today.getFullYear()); // 년도
@@ -92,7 +98,6 @@ function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
     return "에러!\n" + e;
   }
 }
-
 function RenewMealData(year, month, date, tommorrow) {
   try{
     let KEY = "d31921b2d9014e368cd685b00cea66c9"; //인증키
@@ -117,7 +122,7 @@ function RenewMealData(year, month, date, tommorrow) {
         if(row.MMEAL_SC_NM=="조식") type = 0;
         else if(row.MMEAL_SC_NM=="중식") type = 1;
         else type = 2;
-        mealdata[tommorrow][type] += row.MMEAL_SC_NM + "\n"
+        mealdata[tommorrow][type]  = row.MMEAL_SC_NM + "\n"
                                    + "----------\n"
                                    + formatting_meal(row.DDISH_NM)
                                    + "\n"+ row.CAL_INFO;
@@ -130,29 +135,31 @@ function RenewMealData(year, month, date, tommorrow) {
     Log.debug("에러!\n" + e);
   }
 }
-
-function formatting_meal(str)
-{
+function formatting_meal(str) {
   var menu = str;
   menu = menu.replace(/[0-9]/g, "");
   menu = replaceAll(menu," ","\n");
   menu = replaceAll(menu, "*", "\n");
   menu = replaceAll(menu, "$", "\n");
   menu = replaceAll(menu, ".", "\n");
+  menu = replaceAll(menu, "뽱", "\n");
+  menu = replaceAll(menu, "컁", "\n");
+  menu = replaceAll(menu, "꿜", "\n");
   menu = replaceAll(menu, "(조)", "\n");
   menu = replaceAll(menu, "(조/과)", "\n");
   menu = replaceAll(menu, "(조과)", "\n");
   menu = replaceAll(menu, "(과)", "\n");
   menu = replaceAll(menu, "(조식)", "\n");
-  menu = replaceAll(menu, "/", "\n");
-  menu = menu.replace(/과\n/, "").replace(/\n$/gm, '');
+  menu = replaceAll(menu, "(석/과)", "\n");
+  menu = replaceAll(menu, "\n발\n", "\n");
+  menu = replaceAll(menu,  "\n과\n","\n")
+  menu = menu.replace(/\n$/gm, '');
   
   return menu;
 }
 
 ///////////////날씨///////////////
-function Weather_Function(area, day)
-{
+function Weather_Function(area, day) {
   day=Number(day);
   area = new String(area);
   var result = new String("");
@@ -169,10 +176,9 @@ function Weather_Function(area, day)
     result = "-" +year+"년"+month+"월"+date+"일 날씨정보 -\n\n";
     var url = Jsoup.connect("https://search.naver.com/search.naver?query="+area + "날씨 " + month+"월 "+date+"일").ignoreContentType(true).get();
     if(day==0){ //오늘
-      try
-      {
+      try {
         result += url.select("div.sort_box._areaSelectLayer > div > div > span > em").text()
-                  + "\n\n" + url.select("li:nth-child(1) > p").text()
+                  + "\n\n" + url.select("div.today_area._mainTabContent > div.main_info > div > ul > li:nth-child(1) > p").text()
                   + "\n ■현재온도" + url.select("div.main_info > div > p > span.todaytemp").text() + "°C"
                   + "\n ■최저 " + url.select("span.min > span").text()+ "°C 최고"+ url.select("span.max > span").text() + "°C"
                   + "\n ■체감온도 " + url.select("span.sensible > em > span").text() + "°C"
@@ -185,12 +191,11 @@ function Weather_Function(area, day)
     }
 
     else if(day==1){ //내일
-      try
-      {
+      try {
         result += url.select("div.sort_box._areaSelectLayer > div > div > span > em").text()
-                + "\n\n◈오전\n  "+ url.select("li:nth-child(1) > p").text()
+                + "\n\n◈오전\n  "+ url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div:nth-child(4) > div:nth-child(2) > div > ul > li:nth-child(1) > p").text()
                 + "\n  ■기온 " + url.select("div:nth-child(4) > div:nth-child(2) > p > span.todaytemp").text()+ "°C"
-                + "\n\n◈오후  " + url.select("div:nth-child(4) > div:nth-child(3) > div > ul > li:nth-child(1) > p").text()
+                + "\n\n◈오후  " + url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div:nth-child(4) > div:nth-child(3) > div > ul > li:nth-child(1) > p").text()
                 + "\n  ■기온 " + url.select("div:nth-child(4) > div:nth-child(3) > p > span.todaytemp").text()+ "°C"
                 + "\n\n자료 : 네이버";  
         if((url.select("div.api_title_area > h2").text()).length<1) return "지역을 찾을 수 없습니다.";
@@ -199,12 +204,11 @@ function Weather_Function(area, day)
     }
 
     else{ //모레
-      try
-      {
+      try {
         result += url.select("div.sort_box._areaSelectLayer > div > div > span > em").text()
-                + "\n\n◈오전\n  "+ url.select("div:nth-child(2) > div > ul > li:nth-child(1) > p").text()
+                + "\n\n◈오전\n  "+ url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div.tomorrow_area.day_after._mainTabContent > div:nth-child(2) > div > ul > li:nth-child(1) > p").text()
                 + "\n  ■기온 " + url.select("div:nth-child(2) > p > span.todaytemp").text()+ "°C"
-                + "\n\n◈오후  " + url.select("div:nth-child(3) > div > ul > li:nth-child(1) > p").text()
+                + "\n\n◈오후  " + url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div.tomorrow_area.day_after._mainTabContent > div:nth-child(3) > div > ul > li:nth-child(1) > p").text()
                 + "\n  ■기온 " + url.select("div:nth-child(3) > p > span.todaytemp").text()+ "°C"
                 + "\n\n자료 : 네이버";  
         if((url.select("div.api_title_area > h2").text()).length<1) return "지역을 찾을 수 없습니다.";
@@ -217,10 +221,9 @@ function Weather_Function(area, day)
 }
 
 ///////////////코로나///////////////
-function Corona_Function()
-{
+function Corona_Function() {
   var result ="코로나19 현황\n\n";
-  try{
+  try {
     var url = Jsoup.connect("http://ncov.mohw.go.kr/bdBoardList_Real.do").get();
     result += "일일 현황" + url.select("#content > div > h5:nth-child(4) > span").text()
             + "\n----------\n확진자 : " + url.select("div:nth-child(1) > ul > li:nth-child(1) > dl > dd").text() + " 명"
@@ -239,9 +242,8 @@ function Corona_Function()
 }
 
 ///////////////한강수온///////////////
-function Hangang_Function(type)
-{
-  try{
+function Hangang_Function(type) {
+  try {
     today = new Date();
     hour = today.getHours();  // 시간
     HangangData = JSON.parse(Jsoup.connect("http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/").ignoreContentType(true).get().text().split('[')[1].split(']')[0]);
@@ -261,10 +263,9 @@ function Hangang_Function(type)
 }
 
 ///////////////코드업///////////////
-function CodeUPRank_Function(name)
-{
+function CodeUPRank_Function(name) {
   var result = "";
-  try{
+  try {
     var url = Jsoup.connect("https://codeup.kr/userinfo.php?user="+name).get();
     result += url.select("#lv > strong > span").text() + "\n"
             + url.select("body > main > div.container.mt-2 > blockquote > footer").text()
@@ -279,10 +280,8 @@ function CodeUPRank_Function(name)
 ///////////////도서검색///////////////
 function Library_Search(book_name) {
   var result = "";
-  try{
-    var url = JSON.parse(Jsoup.connect("https://saroro.develope.dev/book.php")
-              .data("school","경기북과학고등학교")
-              .data("book",book_name)
+  try {
+    var url = JSON.parse(Jsoup.connect("https://saroro.develope.dev/book.php?school=경기북과학고등학교&book="+book_name)
               .get().text());
     if(url.result!="성공") throw(url.reason); //실패시 throw
     if(url.content.경기.bookCount==0) throw("검색 결과가 없습니다."); //검색결과 0개일때
@@ -306,8 +305,7 @@ function Library_Search(book_name) {
 }
 
 ///////////////폰 상태///////////////
-function PhoneData_Function()
-{
+function PhoneData_Function() {
   var device_profile_name = android.provider.Settings.Global.getString(Api.getContext().getContentResolver(), "device_name");
   return  "북곽봇상태\n\n휴대폰 이름 : " + device_profile_name
         + "\n안드로이드버전 : " + Device.getAndroidVersionName()
@@ -349,6 +347,36 @@ function Significant_figures(n) {
   }
 }
 
+
+///////////////음악검색///////////////
+function MusicSearch(title, room){
+  var MusicData = Jsoup.connect("https://search.daum.net/search?w=music&m=song&nil_search=btn&DA=NTB&q=" + title).ignoreContentType(true).get();
+  MusicData = MusicData.select("#musicNColl > div.coll_cont > ul > li.fst");
+  MusicThumbnail = MusicData.select("div.wrap_thumb > a > img").attr("src");
+  MusicTitle = MusicData.select("div.wrap_cont > div > div > a.fn_tit").text();
+  MusicLink = String(MusicData.select("div.wrap_cont > div > div > a.fn_tit").attr("href")).split("g/");
+  MusicLink = MusicLink[1];
+  MusicArtist = MusicData.select("div.wrap_cont > div > dl:nth-child(2) > dd > a").text();
+
+  Kakao.send(room,{
+    "link_ver" : "4.0",
+    "template_id" : 55964,
+    "template_args" : {
+      "title": MusicTitle,
+      "image" : MusicThumbnail,
+      "artist" : MusicArtist,
+      "link" : MusicLink
+    }
+    }, "custom");
+}
+
+
+/*
+* 이 소스는 조유리즈님이 만드신 번역 소스입니다.
+* 상업적 이용 불가, 배포 불가 
+* 라이선스 : MIT
+*/
+
 ///////////////번역///////////////
 const getTranslate = (resultLanguage, q) => {
   try{
@@ -368,7 +396,6 @@ const getTranslate = (resultLanguage, q) => {
   return result;
   }catch(e){return "!번역 [언어] [내용]"}
 }
-
 const getLanguage = (a) => {
   const language = {
       '영어': 'en',
@@ -393,6 +420,7 @@ const getLanguage = (a) => {
   return language[a];
 }
 
+///////////////링크 단축///////////////
 function shorten(url) {
   result = Jsoup.connect("http://di.do/index.php").data("u", url).post().select("input[name^=n]").attr("value");
   if(!result.split("do/")[1]=="EU") return "URL이 올바르지 않습니다.";
@@ -403,6 +431,47 @@ function PingPong(str) {
   try{
     return JSON.parse(Jsoup.connect("https://builder.pingpong.us/api/builder/pingpong/chat/demo?query=" + str).ignoreContentType(true).get().text()).response.replies[0].reply
   }catch(e){ return e;}
+}
+
+//시험까지 남은 시간
+function LeftTimeToExam()
+{
+  var examTime = new Date(2021,10,6,9,10,00,00);
+  var nowTime = new Date();
+  var timeGap = examTime-nowTime;
+
+  let gapSec = parseInt(timeGap/1000);
+  let gapMin = parseInt(gapSec / 60);
+  gapSec = gapSec % 60;
+  let gapHour = parseInt(gapMin / 60);
+  gapMin = gapMin % 60;
+  let gapDay = parseInt(gapHour / 24);
+  gapHour = gapHour % 24;
+
+  return gapDay + "일 " + gapHour + "시간 " + gapMin + "분 " + gapSec + "초(" + parseInt(timeGap/1000) +"초)";
+}
+///////////////기프티콘 낚시////////////////
+function Giftcon(room, type){
+  var image ="";
+  switch(type)
+  {
+    case "아이폰" : image = "https://hwanggu1.github.io/nion-cdn/iphone_mini4.png"; break;
+    case "싸이버거" : image = "https://hwanggu1.github.io/nion-cdn/moms.png"; break;
+    case "플레이" : image = "https://hwanggu1.github.io/nion-cdn/giftcard.png"; break;
+    case "롤" : image = "https://hwanggu1.github.io/nion-cdn/gift_0403_3.png"; break;
+    case "스위치" : image = "https://hwanggu1.github.io/nion-cdn/gift_0403_01.png"; break;
+    default : image = "https://hwanggu1.github.io/nion-cdn/random1.png";
+  }
+  Kakao.send(room,{
+      link_ver : "4.0",
+      template_id : 53767,
+      template_args : {
+      title : "선물과 메시지가 도착하였습니다.",
+      des : "",
+      button: "선물함으로 가기",
+      image : image
+      }
+    }, "custom");
 }
 
 //숫자 앞을 0으로 채움
@@ -417,7 +486,7 @@ function replaceAll(str, searchStr, replaceStr) {
 }
 
 ///////////////산화수///////////////
-function Oxidation_Number(s)
+function   Oxidation_Number(s)
 {
   var Oneja = {'H':0,'He':0,'Li':0,'Be':0,'B':0,'C':0,'N':0,'O':0,'F':0,'Ne':0,'Na':0,'Mg':0,'Al':0,'Si':0,'P':0,'S':0,'Cl':0,'Ar':0,'K':0,'Ca':0,'Sc':0,'Ti':0,'V':0,'Cr':0,'Mn':0,'Fe':0,'Co':0,'Ni':0,'Cu':0,'Zn':0,'Ga':0,'Ge':0,'As':0,'Se':0,'Br':0,'Kr':0,'Rb':0,'Sr':0,'Y':0,'Zr':0,'Nb':0,'Mo':0,'Tc':0,'Ru':0,'Rh':0,'Pd':0,'Ag':0,'Cd':0,'In':0,'Sn':0,'Sb':0,'Te':0,'I':0,'Xe':0,'Cs':0,'Ba':0,'La':0,'Ce':0,'Pr':0,'Nd':0,'Pm':0,'Sm':0,'Eu':0,'Gd':0,'Tb':0,'Dy':0,'Ho':0,'Er':0,'Tm':0,'Yb':0,'Lu':0,'Hf':0,'Ta':0,'W':0,'Re':0,'Os':0,'Ir':0,'Pt':0,'Au':0,'Hg':0,'Tl':0,'Pb':0,'Bi':0,'Po':0,'At':0,'Rn':0,'Fr':0,'Ra':0,'Ac':0,'Th':0,'Pa':0,'U':0,'Np':0,'Pu':0,'Am':0,'Cm':0,'Bk':0,'Cf':0,'Es':0,'Fm':0,'Md':0,'No':0,'Lr':0,'Rf':0,'Db':0,'Sg':0,'Bh':0,'Hs':0,'Mt':0};
   var Result = {'H':0,'He':0,'Li':0,'Be':0,'B':0,'C':0,'N':0,'O':0,'F':0,'Ne':0,'Na':0,'Mg':0,'Al':0,'Si':0,'P':0,'S':0,'Cl':0,'Ar':0,'K':0,'Ca':0,'Sc':0,'Ti':0,'V':0,'Cr':0,'Mn':0,'Fe':0,'Co':0,'Ni':0,'Cu':0,'Zn':0,'Ga':0,'Ge':0,'As':0,'Se':0,'Br':0,'Kr':0,'Rb':0,'Sr':0,'Y':0,'Zr':0,'Nb':0,'Mo':0,'Tc':0,'Ru':0,'Rh':0,'Pd':0,'Ag':0,'Cd':0,'In':0,'Sn':0,'Sb':0,'Te':0,'I':0,'Xe':0,'Cs':0,'Ba':0,'La':0,'Ce':0,'Pr':0,'Nd':0,'Pm':0,'Sm':0,'Eu':0,'Gd':0,'Tb':0,'Dy':0,'Ho':0,'Er':0,'Tm':0,'Yb':0,'Lu':0,'Hf':0,'Ta':0,'W':0,'Re':0,'Os':0,'Ir':0,'Pt':0,'Au':0,'Hg':0,'Tl':0,'Pb':0,'Bi':0,'Po':0,'At':0,'Rn':0,'Fr':0,'Ra':0,'Ac':0,'Th':0,'Pa':0,'U':0,'Np':0,'Pu':0,'Am':0,'Cm':0,'Bk':0,'Cf':0,'Es':0,'Fm':0,'Md':0,'No':0,'Lr':0,'Rf':0,'Db':0,'Sg':0,'Bh':0,'Hs':0,'Mt':0};
