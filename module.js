@@ -138,7 +138,6 @@ function RenewMealData(year, month, date, tommorrow) {
 function formatting_meal(str) {
   var menu = str;
   menu = menu.replace(/[0-9]/g, "");
-  menu = replaceAll(menu," ","\n");
   menu = replaceAll(menu, "*", "\n");
   menu = replaceAll(menu, "$", "\n");
   menu = replaceAll(menu, ".", "\n");
@@ -151,6 +150,9 @@ function formatting_meal(str) {
   menu = replaceAll(menu, "(과)", "\n");
   menu = replaceAll(menu, "(조식)", "\n");
   menu = replaceAll(menu, "(석/과)", "\n");
+  menu = replaceAll(menu, "(옥정)", "\n");
+  menu = replaceAll(menu, "(완)", "\n");
+  menu = replaceAll(menu, "CB", "\n");
   menu = replaceAll(menu, "\n발\n", "\n");
   menu = replaceAll(menu,  "\n과\n","\n")
   menu = menu.replace(/\n$/gm, '');
@@ -427,13 +429,14 @@ function shorten(url) {
   return result;
 }
 
+///////////////핑퐁///////////////
 function PingPong(str) {
   try{
     return JSON.parse(Jsoup.connect("https://builder.pingpong.us/api/builder/pingpong/chat/demo?query=" + str).ignoreContentType(true).get().text()).response.replies[0].reply
   }catch(e){ return e;}
 }
 
-//시험까지 남은 시간
+///////////////시험까지 남은 시간///////////////
 function LeftTimeToExam()
 {
   var examTime = new Date(2021,10,6,9,10,00,00);
@@ -450,6 +453,7 @@ function LeftTimeToExam()
 
   return gapDay + "일 " + gapHour + "시간 " + gapMin + "분 " + gapSec + "초(" + parseInt(timeGap/1000) +"초)";
 }
+
 ///////////////기프티콘 낚시////////////////
 function Giftcon(room, type){
   var image ="";
