@@ -459,12 +459,23 @@ function Giftcon(room, type){
   var image ="";
   switch(type)
   {
-    case "아이폰" : image = "https://hwanggu1.github.io/nion-cdn/iphone_mini4.png"; break;
-    case "싸이버거" : image = "https://hwanggu1.github.io/nion-cdn/moms.png"; break;
-    case "플레이" : image = "https://hwanggu1.github.io/nion-cdn/giftcard.png"; break;
-    case "롤" : image = "https://hwanggu1.github.io/nion-cdn/gift_0403_3.png"; break;
-    case "스위치" : image = "https://hwanggu1.github.io/nion-cdn/gift_0403_01.png"; break;
-    default : image = "https://hwanggu1.github.io/nion-cdn/random1.png";
+    case "3090" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/3090.png"; break;
+    case "3990X" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/3990X.png"; break;
+    case "기프트카드10" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/기프트카드5000.png"; break;
+    case "기프트카드5" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/기프트카드10000.png"; break;
+    case "롤" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/롤RP.png"; break;
+    case "싸이버거" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/싸이버거.png"; break;
+    case "아메리카노" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아메리카노.png"; break;
+    case "아이스크림케이크" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아메리카노.png"; break;
+    case "아이폰12" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아이폰12.png"; break;
+    case "아이폰미니" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아이폰미니.png"; break;
+    case "에어팟" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/에어팟.png"; break;
+    case "조기졸업권" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/처갓집.png"; break;
+    case "처갓집" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/컵밥.png"; break;
+    case "컵밥" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/컵밥.png"; break;
+    case "페레레로쉐" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/페레레로쉐.png"; break;
+    case "홍삼" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/홍삼.png"; break;
+    default : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/3090.png";
   }
   Kakao.send(room,{
       link_ver : "4.0",
@@ -472,7 +483,6 @@ function Giftcon(room, type){
       template_args : {
       title : "선물과 메시지가 도착하였습니다.",
       des : "",
-      button: "선물함으로 가기",
       image : image
       }
     }, "custom");
