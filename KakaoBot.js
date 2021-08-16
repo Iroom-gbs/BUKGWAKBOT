@@ -2,7 +2,7 @@
  * 북곽봇
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev20(20210629)
+ * 현재 버전 dev22(20210816)
  * 
 © 2021 HegelTY, All rights reserved.
 MIT License
@@ -37,10 +37,6 @@ const AS = Bridge.getScopeOf("autoselfcheck");
 const G = Bridge.getScopeOf("gamemodule");
 const P = Bridge.getScopeOf("pingpong");
 
-let hotspot_file_route = "/sdcard/BUKGWAKBOT/hotspot.json";
-var hotspot_readed=false;
-var hotspot_data;
-
 let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log/";
 
 //let chat_log_route = "/sdcard/BUKGWAKBOT/todolist.txt";
@@ -52,24 +48,21 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   if(room[0]!="."){
     msg_data = msg.split(' ');
 
-    //핫스팟 데이터 로드
-    if(hotspot_readed == false) ReadHotspot();
     if(msg_data[0]=="북곽아"){replier.reply(M.PingPong(msg.substr(3)));}
-    if(msg_data[0]=="북아"){replier.reply(P.PingPong(sender,msg.substring(3)));}
     if(msg[0]=="!"){
       switch(msg_data[0].replace("!","")){
         case "업데이트": replier.reply(
-                                      "업데이트 노트 - dev20(20210629)\n"
+                                      "업데이트 노트 - dev22(20210816)\n"
                                       +"----------\n"+ "\u200b".repeat(500)
                                       +"추가\n"
-                                      +' 노래검색 기능이 생겼습니다. "!노래검색 [제목]"으로 이용할 수 있습니다.\n'
-                                      +' 롤 전적 검색 기능이 생겼습니다. "!롤 [소환사명]"으로 이용할 수 있습니다.(미완성)\n'
-                                      +' 롤 전적 갱신 기능이 생겼습니다. "!롤 갱신 [소환사명]"으로 이용할 수 있습니다.\n'
-                                      +' 시험까지 남은 시간 계산 기능이 생겼습니다. "!남은시간"으로 이용할 수 있습니다.\n'
-                                      +' 기프티콘 낚시 기능이 생겼습니다. "!기프티콘 (종류)"로 이용할 수 있습니다.\n\n'
+                                      +' 줌, 시간표가 2학기에 맞춰 업데이트 되었습니다.\n'
+                                      +' 도서검색이 부활합니다.\n'
+                                      +' 노래 가사 검색이 추가되었습니다.\n'
+                                      +' 현재 방송중인 TV 프로그램 정보가 추가되었습니다.'
                                       +"개선\n"
-                                      +' 날씨 검색시 발생하던 오류를 해결했습니다.\n'
-                                      +' 급식에서 의미없는 글자들을 추가로 제거했습니다.\n'
+                                      +' 시간표를 개선했습니다.\n'
+                                      +"삭제\n"
+                                      +' 자가진단 확인 기능이 삭제되었습니다.\n'
                                       );break;
         //도움말
         case "도움말":
@@ -79,8 +72,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                   + "() : 선택  [] : 필수\n\n"
                                   + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                                   + "!시간표 (내일) : 시간표를 보여줍니다.\n"
-                                  + "!자가진단 확인 : 자가진단 참여 여부를 알려줍니다.\n"
-                                  + "!책 [제목] : 도서관에서 책을 검색합니다.\n\n"
+                                  + "!책 (제목) : 도서관에서 책을 검색합니다.\n\n"
 
                                   + "!정보 : 북곽봇 정보를 알려줍니다.\n"
                                   + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n\n"
@@ -99,7 +91,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                   + "!롤 [소환사명] : OP.GG에서 소환서의 전적을 검색합니다.(미완)\n"
                                   + "!롤 갱신 [소환사명] : OP.GG에서 소환사의 전적을 갱신합니다.\n\n"
 
-                                  + "!노래검색 [제목] : 노래를 검색합니다.\n\n"
+                                  + "!노래검색 [제목] : 노래를 검색합니다.\n"
+                                  + "!가사 [제목] : 노래의 가사를 보여줍니다.\n"
+                                  + "!TV : 현재 방영중인 TV 프로그램 목록을 보여줍니다.\n\n"
 
                                   + "!산화수 [화학식](이온가수) : 산화수를 알려줍니다.\n"
                                   + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다.\n\n"
@@ -110,7 +104,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         //정보
         case "정보": replier.reply("북곽봇\n"
                                     + "개발자 : 나태양\n"
-                                    + "버전 : dev 20(20210629)\n"
+                                    + "버전 : dev22(20210816)\n"
                                     + "소스 : https://github.com/hegelty/BUKGWAKBOT\n"
                                     + "\u200b".repeat(500)
                                     + "라이선스\n\n--------------------\n"
@@ -129,6 +123,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                     + ' ● GNU General Public License version 3.0\n\thttps://opensource.org/licenses/lgpl-3.0.html'
                                     );
           break;
+
         //상태
         case "상태": replier.reply(M.PhoneData_Function()); break;
 
@@ -140,25 +135,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         //자가진단
         case "자가진단":
-          if(msg_data[1]=="확인") replier.reply(AS.Check_SelfCheck());
-          else if(sender=="나태양")replier.reply(AS.Autoselfcheck_Function());
+          if(sender=="나태양")replier.reply(AS.Autoselfcheck_Function());
           break;
         
-        //핫스팟
-        case "공유기":
-        case "핫스팟":
-          if(msg_data[1]=="이름변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완")){
-            hotspot_data.이름 = msg.split("-")[1];
-            FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
-            replier.reply("핫스팟의 이름이 " + hotspot_data.이름 + "로 변경되었습니다.");
-          }
-          else if(msg_data[1]=="비밀번호변경"&&msg_data[2]=="-"&&(sender=="나태양"||sender=="박주완")){
-            hotspot_data.비밀번호 = msg.split("-")[1];
-            FS.write(hotspot_file_route,JSON.stringify(hotspot_data));
-            replier.reply("핫스팟의 비밀번호가 " + hotspot_data.비밀번호 + "로 변경되었습니다.");
-          }
-          else replier.reply("박주완의 핫스팟\n이름 : " + hotspot_data.이름 + "\n비밀번호 : " + hotspot_data.비밀번호);
-          break;
 
         //급식
         case "급식":
@@ -176,17 +155,18 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         
         //시간표
         case "시간표":
-          var tm;
+          var tm=0, period=0;
           if(msg_data[1]=="내일") tm=1;
           replier.reply(M.Timetable_Function(tm));
+          break;
+
+        case "줌":
+          replier.reply("ZOOM ID/PW\n\n" + Lw + "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282\n수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173\n물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020\n화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712\n생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500\n지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234\n물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412\n화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413\n지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS\n생물(김정미)\n ▷ZOOM ID : 745 635 4367\n ▷ZOOM PW : 48904\n정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082\n국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0\n통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021\n영어(이지현)\n ▷ZOOM ID : 864 663 3910\n ▷ZOOM PW : 11111\n영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777\n체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001\n융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412");
           break;
 
         //도서검색
         case "책": replier.reply(M.Library_Search(msg.substr(2))); break;
         
-        //클래스카드
-//        case "클래스카드": replier.reply("GBS 2차 단어장 (예문 중심) - https://www.classcard.net/set/5221618"); break;
-
         //코로나 현황
         case "코로나": replier.reply(M.Corona_Function()); break;
 
@@ -219,7 +199,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         case "한강수온": replier.reply(M.Hangang_Function(msg_data[1])); break;
 
         //노래검색
-        case "노래검색": replier.reply(M.MelonChart(msg_data[1],room)); break;
+        case "노래검색": M.MusicSearch(msg.replace(msg_data[0],""),room); break;
+
+        //가사
+        case "가사": replier.reply(M.Lyrics(msg.replace(msg_data[0],""))); break;
+
+        //현재 TV
+        case "TV": replier.reply(M.TV_Now()); break;
 
         //번역
         case "번역": replier.reply(M.getTranslate(msg_data[1],msg.replace(msg_data[0],"").replace(msg_data[1],""))); break;
@@ -246,10 +232,4 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         default: break;
     }}
 }FS.append(chat_log_route + room + ".txt", today.toLocaleString() + " " + sender + ":" + msg +"\n\n");
-}
-
-//핫스팟 데이터 읽기
-function ReadHotspot() {
-  hotspot_data = JSON.parse(FS.read(hotspot_file_route));
-  hotspot_readed = true;
 }

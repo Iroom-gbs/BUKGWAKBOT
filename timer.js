@@ -22,8 +22,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             replier.reply(AS.Autoselfcheck_Function());
             replier.reply(M.Meal_Function(0,0,0));
             replier.reply(M.Timetable_Function(0));
-            replier.reply(AS.Check_SelfCheck());
             dinner=false;
+
+            //자동 컴파일
+            compile("module");
+            compile("test");
           }
           else if(hour==12&&min>=0&&!launch) {replier.reply(M.Meal_Function(0,2,0));morning=false;launch=true;}
           else if(hour==17&&min>=10&&!dinner) {replier.reply(M.Meal_Function(0,3,0));launch=false;dinner=true;}

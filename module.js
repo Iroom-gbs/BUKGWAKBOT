@@ -6,7 +6,7 @@ const FS = FileStream;
 const kalingModule = require('kaling').Kakao()
 const Kakao = new kalingModule;
 Kakao.init("d1b87ff979264dd8186e3dda6e5d0524")
-Kakao.login('id','pw'); 
+Kakao.login('id','pw'); 
 
 const Lw = "\u200b".repeat(500);
 
@@ -18,29 +18,106 @@ var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
 function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
   try {
     let today = new Date();
+    if(tm==true) today = new Date(today.valueOf() + 86400000);
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
     var day = today.getDay() - 1; //요일
+
+    var dateString = year + "년 " + month + "월 " + date+ "일 ";
+
+    switch(day){
+      case 0: dateString+="월요일"; break;
+      case 1: dateString+="화요일"; break;
+      case 2: dateString+="수요일"; break;
+      case 3: dateString+="목요일"; break;
+      case 4: dateString+="금요일"; break;
+      default: return (tm=0?"오늘":"내일") + "은 수업이 없습니다." + day;
+    }
     
-    if(tm==true) day+=1;
-    if(day==6) day=-1;
-    
-    var TimeTable = String("");
+    var TimeTable = dateString;
     
     var TimeTableData = comci.getTimeTable(12045,1,2); //시간표 받아오기
     
-    if(day==-1||day==5) TimeTable = "주말 시간표\n학원가셈";
-    else {
-      var i=0;
-      for(i=0;i<7;i++) {
-        TimeTable+= String(i+1)+"교시 : " + TimeTableData.시간표[day][i] + "\n";  
+    for(i=0;i<7;i++) {
+      t = TimeTableData.시간표[day][i];
+      TimeTable += "\n" + String(i+1) + "교시 : "
+      switch (t)
+      {
+          case "수1(조아)":
+              TimeTable += "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282"; break;
+          case "수1(박현)":
+              TimeTable += "수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173"; break;
+          case "물1(김형)":
+              TimeTable += "물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020"; break;
+          case "화1(이은)":
+              TimeTable += "화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712"; break;
+          case "생1(김지)":
+              TimeTable += "생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500"; break;
+          case "지1(오상)":
+              TimeTable += "지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234"; break;
+          case "물1(박규)":
+              TimeTable += "물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412"; break;
+          case "화1(김재)":
+              TimeTable += "화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413"; break;
+          case "지1(오중)":
+              TimeTable += "지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS"; break;
+          case "생1(김정)":
+              TimeTable += "생물(김정미)\n ▷ZOOM ID : 745 635 4367\n ▷ZOOM PW : 48904"; break;
+          case "정1(김현)":
+              TimeTable += "정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082"; break;
+          case "국어(전은)":
+              TimeTable += "국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0"; break;
+          case "사회(이은)":
+              TimeTable += "통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021"; break;
+          case "영1(이지)":
+              TimeTable += "영어(이지현)\n ▷ZOOM ID : 864 663 3910\n ▷ZOOM PW : 11111"; break;
+          case "영1(서원)":
+              TimeTable += "영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777"; break;
+          case "체육(이기)":
+              TimeTable += "체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001"; break;
+          case "융합(박규)":
+              TimeTable += "융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412"; break;
+          default:
+              TimeTable = "없음";
+              break;
       }
-      return year+"년 "+month+"월 "+date+"일 시간표\n"+TimeTable;
     }
+      return TimeTable;
   }catch(e) {
-    return "에러!\n" + e;
+    return "에러! : " + e;
   }
+}
+
+function Timetable_to_String(tm, period) {
+  let today = new Date();
+  if(tm==true) today = new Date(today.valueOf() + 86400000);
+  let year = String(today.getFullYear()); // 년도
+  let month = numberPad(today.getMonth() + 1, 2);  // 월
+  let date = numberPad(today.getDate(), 2);  // 날짜
+  var day = today.getDay(); //요일
+  var dateString = year + "년 " + month + "월 " + date+ "일 ";
+
+  switch(day){
+    case 0: dateString+="월요일"; break;
+    case 1: dateString+="화요일"; break;
+    case 2: dateString+="수요일"; break;
+    case 3: dateString+="목요일"; break;
+    case 4: dateString+="금요일"; break;
+    default: return (tm=0?"오늘":"내일") + "은 수업이 없습니다." + day;
+  }
+  
+  var TimeTableString = dateString;
+
+  Timetable = Timetable_Function(tm);
+  if(period == 0){
+    for(i=1;i<=7;i++)
+    {
+      TimeTableString += "\n" + i + "교시 : " + Timetable_Function(tm, i-1);
+    }
+    return TimeTableString;
+  }
+  else return TimeTableString + "\n" + period + "교시 : " + Timetable_Function(tm, period-1);
 }
 
 ///////////////급식///////////////
@@ -283,21 +360,19 @@ function CodeUPRank_Function(name) {
 function Library_Search(book_name) {
   var result = "";
   try {
-    var url = JSON.parse(Jsoup.connect("https://saroro.develope.dev/book.php?school=경기북과학고등학교&book="+book_name)
-              .get().text());
-    if(url.result!="성공") throw(url.reason); //실패시 throw
-    if(url.content.경기.bookCount==0) throw("검색 결과가 없습니다."); //검색결과 0개일때
+    var url = JSON.parse(Jsoup.connect("https://api.book.msub.kr/?book="+book_name+"&school=경기북과학고&local=경기").ignoreContentType(true).get().text());
+    if(url.status!="normal") throw("검색 결과가 없습니다."); //실패시 throw
     result += "도서검색결과\n"
-            + "검색된 책 : " + url.content.경기.bookCount + "권\n"
+            + "검색된 책 : " + url.result.length + "권\n"
             + "----------\n";
     
-    for(i=0;i<url.content.경기.bookCount;i++) { //목록출력
-      bookInfo = url.content.경기.bookList[i];
-      result += (i+1) + ". " + bookInfo.bookName + "\n"
+    for(i=0;i<url.result.length;i++) { //목록출력
+      bookInfo = url.result[i];
+      result += (i+1) + ". " + bookInfo.title + "\n"
               + "  ◈저자 : " + bookInfo.writer.replace(";","\n") + "\n"
-              + "  ◈출판사 : " + bookInfo.pub + "\n"
-              + "  ◈청구기호 : " + bookInfo.code + "\n"
-              + "  ◈상태 : " + bookInfo.state;
+              + "  ◈출판사 : " + bookInfo.company + "\n"
+              + "  ◈청구기호 : " + bookInfo.number + "\n"
+              + "  ◈대출 가능 여부 : " + bookInfo.canRental;
       if(i==0) result += "\n더보기를 눌러주세요" + "\u200b".repeat(500); //2번째부터는 더보기로
       result += "\n\n";
     }
@@ -352,13 +427,14 @@ function Significant_figures(n) {
 
 ///////////////음악검색///////////////
 function MusicSearch(title, room){
-  var MusicData = Jsoup.connect("https://search.daum.net/search?w=music&m=song&nil_search=btn&DA=NTB&q=" + title).ignoreContentType(true).get();
-  MusicData = MusicData.select("#musicNColl > div.coll_cont > ul > li.fst");
-  MusicThumbnail = MusicData.select("div.wrap_thumb > a > img").attr("src");
-  MusicTitle = MusicData.select("div.wrap_cont > div > div > a.fn_tit").text();
-  MusicLink = String(MusicData.select("div.wrap_cont > div > div > a.fn_tit").attr("href")).split("g/");
-  MusicLink = MusicLink[1];
-  MusicArtist = MusicData.select("div.wrap_cont > div > dl:nth-child(2) > dd > a").text();
+  var MusicData = JSON.parse(Jsoup.connect("https://api.music.msub.kr/?song=" + title).ignoreContentType(true).get().text());
+  if(MusicData.song.length==0) return "검색 결과가 없습니다."; //실패시 throw
+  MusicData = MusicData.song[0];
+  MusicThumbnail = MusicData.albumimg;
+  MusicTitle = MusicData.name;
+  MusicAlbum = MusicData.album;
+  MusicLink = MusicData.melonlink;
+  MusicArtist = MusicData.artist;
 
   Kakao.send(room,{
     "link_ver" : "4.0",
@@ -366,10 +442,23 @@ function MusicSearch(title, room){
     "template_args" : {
       "title": MusicTitle,
       "image" : MusicThumbnail,
-      "artist" : MusicArtist,
-      "link" : MusicLink
+      "des" : MusicArtist + " [" + MusicAlbum + "]",
+      "link" : MusicLink.replace("http://m.app.melon.com/","")
     }
     }, "custom");
+}
+
+///////////////가사///////////////
+function Lyrics(title) {
+  var MusicData = JSON.parse(Jsoup.connect("https://api.music.msub.kr/?song=" + title).ignoreContentType(true).get().text());
+  if(MusicData.song.length==0) return "검색 결과가 없습니다."; //실패시 throw
+
+  MusicData = MusicData.song[0];
+  MusicLyrics = MusicData.lyrics;
+  MusicTitle = MusicData.name;
+  MusicArtist = MusicData.artist;
+
+  return MusicTitle + "\n" + MusicArtist + "\n▣가사\n" + Lw + MusicLyrics;
 }
 
 
@@ -459,23 +548,23 @@ function Giftcon(room, type){
   var image ="";
   switch(type)
   {
-    case "3090" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/3090.png"; break;
-    case "3990X" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/3990X.png"; break;
-    case "기프트카드10" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/기프트카드5000.png"; break;
-    case "기프트카드5" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/기프트카드10000.png"; break;
-    case "롤" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/롤RP.png"; break;
-    case "싸이버거" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/싸이버거.png"; break;
-    case "아메리카노" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아메리카노.png"; break;
-    case "아이스크림케이크" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아메리카노.png"; break;
-    case "아이폰12" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아이폰12.png"; break;
-    case "아이폰미니" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/아이폰미니.png"; break;
-    case "에어팟" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/에어팟.png"; break;
-    case "조기졸업권" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/처갓집.png"; break;
-    case "처갓집" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/컵밥.png"; break;
-    case "컵밥" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/컵밥.png"; break;
-    case "페레레로쉐" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/페레레로쉐.png"; break;
-    case "홍삼" : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/홍삼.png"; break;
-    default : image = "https://github.com/hegelty/BUKGWAKBOT/tree/master/Gifticon/3090.png";
+    case "3090" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/3090.png"; break;
+    case "3990X" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/3990X.png"; break;
+    case "기프트카드10" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/기프트카드10000.png"; break;
+    case "기프트카드5" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/기프트카드5000.png"; break;
+    case "롤" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/롤RP.png"; break;
+    case "싸이버거" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/싸이버거.png"; break;
+    case "아메리카노" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/아메리카노.png"; break;
+    case "아이스크림케이크" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/아메리카노.png"; break;
+    case "아이폰12" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/아이폰12.png"; break;
+    case "아이폰미니" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/아이폰미니.png"; break;
+    case "에어팟" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/에어팟.png"; break;
+    case "조기졸업권" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/조기졸업권.png"; break;
+    case "처갓집" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/처갓집.png"; break;
+    case "컵밥" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/컵밥.png"; break;
+    case "페레레로쉐" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/페레레로쉐.png"; break;
+    case "홍삼" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/홍삼.png"; break;
+    default : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/3090.png";
   }
   Kakao.send(room,{
       link_ver : "4.0",
@@ -486,6 +575,39 @@ function Giftcon(room, type){
       image : image
       }
     }, "custom");
+}
+
+///////////////현재 TV////////////////
+//[출처] TV 지상파 방송 편성표 파싱 (카카오톡 봇 커뮤니티) | 작성자 에케
+function TV_Now() {
+  data = org.jsoup.Jsoup.connect("https://m.search.naver.com/search.naver?query=%ED%8E%B8%EC%84%B1%ED%91%9C").get().select("li.program_item.on");
+  k1 = data.get(0).select(".pr_name").text();
+  k2 = data.get(1).select(".pr_name").text();
+  m = data.get(2).select(".pr_name").text();
+  s = data.get(3).select(".pr_name").text();
+  e1 = data.get(4).select(".pr_name").text();
+  e2 = data.get(5).select(".pr_name").text();
+  return("현재 방송중인 프로그램입니다.\nKBS1 " + k1 + "\nKBS2 " + k2 + "\nMBC " + m + "\nSBS " + s + "\nEBS1 " + e1 + "\nEBS2 " + e2 + "\n@sh4cker");
+}
+
+//[출처] 게이지 함수 (카카오톡 봇 커뮤니티) | 작성자 뀨야
+function Creat_Bar(num, max, p, n){
+  let bar = ['▏', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
+  let per = 100/(max/num)/10;
+  let gauge = [];
+
+  for(let i=0; i<parseInt(per); i++) gauge.push('█');
+
+  if(per != parseInt(per))
+      gauge.push(bar[parseInt((per-gauge.length)*10/1.25)]);
+
+  for(let i=gauge.length; i<10; i++) gauge.push(' ');
+
+  if(p == undefined || p == null) p = 0; if(n == undefined) n = 0;
+
+  return gauge.join('')+
+      (!p?'':' ('+(per*10).toFixed(1)+'%)')+
+      (!n?'':' ('+num+'/'+max+')');
 }
 
 //숫자 앞을 0으로 채움

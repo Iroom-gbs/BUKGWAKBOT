@@ -14,38 +14,18 @@ function Autoselfcheck_Function() {
       let birth = (selfcheckList.데이터)[i].생일;
       let pass = (selfcheckList.데이터)[i].비밀번호;
       let number = (selfcheckList.데이터)[i].번호;
-      status = Jsoup.connect("https://api.self-check.msub.kr/?local=경기&sctype=고등학교&scname=경기북과학고등학교&name="
+      status = Jsoup.connect("http://20.41.96.175:5000/?name="
                               + name
                               + "&birth=" + birth
-                              + "&pass=" + pass
+                              + "&local=%EA%B2%BD%EA%B8%B0&school=%EA%B2%BD%EA%B8%B0%EB%B6%81%EA%B3%BC%ED%95%99%EA%B3%A0&type=%EA%B3%A0%EB%93%B1&"
+                              + "&password=" + pass
                               ).ignoreContentType(true).get().text();
-      if(status.split(":")[1].split(",")[0]=="0") {
+      if(JSON.parse(status).code == "SUCCESS") {
           result += number + name + " 성공\n";
       }
       else {
-          result += number + name + " " + status.split('"')[6].split('"')[0] + "\n";
+          result += number + name + " " + JSON.parse(status).code + "\n";
       }
   }
   return result;
-}
-
-function Check_SelfCheck() {
-    url = JSON.parse(Jsoup.connect("http://193.123.246.37/api/isSurvey")
-                    .data("org","J100005167")
-                    .data("grade",1)
-                    .data("class",2)
-                    .data("json",true)
-                    .ignoreContentType(true).get().text());
-    result  = "경기북과학고(" + url.orgCode + ")\n"
-            + url.grade + "학년 " + url.class + "반\n\n"
-            + "미참여자 : " + url.detail.nonpart + "\n"
-            + "참여자 : " + url.detail.normal + "\n"
-            + "유증상자 : " + url.detail.symptom +"\n\n"
-            + "\u200b".repeat(500) + "미참여자 목록";
-    
-    for(i=0;i<(url.surveyList).length;i++) {
-        if(url.surveyList[i].isSurvey=="N")
-            result += "\n" + url.surveyList[i].attNumber + "번";
-    }
-    return result;
 }
