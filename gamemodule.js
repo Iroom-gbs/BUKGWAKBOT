@@ -1,11 +1,9 @@
 importClass(org.jsoup.Jsoup);
 const M = Bridge.getScopeOf("module");
 const AS = Bridge.getScopeOf("autoselfcheck")
+const K = Bridge.getScopeOf("KakaoLink");
+const Kakao = K.Kakao
 
-const kalingModule = require('kaling').Kakao()
-const Kakao = new kalingModule;
-Kakao.init("d1b87ff979264dd8186e3dda6e5d0524")
-Kakao.login('id','pw'); 
 
 const FS = FileStream;
 //////////가위바위보//////////
@@ -56,6 +54,14 @@ function RandList(n)
     var result="랜덤목록 결과\n"+ "\u200b".repeat(500);
     for(i=1;i<=n;i++) result+=String(i) + " : " + String(arr[i-1]) + "\n";
     return result;
+}
+
+//////////랜덤목록//////////
+function Dice()
+{
+    dice = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
+    result = Math.floor(Math.random() * 5) + 1;
+    return result+dice[result];
 }
 
 function LOLHistory(name, room)
