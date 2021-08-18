@@ -14,7 +14,7 @@ function Autoselfcheck_Function() {
       let birth = (selfcheckList.데이터)[i].생일;
       let pass = (selfcheckList.데이터)[i].비밀번호;
       let number = (selfcheckList.데이터)[i].번호;
-      status = Jsoup.connect("http://20.41.96.175:5000/?name="
+      status = Jsoup.connect("http://20.41.96.175:5000/hcs?name="
                               + name
                               + "&birth=" + birth
                               + "&local=%EA%B2%BD%EA%B8%B0&school=%EA%B2%BD%EA%B8%B0%EB%B6%81%EA%B3%BC%ED%95%99%EA%B3%A0&type=%EA%B3%A0%EB%93%B1&"

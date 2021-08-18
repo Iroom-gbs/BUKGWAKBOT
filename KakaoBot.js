@@ -2,7 +2,7 @@
  * 북곽봇
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev22(20210816)
+ * 현재 버전 dev23(20210818)
  * 
 © 2021 HegelTY, All rights reserved.
 MIT License
@@ -36,6 +36,7 @@ const M = Bridge.getScopeOf("module");
 const AS = Bridge.getScopeOf("autoselfcheck");
 const G = Bridge.getScopeOf("gamemodule");
 const P = Bridge.getScopeOf("pingpong");
+const K = Bridge.getScopeOf("kakaolink");
 
 let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log/";
 
@@ -47,22 +48,22 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
   let today = new Date();
   if(room[0]!="."){
     msg_data = msg.split(' ');
-
-    if(msg_data[0]=="북곽아"){replier.reply(M.PingPong(msg.substr(3)));}
+    try{
+    if(msg_data[0]=="북곽아") {
+      if(msg.substr(3)) replier.reply(M.PingPong(msg.substr(3)));
+      else replier.reply("네?");
+    }
     if(msg[0]=="!"){
       switch(msg_data[0].replace("!","")){
         case "업데이트": replier.reply(
-                                      "업데이트 노트 - dev22(20210816)\n"
+                                      "업데이트 노트 - dev23(20210818)\n"
                                       +"----------\n"+ "\u200b".repeat(500)
                                       +"추가\n"
-                                      +' 줌, 시간표가 2학기에 맞춰 업데이트 되었습니다.\n'
-                                      +' 도서검색이 부활합니다.\n'
-                                      +' 노래 가사 검색이 추가되었습니다.\n'
-                                      +' 현재 방송중인 TV 프로그램 정보가 추가되었습니다.'
+                                      +' 교과서 명령어가 추가되었습니다.\n'
+                                      +' 주사위 기능이 추가되엇습니다.\n'
+                                      +' 주식 검색이 추가되었습니다.\n'
                                       +"개선\n"
-                                      +' 시간표를 개선했습니다.\n'
-                                      +"삭제\n"
-                                      +' 자가진단 확인 기능이 삭제되었습니다.\n'
+                                      +' 에러 발생시 작동정지되던 현상을 고쳤습니다.\n'
                                       );break;
         //도움말
         case "도움말":
@@ -70,9 +71,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                     "도움말\n"
                                   + "\u200b".repeat(500)
                                   + "() : 선택  [] : 필수\n\n"
+                                  + "북곽아 [] : 북곽이랑 대화합니다.\n\n"
                                   + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                                   + "!시간표 (내일) : 시간표를 보여줍니다.\n"
-                                  + "!책 (제목) : 도서관에서 책을 검색합니다.\n\n"
+                                  + "!책 (제목) : 도서관에서 책을 검색합니다.\n"
+                                  + "!교과서 : 교과서 드라이브 주소를 아려줍니다.\n\n"
 
                                   + "!정보 : 북곽봇 정보를 알려줍니다.\n"
                                   + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n\n"
@@ -84,16 +87,18 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                   + "!단축 [url] : url을 단축해줍니다.\n\n"
 
                                   + "!남은시간 : 다음 시험(중간/기말고사)까지 남은 시간을 알려줍니다.\n"
-                                  + "!기프티콘 (종류) : 가짜 기프티콘을 보냅니다.\n\t종류 :\n"
+                                  + "!기프티콘 (종류) : 가짜 기프티콘을 보냅니다.\n\t종류 : 3090, 3990X, 기프트카드10, 기프트카드5, 롤, 싸이버거, 아메리카노, 아이스크림케이크, 아이폰12, 아이폰미니, 에어팟, 조기졸업권, 처갓집, 컵밥, 페레레로쉐, 홍삼\n"
                                   + "!랜덤숫자 [시작숫자] [끝숫자] : 시작숫자에서 끝 숫자 사이 랜덤 숫자가 나옵니다.\n"
                                   + "!랜덤목록 [개수] : 1에서 개수까지의 수를 랜덤순서로 출력합니다.\n"
+                                  + "!주사위 : 주사위를 굴립니다.\n"
                                   + "!긴단어 [글자] : 글자로 시작하는 긴 단어(끄투, 어인정 포함)를 알려줍니다.\n"
                                   + "!롤 [소환사명] : OP.GG에서 소환서의 전적을 검색합니다.(미완)\n"
                                   + "!롤 갱신 [소환사명] : OP.GG에서 소환사의 전적을 갱신합니다.\n\n"
 
                                   + "!노래검색 [제목] : 노래를 검색합니다.\n"
                                   + "!가사 [제목] : 노래의 가사를 보여줍니다.\n"
-                                  + "!TV : 현재 방영중인 TV 프로그램 목록을 보여줍니다.\n\n"
+                                  + "!TV : 현재 방영중인 TV 프로그램 목록을 보여줍니다.\n"
+                                  + "!주식 [종목] : 주식 정보를 보여줍니다.\n\n"
 
                                   + "!산화수 [화학식](이온가수) : 산화수를 알려줍니다.\n"
                                   + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다.\n\n"
@@ -104,7 +109,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         //정보
         case "정보": replier.reply("북곽봇\n"
                                     + "개발자 : 나태양\n"
-                                    + "버전 : dev22(20210816)\n"
+                                    + "버전 : dev23(20210818)\n"
                                     + "소스 : https://github.com/hegelty/BUKGWAKBOT\n"
                                     + "\u200b".repeat(500)
                                     + "라이선스\n\n--------------------\n"
@@ -120,7 +125,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
                                     + '--------------------\n'
                                     + ' ● MIT License\n\thttps://opensource.org/licenses/MIT\n'
-                                    + ' ● GNU General Public License version 3.0\n\thttps://opensource.org/licenses/lgpl-3.0.html'
                                     );
           break;
 
@@ -166,6 +170,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         //도서검색
         case "책": replier.reply(M.Library_Search(msg.substr(2))); break;
+        case "교과서": replier.reply("http://di.do/dScIy"); break;
         
         //코로나 현황
         case "코로나": replier.reply(M.Corona_Function()); break;
@@ -206,6 +211,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         //현재 TV
         case "TV": replier.reply(M.TV_Now()); break;
+        //주식
+        case "주식": replier.reply(M.Stock(msg_data[1])); break;
 
         //번역
         case "번역": replier.reply(M.getTranslate(msg_data[1],msg.replace(msg_data[0],"").replace(msg_data[1],""))); break;
@@ -229,7 +236,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         //끄투 긴단어검색
         case "긴단어": replier.reply(G.Kkutu_Long(msg_data[1][0])); break;
+        //주사위
+        case "주사위": replier.reply(G.Dice()); break;
         default: break;
-    }}
+    }}}
+    catch(e){
+      replier.reply("에러");
+      Log.debug(e);
+    }
 }FS.append(chat_log_route + room + ".txt", today.toLocaleString() + " " + sender + ":" + msg +"\n\n");
 }

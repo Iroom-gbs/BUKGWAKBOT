@@ -3,10 +3,8 @@ const comci = require('comci.js');
 const scriptName = "module";
 const FS = FileStream;
 
-const kalingModule = require('kaling').Kakao()
-const Kakao = new kalingModule;
-Kakao.init("d1b87ff979264dd8186e3dda6e5d0524")
-Kakao.login('id','pw'); 
+const K = Bridge.getScopeOf("KakaoLink");
+const Kakao = K.Kakao
 
 const Lw = "\u200b".repeat(500);
 
@@ -79,7 +77,7 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
           case "융합(박규)":
               TimeTable += "융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412"; break;
           default:
-              TimeTable = "없음";
+              TimeTable += "없음";
               break;
       }
     }
@@ -335,7 +333,7 @@ function Hangang_Function(type) {
     let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
     let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
     if(type == '화씨') return("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n하드디스크는 로우포맷 해야 복구가 불가능합니다.\n자살예방상담전화 1393\n청소년전화 1388");
-    else return("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n내일 급식에 아이스크림.\n자살예방상담전화 1393\n청소년전화 1388");
+    else return("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n지금 죽으면 장례식에 49명만 옴\n자살예방상담전화 1393\n청소년전화 1388");
   }catch(e){
     return("에러!\n" + e);
   }
@@ -519,9 +517,14 @@ function shorten(url) {
 }
 
 ///////////////핑퐁///////////////
-function PingPong(str) {
+function PingPong(str, room) {
   try{
-    return JSON.parse(Jsoup.connect("https://builder.pingpong.us/api/builder/pingpong/chat/demo?query=" + str).ignoreContentType(true).get().text()).response.replies[0].reply
+    result = JSON.parse(Jsoup.connect("http://20.41.96.175:5000/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
+    text = result.text;
+    if(text == "급식") return "오늘 급식이에요!\n"+Meal_Function(0,0,false)
+    else if(text == "시간표") return "시간표를 알려드릴게요.\n"+Timetable_Function(0)
+    else if(text == "줌") return "줌 ID와 PW에요.\nZOOM ID/PW\n\n" + Lw + "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282\n수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173\n물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020\n화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712\n생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500\n지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234\n물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412\n화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413\n지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS\n생물(김정미)\n ▷ZOOM ID : 745 635 4367\n ▷ZOOM PW : 48904\n정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082\n국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0\n통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021\n영어(이지현)\n ▷ZOOM ID : 864 663 3910\n ▷ZOOM PW : 11111\n영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777\n체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001\n융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412";
+    return text;
   }catch(e){ return e;}
 }
 
@@ -541,6 +544,27 @@ function LeftTimeToExam()
   gapHour = gapHour % 24;
 
   return gapDay + "일 " + gapHour + "시간 " + gapMin + "분 " + gapSec + "초(" + parseInt(timeGap/1000) +"초)";
+}
+
+///////////////주식///////////////
+function Stock(name) {
+  var url = "https://search.naver.com/search.naver?query=주식 " + name;
+  var data = Jsoup.connect(url).get();
+  var name = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.stk_nm").text();
+  var code = data.select("#_cs_root > div.ar_spot > div > h3 > a > em").text();
+  var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > strong").text();
+  if(!price) {
+    var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > strong").text();
+    var price_change = "-"+data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > span.n_ch > em:nth-child(3)").text();
+    var change_percent = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > span.n_ch > em:nth-child(4)").text();
+  }
+  else {
+    var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > strong").text();
+    var price_change = "+"+data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(3)").text();
+    var change_percent = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(4)").text();
+  }  
+
+  return "[주식정보]\n" + name + "(" + code + ")\n현재 주가 : " + price + "\n주가 변동 : " + price_change + change_percent;
 }
 
 ///////////////기프티콘 낚시////////////////

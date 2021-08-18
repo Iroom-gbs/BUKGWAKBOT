@@ -18,15 +18,16 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
           if(day!=0&&day!=6){
           if(hour==7&&min>=50&&!morning)
           {
+            try{
             morning=true;
             replier.reply(AS.Autoselfcheck_Function());
             replier.reply(M.Meal_Function(0,0,0));
             replier.reply(M.Timetable_Function(0));
             dinner=false;
-
-            //자동 컴파일
-            compile("module");
-            compile("test");
+            }catch(e){
+              replier.reply("에러");
+              Log.debug(e);
+            }
           }
           else if(hour==12&&min>=0&&!launch) {replier.reply(M.Meal_Function(0,2,0));morning=false;launch=true;}
           else if(hour==17&&min>=10&&!dinner) {replier.reply(M.Meal_Function(0,3,0));launch=false;dinner=true;}
