@@ -6,6 +6,8 @@ const FS = FileStream;
 const K = Bridge.getScopeOf("KakaoLink");
 const Kakao = K.Kakao
 
+let homework_route = "/sdcard/BUKGWAKBOT/homework.json";
+
 const Lw = "\u200b".repeat(500);
 
 //급식에 필요한 변수들
@@ -60,8 +62,8 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
               TimeTable += "화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413"; break;
           case "지1(오중)":
               TimeTable += "지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS"; break;
-          case "생1(김정)":
-              TimeTable += "생물(김정미)\n ▷ZOOM ID : 745 635 4367\n ▷ZOOM PW : 48904"; break;
+          case "생1(김보)":
+              TimeTable += "생물(김보선)\n ▷ZOOM ID : 922 200 0716\n ▷ZOOM PW : 161616"; break;
           case "정1(김현)":
               TimeTable += "정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082"; break;
           case "국어(전은)":
@@ -69,10 +71,10 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
           case "사회(이은)":
               TimeTable += "통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021"; break;
           case "영1(이지)":
-              TimeTable += "영어(이지현)\n ▷ZOOM ID : 864 663 3910\n ▷ZOOM PW : 11111"; break;
+              TimeTable += "영어(이지현)\n ▷ZOOM ID : 688 651 8204\n ▷ZOOM PW : 12345"; break;
           case "영1(서원)":
               TimeTable += "영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777"; break;
-          case "체육(이기)":
+          case "체1(이기)":
               TimeTable += "체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001"; break;
           case "융합(박규)":
               TimeTable += "융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412"; break;
@@ -137,14 +139,12 @@ function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
       month = numberPad(tommorrow_time.getMonth() + 1, 2);  // 월
       date = numberPad(tommorrow_time.getDate(), 2);  // 날짜
       day = tommorrow_time.getDay(); //요일
-      //replier.reply(year + month + date);
     }
 
     Result = year+"년 "+String(month)+"월 "+String(date)+"일 급식\n"
     if(day==0||day==6) {
-      random_Num = (Math.floor(Math.random() * 10));
       weekendMeal = new Array("오늘 주말이야","있겠냐","집밥","굶어","편의점","치킨","피자","족발","싸다김밥","우리가 어떤 민족입니까?","궁금하면 500원")
-      Result = weekendMeal[random_Num];
+      Result = weekendMeal[(Math.floor(Math.random() * 10))];
     }
     else
     {
@@ -175,64 +175,28 @@ function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
 }
 function RenewMealData(year, month, date, tommorrow) {
   try{
-    let KEY = "d31921b2d9014e368cd685b00cea66c9"; //인증키
-    let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
-    let SD_SCHUL_CODE = 7530851; //학교 코드
-    var meal_Data = JSON.parse(Jsoup.connect("https://open.neis.go.kr/hub/mealServiceDietInfo")
-                                            .data("ATPT_OFCDC_SC_CODE",ATPT_OFCDC_SC_CODE)
-                                            .data("SD_SCHUL_CODE", SD_SCHUL_CODE)
-                                            .data("MLSV_YMD", year + month + date)
-                                            .data("KEY", KEY)
-                                            .data("TYPE","json")
-                                            .get().text());
-
-      var DietInfo = meal_Data.mealServiceDietInfo;
-      if(!DietInfo[0].head[0].list_total_count) return meal_Data.RESULT.CODE + "\n" + meal_Data.RESULT.MESSAGE;
-
-      var list_total_count = DietInfo[0].head[0].list_total_count;
+      let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
+      let SD_SCHUL_CODE = "7530851"; //학교 코드
+      var meal_Data = JSON.parse(Jsoup.connect("http://api.hegelty.me/schoolmeal")
+                                              .data("ATPT_OFCDC_SC_CODE",ATPT_OFCDC_SC_CODE)
+                                              .data("SD_SCHUL_CODE", SD_SCHUL_CODE)
+                                              .data("date", year + month + date)
+                                              .ignoreContentType(true).get().text());
+      if(meal_Data.success == "실패") return "급식 정보가 없습니다."
       
-      for(i=0;i<list_total_count;i++) {
-        let type;
-        var row = DietInfo[1].row[i];
-        if(row.MMEAL_SC_NM=="조식") type = 0;
-        else if(row.MMEAL_SC_NM=="중식") type = 1;
-        else type = 2;
-        mealdata[tommorrow][type]  = row.MMEAL_SC_NM + "\n"
+      for(i=0;i<meal_Data.result.length;i++) {
+        mealdata[tommorrow][meal_Data.result[i].meal_code-1]  = meal_Data.result[i].meal_name + "\n"
                                    + "----------\n"
-                                   + formatting_meal(row.DDISH_NM)
-                                   + "\n"+ row.CAL_INFO;
+                                   + meal_Data.result[i].menu
+                                   + "\n"+ meal_Data.result[i].cal;
       }
     //갱신일시 저장
     MealDataDate[tommorrow] = year+month+date;
     return 0;
   }catch(e) {
+    Log.error("에러!\n" + e);
     return e;
-    Log.debug("에러!\n" + e);
   }
-}
-function formatting_meal(str) {
-  var menu = str;
-  menu = menu.replace(/[0-9]/g, "");
-  menu = replaceAll(menu, "*", "\n");
-  menu = replaceAll(menu, "$", "\n");
-  menu = replaceAll(menu, ".", "\n");
-  menu = replaceAll(menu, "뽱", "\n");
-  menu = replaceAll(menu, "컁", "\n");
-  menu = replaceAll(menu, "꿜", "\n");
-  menu = replaceAll(menu, "(조)", "\n");
-  menu = replaceAll(menu, "(조/과)", "\n");
-  menu = replaceAll(menu, "(조과)", "\n");
-  menu = replaceAll(menu, "(과)", "\n");
-  menu = replaceAll(menu, "(조식)", "\n");
-  menu = replaceAll(menu, "(석/과)", "\n");
-  menu = replaceAll(menu, "(옥정)", "\n");
-  menu = replaceAll(menu, "(완)", "\n");
-  menu = replaceAll(menu, "CB", "\n");
-  menu = replaceAll(menu, "\n발\n", "\n");
-  menu = replaceAll(menu,  "\n과\n","\n")
-  menu = menu.replace(/\n$/gm, '');
-  
-  return menu;
 }
 
 ///////////////날씨///////////////
@@ -379,6 +343,49 @@ function Library_Search(book_name) {
   }catch(e){return e;}
 }
 
+///////////////숙제///////////////
+function Homework_Add_Function(s) {
+  if(!s) return "내용을 입력하세요";
+  try {
+    homeworkFile = JSON.parse(FS.read(homework_route));
+    homeworkFile.homework.push(s);
+    FS.write(homework_route, JSON.stringify(homeworkFile));
+    return "등록되었습니다."
+  } catch(e) {
+    Log.error(e);
+    return "에러";
+  }
+} 
+
+function Homework_Show_Function() {
+  try {
+    homeworkFile = JSON.parse(FS.read(homework_route));
+    result = "현재 등록된 과제 : "+homeworkFile.homework.length+"개\n"+Lw;
+    for(i=0;i<homeworkFile.homework.length;i++) {
+      result += "["+(i+1) + "] " + homeworkFile.homework[i] + "\n\n";
+    }
+    return result;
+  } catch(e) {
+    Log.error(e);
+    return "에러";
+  }
+}
+
+function Homework_Remove_Function(n) {
+  if(n.isNaN) return "숫자를 입력하세요.";
+  if(n<1||n>homeworkFile.homework.length) return "잘못된 숫자입니다.";
+  try {
+    homeworkFile = JSON.parse(FS.read(homework_route));
+    homeworkFile.homework.splice(n-1,1);
+    FS.write(homework_route, JSON.stringify(homeworkFile));
+    return "삭제되었습니다.";
+  } catch(e) {
+    Log.error(e);
+    return "에러";
+  }
+}
+
+
 ///////////////폰 상태///////////////
 function PhoneData_Function() {
   var device_profile_name = android.provider.Settings.Global.getString(Api.getContext().getContentResolver(), "device_name");
@@ -519,7 +526,7 @@ function shorten(url) {
 ///////////////핑퐁///////////////
 function PingPong(str, room) {
   try{
-    result = JSON.parse(Jsoup.connect("http://20.41.96.175:5000/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
+    result = JSON.parse(Jsoup.connect("http://api.hegelty.me/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
     text = result.text;
     if(text == "급식") return "오늘 급식이에요!\n"+Meal_Function(0,0,false)
     else if(text == "시간표") return "시간표를 알려드릴게요.\n"+Timetable_Function(0)
@@ -562,7 +569,12 @@ function Stock(name) {
     var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > strong").text();
     var price_change = "+"+data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(3)").text();
     var change_percent = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(4)").text();
-  }  
+  } 
+  if(!price) {
+    var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.eq > strong").text();
+    var price_change = "보합";
+    var change_percent = "";
+  }
 
   return "[주식정보]\n" + name + "(" + code + ")\n현재 주가 : " + price + "\n주가 변동 : " + price_change + change_percent;
 }

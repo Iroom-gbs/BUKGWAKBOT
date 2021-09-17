@@ -2,9 +2,7 @@
  * 북곽봇
  * 제작자 : HegelTY
  * 1학년 2반을 위해 만들어진 카톡봇입니다.
- * 현재 버전 dev23(20210818)
- * 
-© 2021 HegelTY, All rights reserved.
+ * 현재 버전 1.0.0
 MIT License
 
 Copyright (c) 2021 HegelTY
@@ -40,8 +38,6 @@ const K = Bridge.getScopeOf("kakaolink");
 
 let chat_log_route = "/sdcard/BUKGWAKBOT/chat_log/";
 
-//let chat_log_route = "/sdcard/BUKGWAKBOT/todolist.txt";
-
 const Lw = "\u200b".repeat(500);
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
@@ -56,14 +52,14 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     if(msg[0]=="!"){
       switch(msg_data[0].replace("!","")){
         case "업데이트": replier.reply(
-                                      "업데이트 노트 - dev23(20210818)\n"
+                                      "업데이트 노트 - 1.0.0\n"
+                                      +"정식 출시!\n"
                                       +"----------\n"+ "\u200b".repeat(500)
                                       +"추가\n"
-                                      +' 교과서 명령어가 추가되었습니다.\n'
-                                      +' 주사위 기능이 추가되엇습니다.\n'
-                                      +' 주식 검색이 추가되었습니다.\n'
+                                      +' 과제 관련 명령어가 추가되었습니다.\n'
+                                      +' 채널 명령어가 추가되었습니다.\n'
                                       +"개선\n"
-                                      +' 에러 발생시 작동정지되던 현상을 고쳤습니다.\n'
+                                      +' 주식 기능에서 보합일 때 주가가 표시되지 않던 문제를 해결했습니다..\n'
                                       );break;
         //도움말
         case "도움말":
@@ -71,11 +67,17 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                     "도움말\n"
                                   + "\u200b".repeat(500)
                                   + "() : 선택  [] : 필수\n\n"
-                                  + "북곽아 [] : 북곽이랑 대화합니다.\n\n"
+                                  + "북곽아 [] : 북곽이랑 대화합니다.\n"
+                                  + "!채녈 : 북곽봇 카카오톡 채널을 알려줍니다.\n\n"
+                                  
                                   + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
                                   + "!시간표 (내일) : 시간표를 보여줍니다.\n"
                                   + "!책 (제목) : 도서관에서 책을 검색합니다.\n"
                                   + "!교과서 : 교과서 드라이브 주소를 아려줍니다.\n\n"
+                                  
+                                  + "!과제 : 과제 목록을 보여줍니다.\n"
+                                  + "!과제 추가 [과제 내용] : 과제를 등록합니다.\n"
+                                  + "!과제 삭제 [삭제할 과제 번화] : 과제를 삭제합니다.\n"
 
                                   + "!정보 : 북곽봇 정보를 알려줍니다.\n"
                                   + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n\n"
@@ -101,15 +103,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                   + "!주식 [종목] : 주식 정보를 보여줍니다.\n\n"
 
                                   + "!산화수 [화학식](이온가수) : 산화수를 알려줍니다.\n"
-                                  + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다.\n\n"
-
-                                  + "#개발예정# !과제 : 과제를 보여줍니다.\n"
+                                  + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다."
                                   );
           break;
         //정보
         case "정보": replier.reply("북곽봇\n"
                                     + "개발자 : 나태양\n"
-                                    + "버전 : dev23(20210818)\n"
+                                    + "버전 : 1.0.0\n"
                                     + "소스 : https://github.com/hegelty/BUKGWAKBOT\n"
                                     + "\u200b".repeat(500)
                                     + "라이선스\n\n--------------------\n"
@@ -122,6 +122,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                     + " ▣ 초성 구하기 ▣\n\thttps://cafe.naver.com/nameyee/32601\n"
                                     + '\tMIT License\nCopyright (c) 2021 임지혁\n\n'
                                     + " ▣ CryptoJS v3.1.2 ▣\n\tcode.google.com/p/crypto-js\n\t(c) 2009-2013 by Jeff Mott. All rights reserved.\n\tcode.google.com/p/crypto-js/wiki/License\n"
+                                    + "\t▣ 핑퐁툴 ▣\n\thttps://github.com/minibox24/PingPongTool\n" 
 
                                     + '--------------------\n'
                                     + ' ● MIT License\n\thttps://opensource.org/licenses/MIT\n'
@@ -165,13 +166,23 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
           break;
 
         case "줌":
-          replier.reply("ZOOM ID/PW\n\n" + Lw + "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282\n수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173\n물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020\n화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712\n생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500\n지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234\n물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412\n화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413\n지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS\n생물(김정미)\n ▷ZOOM ID : 745 635 4367\n ▷ZOOM PW : 48904\n정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082\n국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0\n통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021\n영어(이지현)\n ▷ZOOM ID : 864 663 3910\n ▷ZOOM PW : 11111\n영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777\n체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001\n융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412");
+          replier.reply("ZOOM ID/PW\n\n" + Lw + "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282\n수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173\n물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020\n화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712\n생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500\n지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234\n물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412\n화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413\n지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS\n생물(김보선)\n ▷ZOOM ID : 922 200 0716\n ▷ZOOM PW : 161616\n정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082\n국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0\n통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021\n영어(이지현)\n ▷ZOOM ID : 688 651 8204\n ▷ZOOM PW : 12345\n영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777\n체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001\n융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412");
           break;
 
         //도서검색
         case "책": replier.reply(M.Library_Search(msg.substr(2))); break;
         case "교과서": replier.reply("http://di.do/dScIy"); break;
         
+        case "과제":
+          if(msg_data[1]=="추가") {
+            replier.reply(M.Homework_Add_Function(msg.substr(6)));
+          }
+          else if(msg_data[1]=="삭제") {
+            replier.reply(M.Homework_Remove_Function(msg_data[2]));
+          }
+          else replier.reply(M.Homework_Show_Function());
+          break;
+
         //코로나 현황
         case "코로나": replier.reply(M.Corona_Function()); break;
 
