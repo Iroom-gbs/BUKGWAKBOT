@@ -137,6 +137,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         case "명물": replier.reply("반장"); break;
         case "과락": replier.reply("과학고 락커 과락\nhttps://youtube.com/channel/UC7c6gBzola8zsfq4qshphjw"); break;
         case "짜릿짜릿해": replier.reply("1.\nsoundcloud.com/seob88861/mp3\n2.\nyoutu.be/oq0VGRQ9J-0"); break;
+        case "태양만세": replier.reply("태양 만세!"); break;
 
         //자가진단
         case "자가진단":
