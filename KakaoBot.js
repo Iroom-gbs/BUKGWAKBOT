@@ -116,6 +116,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         case "명물": replier.reply("반장"); break;
         case "과락": replier.reply("과학고 락커 과락\nhttps://youtube.com/channel/UC7c6gBzola8zsfq4qshphjw"); break;
         case "짜릿짜릿해": replier.reply("1.\nsoundcloud.com/seob88861/mp3\n2.\nyoutu.be/oq0VGRQ9J-0"); break;
+        case "태양만세": replier.reply("태양 만세!"); break;
 
         //자가진단
         case "자가진단":
@@ -225,5 +226,10 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       replier.reply("에러");
       Log.debug(e);
     }
+<<<<<<< HEAD
   }
 }
+=======
+}FS.append(chat_log_route + room + ".txt", today.toLocaleString() + " " + sender + ":" + msg +"\n\n");
+}
+>>>>>>> 2c9e87b2a6420a601f25428e85074edf256251c0
