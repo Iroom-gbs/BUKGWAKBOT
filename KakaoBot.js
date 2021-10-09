@@ -226,10 +226,5 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       replier.reply("에러");
       Log.debug(e);
     }
-<<<<<<< HEAD
   }
 }
-=======
-}FS.append(chat_log_route + room + ".txt", today.toLocaleString() + " " + sender + ":" + msg +"\n\n");
-}
->>>>>>> 2c9e87b2a6420a601f25428e85074edf256251c0
