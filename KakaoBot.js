@@ -77,9 +77,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                   + "!가사 [제목] : 노래의 가사를 보여줍니다.\n"
                                   + "!TV : 현재 방영중인 TV 프로그램 목록을 보여줍니다.\n"
                                   + "!주식 [종목] : 주식 정보를 보여줍니다.\n\n"
-
-                                  + "!산화수 [화학식](이온가수) : 산화수를 알려줍니다.\n"
-                                  + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다."
                                   );
           break;
         
