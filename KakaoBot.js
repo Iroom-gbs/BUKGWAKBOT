@@ -1,29 +1,9 @@
 /**
  * 북곽봇
  * 제작자 : HegelTY
- * 1학년 2반을 위해 만들어진 카톡봇입니다.
+ * 북곽 1학년을 위해 만들어진 카톡봇입니다.
  * 현재 버전 1.0.0
-MIT License
-
-Copyright (c) 2021 HegelTY
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+ * Copyright (c) 2021 IROOM
  */
 
 importClass(org.jsoup.Jsoup);
@@ -53,24 +33,20 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       switch(msg_data[0].replace("!","")){
         case "업데이트": replier.reply(
                                       "업데이트 노트 - 1.0.0\n"
-                                      +"정식 출시!\n"
                                       +"----------\n"+ "\u200b".repeat(500)
                                       +"추가\n"
-                                      +' 과제 관련 명령어가 추가되었습니다.\n'
-                                      +' 채널 명령어가 추가되었습니다.\n'
                                       +"개선\n"
-                                      +' 주식 기능에서 보합일 때 주가가 표시되지 않던 문제를 해결했습니다..\n'
                                       );break;
         //도움말
         case "도움말":
         case "명령어": replier.reply(
                                     "도움말\n"
                                   + "\u200b".repeat(500)
-                                  + "() : 선택  [] : 필수\n\n"
+                                  + "() : 선택  [] : 필수\n갠톡으로 대화할 시 '!'와 '북곽아'를 사용하지 않습니다.\n"
                                   + "북곽아 [] : 북곽이랑 대화합니다.\n"
-                                  + "!채녈 : 북곽봇 카카오톡 채널을 알려줍니다.\n\n"
+                                  + "!채널 : 북곽봇 카카오톡 채널을 알려줍니다.\n\n"
                                   
-                                  + "!급식 (아침/점심/저녁) : 급식을 보여줍니다.\n"
+                                  + "!급식 (내일) (아침/점심/저녁) : 급식을 보여줍니다.\n"
                                   + "!시간표 (내일) : 시간표를 보여줍니다.\n"
                                   + "!책 (제목) : 도서관에서 책을 검색합니다.\n"
                                   + "!교과서 : 교과서 드라이브 주소를 아려줍니다.\n\n"
@@ -106,6 +82,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                                   + "!유효숫자 [수] : 유효숫자 자릿수를 알려줍니다."
                                   );
           break;
+        
+        //채널
+        case "채널": replier.reply("https://pf.kakao.com/_xdARxcs/chat");
         //정보
         case "정보": replier.reply("북곽봇\n"
                                     + "개발자 : 나태양\n"
@@ -165,10 +144,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
           replier.reply(M.Timetable_Function(tm));
           break;
 
-        case "줌":
-          replier.reply("ZOOM ID/PW\n\n" + Lw + "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282\n수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173\n물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020\n화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712\n생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500\n지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234\n물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412\n화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413\n지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS\n생물(김보선)\n ▷ZOOM ID : 922 200 0716\n ▷ZOOM PW : 161616\n정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082\n국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0\n통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021\n영어(이지현)\n ▷ZOOM ID : 688 651 8204\n ▷ZOOM PW : 12345\n영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777\n체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001\n융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412");
-          break;
-
         //도서검색
         case "책": replier.reply(M.Library_Search(msg.substr(2))); break;
         case "교과서": replier.reply("http://di.do/dScIy"); break;
@@ -193,11 +168,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
           if(msg_data.length<2) replier.reply("찾으려는 아이디를 입력하세요.\n(!코드업 [아이디])");
           else replier.reply(M.CodeUPRank_Function(msg_data[1]));
           break;
-
-        //유효숫자 구하기
-        case "유효숫자": replier.reply(M.Significant_figures(msg_data[1])); break;
-        //산화수 구하기
-        case "산화수": replier.reply(M.Oxidation_Number(msg_data[1])); break;
 
         //날씨
         case "날씨" : 
@@ -255,5 +225,5 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       replier.reply("에러");
       Log.debug(e);
     }
-}FS.append(chat_log_route + room + ".txt", today.toLocaleString() + " " + sender + ":" + msg +"\n\n");
+  }
 }

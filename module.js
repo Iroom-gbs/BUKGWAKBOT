@@ -45,39 +45,39 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
       switch (t)
       {
           case "수1(조아)":
-              TimeTable += "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282"; break;
+              TimeTable += "수학(조아름)"; break;
           case "수1(박현)":
-              TimeTable += "수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173"; break;
+              TimeTable += "수학(박현종)"; break;
           case "물1(김형)":
-              TimeTable += "물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020"; break;
+              TimeTable += "물리(김형준)"; break;
           case "화1(이은)":
-              TimeTable += "화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712"; break;
+              TimeTable += "화학(이은실)"; break;
           case "생1(김지)":
-              TimeTable += "생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500"; break;
+              TimeTable += "생물(김지수)"; break;
           case "지1(오상)":
-              TimeTable += "지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234"; break;
+              TimeTable += "지구과학(오상림)"; break;
           case "물1(박규)":
-              TimeTable += "물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412"; break;
+              TimeTable += "물리(박규)"; break;
           case "화1(김재)":
-              TimeTable += "화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413"; break;
+              TimeTable += "화학(김재균)"; break;
           case "지1(오중)":
-              TimeTable += "지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS"; break;
+              TimeTable += "지구과학(오중렬)"; break;
           case "생1(김보)":
-              TimeTable += "생물(김보선)\n ▷ZOOM ID : 922 200 0716\n ▷ZOOM PW : 161616"; break;
+              TimeTable += "생물(김보선)"; break;
           case "정1(김현)":
-              TimeTable += "정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082"; break;
+              TimeTable += "정보(김현철)"; break;
           case "국어(전은)":
-              TimeTable += "국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0"; break;
+              TimeTable += "국어(전은선)"; break;
           case "사회(이은)":
-              TimeTable += "통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021"; break;
+              TimeTable += "통합사회(이은영)"; break;
           case "영1(이지)":
-              TimeTable += "영어(이지현)\n ▷ZOOM ID : 688 651 8204\n ▷ZOOM PW : 12345"; break;
+              TimeTable += "영어(이지현)"; break;
           case "영1(서원)":
-              TimeTable += "영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777"; break;
+              TimeTable += "영어(서원화)"; break;
           case "체1(이기)":
-              TimeTable += "체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001"; break;
+              TimeTable += "체육(이기성)"; break;
           case "융합(박규)":
-              TimeTable += "융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412"; break;
+              TimeTable += "융합과학탐구(박규)"; break;
           default:
               TimeTable += "없음";
               break;
@@ -143,7 +143,7 @@ function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
 
     Result = year+"년 "+String(month)+"월 "+String(date)+"일 급식\n"
     if(day==0||day==6) {
-      weekendMeal = new Array("오늘 주말이야","있겠냐","집밥","굶어","편의점","치킨","피자","족발","싸다김밥","우리가 어떤 민족입니까?","궁금하면 500원")
+      weekendMeal = new Array("오늘 주말이야","있겠냐","집밥","굶어","편의점","치킨","피자","족발","우리가 어떤 민족입니까?","궁금하면 500원")
       Result = weekendMeal[(Math.floor(Math.random() * 10))];
     }
     else
@@ -153,20 +153,16 @@ function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
         if(cr!=0) return cr;
       }
 
-      switch(type) {
-        case 1: 
-          return mealdata[tommorrow][0]; break;
-        case 2:
-          return mealdata[tommorrow][1]; break;
-        case 3:
-          return mealdata[tommorrow][2]; break;
-        default:
-          return  (tommorrow == 1? "내일":"오늘")
-                  + "의 메뉴\n\n"
-                  + "\u200b".repeat(500)
-                  + mealdata[tommorrow][0] + "\n\n"
-                  + mealdata[tommorrow][1] + "\n\n"
-                  + mealdata[tommorrow][2] + "\n\n";
+      if(type==1||type==2||type==3) {
+        return mealdata[tommorrow][type-1];
+      }
+      else {
+        return  (tommorrow == 1? "내일":"오늘")
+                + "의 메뉴\n\n"
+                + "\u200b".repeat(500)
+                + mealdata[tommorrow][0] + "\n\n"
+                + mealdata[tommorrow][1] + "\n\n"
+                + mealdata[tommorrow][2] + "\n\n";
       }
     }
   }catch(e) {
@@ -212,49 +208,39 @@ function Weather_Function(area, day) {
   var month = numberPad(today.getMonth() + 1, 2);  // 월
   var date = numberPad(today.getDate(), 2);  // 날짜
 
-  if(area=="") area = "녹양동"; //기본장소
+  if(area=="") area = "녹양동"; //기본장소(학교)
   try{
     result = "-" +year+"년"+month+"월"+date+"일 날씨정보 -\n\n";
     var url = Jsoup.connect("https://search.naver.com/search.naver?query="+area + "날씨 " + month+"월 "+date+"일").ignoreContentType(true).get();
     if(day==0){ //오늘
       try {
-        result += url.select("div.sort_box._areaSelectLayer > div > div > span > em").text()
-                  + "\n\n" + url.select("div.today_area._mainTabContent > div.main_info > div > ul > li:nth-child(1) > p").text()
-                  + "\n ■현재온도" + url.select("div.main_info > div > p > span.todaytemp").text() + "°C"
-                  + "\n ■최저 " + url.select("span.min > span").text()+ "°C 최고"+ url.select("span.max > span").text() + "°C"
-                  + "\n ■체감온도 " + url.select("span.sensible > em > span").text() + "°C"
-                  + "\n ■미세먼지 " + url.select("dd:nth-child(2) > span.num").text()
-                  + "\n ■초미세먼지 " + url.select("dd:nth-child(4) > span.num").text()
+        result += url.select("div.title_area._area_panel > h2.title").text()
+                  + "\n\n ■" + url.select("div:nth-child(1) > div > div.weather_info > div > div.weather_graphic > div.temperature_text > strong").text()
+                  + "\n ■" + url.select("li:nth-child(1) > div > div.cell_temperature > span > span.lowest").text()+ "/"+ url.select("div.list_box > ul > li:nth-child(1) > div > div.cell_temperature > span > span.highest").text()
+                  + "\n ■강수확률 " + url.select("div:nth-child(1) > div > div.weather_info > div > div.temperature_info > dl > dd:nth-child(2)").text()
+                  + "\n ■습도 " + url.select("div:nth-child(1) > div > div.weather_info > div > div.temperature_info > dl > dd:nth-child(4)").text()
+                  + "\n ■미세먼지 " + url.select("div:nth-child(1) > div > div.weather_info > div > div.report_card_wrap > ul > li:nth-child(1) > a > span").text() + " / 초미세먼지 "+ url.select("div:nth-child(1) > div > div.weather_info > div > div.report_card_wrap > ul > li:nth-child(2) > a > span").text()
                   + "\n\n자료 : 네이버";
-        if((url.select("div.api_title_area > h2").text()).length<1) return "지역을 찾을 수 없습니다.";
+        if((url.select("div.title_area._area_panel > h2.title").text()).length<1) return "지역을 찾을 수 없습니다.";
         return result;
       } catch (e) {Log.error(e);return "정보 불러오기 오류";}
     }
 
-    else if(day==1){ //내일
+    else { //내일||모레
       try {
         result += url.select("div.sort_box._areaSelectLayer > div > div > span > em").text()
-                + "\n\n◈오전\n  "+ url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div:nth-child(4) > div:nth-child(2) > div > ul > li:nth-child(1) > p").text()
-                + "\n  ■기온 " + url.select("div:nth-child(4) > div:nth-child(2) > p > span.todaytemp").text()+ "°C"
-                + "\n\n◈오후  " + url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div:nth-child(4) > div:nth-child(3) > div > ul > li:nth-child(1) > p").text()
-                + "\n  ■기온 " + url.select("div:nth-child(4) > div:nth-child(3) > p > span.todaytemp").text()+ "°C"
+                + "\n◈오전\n  "+ url.select("div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(1) > div > div.temperature_info > p").text()
+                + "\n ■" + url.select("div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(1) > div > div.weather_graphic > div.temperature_text > strong").text()+ "C"
+                + "\n ■" + url.select("div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(1) > div > div.report_card_wrap > ul > li:nth-child(1) > a").text()+" / "+url.select("#main_pack > section.sc_new.cs_weather_new._cs_weather > div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(1) > div > div.report_card_wrap > ul > li:nth-child(2) > a").text()
+                + "\n ■" + url.select("div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(1) > div > div.temperature_info > dl").text()
+                + "\n\n◈오후\n " + url.select("div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(2) > div > div.temperature_info > p").text()
+                + "\n ■" + url.select("div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(2) > div > div.weather_graphic > div.temperature_text > strong").text()+ "C"
+                + "\n ■" + url.select("div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(2) > div > div.temperature_info > dl").text()
+                + "\n ■" + url.select("div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(2) > div > div.report_card_wrap > ul > li:nth-child(1) > a").text() + " / " + url.select("#main_pack > section.sc_new.cs_weather_new._cs_weather > div._tab_flicking > div.content_wrap > div.open > div:nth-child(1) > div > div.weather_info.type_tomorrow > div > ul > li:nth-child(2) > div > div.report_card_wrap > ul > li:nth-child(2) > a").text()
                 + "\n\n자료 : 네이버";  
-        if((url.select("div.api_title_area > h2").text()).length<1) return "지역을 찾을 수 없습니다.";
+        if((url.select("div.title_area._area_panel > h2.title").text()).length<1) return "지역을 찾을 수 없습니다.";
         return result;
       }catch(e){Log.error(e); return "정보 불러오기 오류";}
-    }
-
-    else{ //모레
-      try {
-        result += url.select("div.sort_box._areaSelectLayer > div > div > span > em").text()
-                + "\n\n◈오전\n  "+ url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div.tomorrow_area.day_after._mainTabContent > div:nth-child(2) > div > ul > li:nth-child(1) > p").text()
-                + "\n  ■기온 " + url.select("div:nth-child(2) > p > span.todaytemp").text()+ "°C"
-                + "\n\n◈오후  " + url.select("#main_pack > section.sc_new.cs_weather._weather > div > div.api_cs_wrap > div.weather_box > div.weather_area._mainArea > div.tomorrow_area.day_after._mainTabContent > div:nth-child(3) > div > ul > li:nth-child(1) > p").text()
-                + "\n  ■기온 " + url.select("div:nth-child(3) > p > span.todaytemp").text()+ "°C"
-                + "\n\n자료 : 네이버";  
-        if((url.select("div.api_title_area > h2").text()).length<1) return "지역을 찾을 수 없습니다.";
-        return result;
-      }catch(e){Log.error(e);return "정보 불러오기 오류";}
     }
   }catch(e){
     return "에러!\n" + e;
@@ -397,39 +383,6 @@ function PhoneData_Function() {
         + "\n전압상태 : " + Device.getBatteryVoltage();
 }
 
-///////////////유효숫자///////////////
-function Significant_figures(n) {
-  try{
-    for(i=0;i<n.length;i++){ //숫자나 .이 아닌 문자가 있을 때
-      if(n[i]!='.'&&(n[i]<'0'||n[i]>'9')) throw("Wrong Number");
-    }
-    n=n.split(".");
-    var z_cnt=0,cnt=0,p;
-
-    if(n.length>2) throw("Wrong Number"); //소숫점이 여러개 있을 때
-    if(n[0].length==0) throw("Wrong Number"); //소숫점 앞에 아무것도 없을 때
-
-    for(i=0;i<n[0].length;i++) { //정수부
-      if('1'<=n[0][n[0].length-1-i] && n[0][n[0].length-1-i]<='9'){
-        z_cnt+=i; //0이 아닌 숫자가 나오기 전까지 0 갯수
-        cnt+=n[0].length-i; //일반 숫자 갯수
-        break;
-      }
-    }
-    if(n.length==2) { //소수부
-      cnt+=z_cnt;
-      cnt+=n[1].length;
-      p=-n[1].length;
-    }
-    else p=z_cnt;
-    return "유효숫자 : " + cnt + "개(10^"+p+" 자리)";
-  }catch(e) {
-    if(e=="Wrong Number") return "숫자가 올바르지 않습니다.";
-    else return e;
-  }
-}
-
-
 ///////////////음악검색///////////////
 function MusicSearch(title, room){
   var MusicData = JSON.parse(Jsoup.connect("https://api.music.msub.kr/?song=" + title).ignoreContentType(true).get().text());
@@ -528,9 +481,8 @@ function PingPong(str, room) {
   try{
     result = JSON.parse(Jsoup.connect("http://api.hegelty.me/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
     text = result.text;
-    if(text == "급식") return "오늘 급식이에요!\n"+Meal_Function(0,0,false)
-    else if(text == "시간표") return "시간표를 알려드릴게요.\n"+Timetable_Function(0)
-    else if(text == "줌") return "줌 ID와 PW에요.\nZOOM ID/PW\n\n" + Lw + "수학(조아름)\n ▷ZOOM ID : 340 067 2377\n ▷ZOOM PW : 828282\n수학(박현종)\n ▷ZOOM ID : 905 460 8554\n ▷ZOOM PW : 28173\n물리(김형준)\n ▷ZOOM ID : 716 9383 0607\n ▷ZOOM PW : 202020\n화학(이은실)\n ▷ZOOM ID : 216 3672 517\n ▷ZOOM PW : 20211712\n생물(김지수)\n ▷ZOOM ID : 797 844 9420\n ▷ZOOM PW : 30500\n지구과학(오상림)\n ▷ZOOM ID : 499 771 6453\n ▷ZOOM PW : a1234\n물리(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412\n화학(김재균)\n ▷ZOOM ID : 967 747 5050\n ▷ZOOM PW : 684413\n지구과학(오중렬)\n ▷ZOOM ID : 605 412 6695\n ▷ZOOM PW : LOVEGBSHS\n생물(김정미)\n ▷ZOOM ID : 745 635 4367\n ▷ZOOM PW : 48904\n정보(김현철)\n ▷ZOOM ID : 444 294 7122\n ▷ZOOM PW : 334082\n국어(전은선)\n ▷ZOOM ID : 707 862 0937\n ▷ZOOM PW : ApSem0\n통합사회(이은영)\n ▷ZOOM ID : 260 791 3007\n ▷ZOOM PW : 2021\n영어(이지현)\n ▷ZOOM ID : 864 663 3910\n ▷ZOOM PW : 11111\n영어(서원화)\n ▷ZOOM ID : 474 481 9797\n ▷ZOOM PW : 7777\n체육(이기성)\n ▷ZOOM ID : 699 847 6147\n ▷ZOOM PW : 30001\n융합과학탐구(박규)\n ▷ZOOM ID : 616 969 5818\n ▷ZOOM PW : 210412";
+    if(text == "급식") return "오늘 급식이에요!\n"+Meal_Function(0,0,false);
+    else if(text == "시간표") return "시간표를 알려드릴게요.\n"+Timetable_Function(0);
     return text;
   }catch(e){ return e;}
 }
@@ -538,7 +490,7 @@ function PingPong(str, room) {
 ///////////////시험까지 남은 시간///////////////
 function LeftTimeToExam()
 {
-  var examTime = new Date(2021,10,6,9,10,00,00);
+  var examTime = new Date(2021,12-1,6,9,10,0);
   var nowTime = new Date();
   var timeGap = examTime-nowTime;
 
@@ -657,163 +609,3 @@ function replaceAll(str, searchStr, replaceStr) {
   return str.split(searchStr).join(replaceStr);
 }
 
-///////////////산화수///////////////
-function   Oxidation_Number(s)
-{
-  var Oneja = {'H':0,'He':0,'Li':0,'Be':0,'B':0,'C':0,'N':0,'O':0,'F':0,'Ne':0,'Na':0,'Mg':0,'Al':0,'Si':0,'P':0,'S':0,'Cl':0,'Ar':0,'K':0,'Ca':0,'Sc':0,'Ti':0,'V':0,'Cr':0,'Mn':0,'Fe':0,'Co':0,'Ni':0,'Cu':0,'Zn':0,'Ga':0,'Ge':0,'As':0,'Se':0,'Br':0,'Kr':0,'Rb':0,'Sr':0,'Y':0,'Zr':0,'Nb':0,'Mo':0,'Tc':0,'Ru':0,'Rh':0,'Pd':0,'Ag':0,'Cd':0,'In':0,'Sn':0,'Sb':0,'Te':0,'I':0,'Xe':0,'Cs':0,'Ba':0,'La':0,'Ce':0,'Pr':0,'Nd':0,'Pm':0,'Sm':0,'Eu':0,'Gd':0,'Tb':0,'Dy':0,'Ho':0,'Er':0,'Tm':0,'Yb':0,'Lu':0,'Hf':0,'Ta':0,'W':0,'Re':0,'Os':0,'Ir':0,'Pt':0,'Au':0,'Hg':0,'Tl':0,'Pb':0,'Bi':0,'Po':0,'At':0,'Rn':0,'Fr':0,'Ra':0,'Ac':0,'Th':0,'Pa':0,'U':0,'Np':0,'Pu':0,'Am':0,'Cm':0,'Bk':0,'Cf':0,'Es':0,'Fm':0,'Md':0,'No':0,'Lr':0,'Rf':0,'Db':0,'Sg':0,'Bh':0,'Hs':0,'Mt':0};
-  var Result = {'H':0,'He':0,'Li':0,'Be':0,'B':0,'C':0,'N':0,'O':0,'F':0,'Ne':0,'Na':0,'Mg':0,'Al':0,'Si':0,'P':0,'S':0,'Cl':0,'Ar':0,'K':0,'Ca':0,'Sc':0,'Ti':0,'V':0,'Cr':0,'Mn':0,'Fe':0,'Co':0,'Ni':0,'Cu':0,'Zn':0,'Ga':0,'Ge':0,'As':0,'Se':0,'Br':0,'Kr':0,'Rb':0,'Sr':0,'Y':0,'Zr':0,'Nb':0,'Mo':0,'Tc':0,'Ru':0,'Rh':0,'Pd':0,'Ag':0,'Cd':0,'In':0,'Sn':0,'Sb':0,'Te':0,'I':0,'Xe':0,'Cs':0,'Ba':0,'La':0,'Ce':0,'Pr':0,'Nd':0,'Pm':0,'Sm':0,'Eu':0,'Gd':0,'Tb':0,'Dy':0,'Ho':0,'Er':0,'Tm':0,'Yb':0,'Lu':0,'Hf':0,'Ta':0,'W':0,'Re':0,'Os':0,'Ir':0,'Pt':0,'Au':0,'Hg':0,'Tl':0,'Pb':0,'Bi':0,'Po':0,'At':0,'Rn':0,'Fr':0,'Ra':0,'Ac':0,'Th':0,'Pa':0,'U':0,'Np':0,'Pu':0,'Am':0,'Cm':0,'Bk':0,'Cf':0,'Es':0,'Fm':0,'Md':0,'No':0,'Lr':0,'Rf':0,'Db':0,'Sg':0,'Bh':0,'Hs':0,'Mt':0};
-
-  var ion=0, e_cnt=0;
-  //원자 갯수 기록
-  for(var cnt=0;s[cnt];cnt++)
-  {
-    var amount=0;
-    try{
-      Log.debug(s[cnt]);
-      if(s[cnt]>='A'&&s[cnt]<='Z'){
-        if(s[cnt+1]>='a'&&s[cnt+1]<='z'){ //두글자
-          t_cnt=0;
-          if(Oneja.hasOwnProperty(s[cnt]+s[cnt+1])){ //원자가 맞으면
-            if(isNaN(s[cnt+2])==false){ //개수
-              for(i=cnt+2;isNaN(s[i]);i++){
-                amount=amount*10+Number(s[i]);
-                t_cnt++;
-              }
-              Oneja[s[cnt]+s[cnt+1]]=amount;
-            }
-            else Oneja[s[cnt]+s[cnt+1]]=1;
-            cnt+=t_cnt+1;
-            e_cnt++;
-          }
-          else throw("Wrong Element"); //아닐때
-        }
-        //한글자
-        else if(Oneja.hasOwnProperty(s[cnt])){ //원자가 맞으면
-          t_cnt=0;
-          if(isNaN(s[cnt+1])==false){ //개수
-              for(i=cnt+1;!isNaN(s[i])&&i<=s.length;i++){
-                amount=amount*10+Number(s[i]);
-                t_cnt++;
-              }
-            }
-              if(amount==0) amount=1;
-              Oneja[s[cnt]]=amount;
-              cnt+=t_cnt;
-              e_cnt++;
-              Log.debug(s[cnt-1] + String(Oneja[s[cnt]]))
-          }
-        else throw("Wrong Element");
-      }
-      else if(s[cnt]=='+'){
-        t_cnt=0;
-        if(isNaN(s[cnt+1])==false){
-          for(i=cnt+1;!isNaN(s[i])&&i<=s.length;i++){
-            ion=ion*10+Number(s[i]);
-            t_cnt++;
-          }
-        }
-        if(ion==0) ion=1;
-        cnt+=t_cnt;
-      }
-      else if(s[cnt]=='-'){
-        t_cnt=0;
-        if(isNaN(s[cnt++])==false){
-          for(i=cnt+1;!isNaN(s[i])&&i<=s.length;i++){
-            ion=ion*10-Number(s[i]);
-            t_cnt++;
-          }
-        }
-        if(ion==0) ion=-1;
-        Log.debug(ion)
-        cnt+=t_cnt;
-      }
-    }catch(e){
-      if(e=="Wrong Element") return "잘못된 화학식입니다.";
-      else return e;
-    }
-  }
-  Log.debug(e_cnt)
-  if(e_cnt==1){ //단원자
-    Log.debug("단원자")
-    if(ion==0){
-      Log.debug("ni")
-      for(key in Oneja){
-        if(Oneja[key]>1) return key + " : 0";
-      }
-    }
-    else{
-      Log.debug("이온")
-        for(key in Oneja){
-        if(Oneja[key]>1) return key + " : " + (ion/Oneja[key]>0?"+"+ion/Oneja[key]:ion/Oneja[key]);
-      }
-    }
-  }
-  else{
-    var jugi1 = ['Li','Na','K','Rb','Cs','Fr']; //1족
-    var jugi2 = ['Be','Mg','Ca','Sr','Ba','Ra']; //2족
-    var jugi17 = ['F','Cl','Br','I','At','Ts']; //17족
-    if(Oneja['F']>0){ //F -1
-      Result['F']=-1;
-      e_cnt--;
-      ion-=Oneja['F'];
-    }
-    for(i in jugi1){ //1족 +1
-      if(Oneja[i]>0){
-        Result[i]=1;
-        e_cnt--;
-        ion+=Oneja[i];
-      }
-    }
-    if(e_cnt){
-    for(i in jugi2){ //2족 +2
-      if(Oneja[i]>0){
-        Result[i]=2;
-        e_cnt--;
-        ion+=Oneja[i]*2;
-      }
-    }
-    if(Oneja['Al']>0){ //Al +3
-      Result['Al']=3;
-      e_cnt--;
-      ion+=Oneja['Al']*3;
-    }
-    if(e_cnt){ //H +1
-    if(Oneja['H']>0){
-      Result['H']=1;
-      e_cnt--;
-      ion+=Oneja['H'];
-    }
-    if(e_cnt){ //O -2
-    if(Oneja['O']>0){
-      Result['O']=-2;
-      e_cnt--;
-      ion-=Oneja['O']*2;
-    }
-    if(e_cnt){
-    for(i in jugi17){ //17족 -1
-      if(Oneja[i]>0){
-        Result[i]=-1;
-        e_cnt--;
-        ion-=Oneja[i];
-      }
-    }
-    if(e_cnt){ 
-    if(e_cnt==1){
-      for(key in Oneja){
-        if(Oneja[key]>0&&Result[key]==0){
-          Result[key]=-ion;
-          e_cnt--;
-      }
-    }
-  }}}}}
-  }
-  var Result_String="";
-  for(key in Oneja){
-    if(Oneja[key]>0){
-      if(Result[key]==0&&e_cnt>0) Result_String+=key + " : 알 수 없음\n"; 
-      else Result_String+=key + " : " + (Result[key]>0?"+"+Result[key]:Result[key]) +"\n"; 
-    }
-  }
-  return Result_String.slice(0,-1);
-  }
-}
