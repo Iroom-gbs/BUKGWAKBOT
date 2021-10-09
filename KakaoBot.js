@@ -4,6 +4,7 @@
  * 북곽 1학년을 위해 만들어진 카톡봇입니다.
  * 현재 버전 1.0.0
  * Copyright (c) 2021 IROOM
+ * MIT License
  */
 
 importClass(org.jsoup.Jsoup);
