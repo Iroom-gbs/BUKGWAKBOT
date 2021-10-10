@@ -89,37 +89,6 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
   }
 }
 
-function Timetable_to_String(tm, period) {
-  let today = new Date();
-  if(tm==true) today = new Date(today.valueOf() + 86400000);
-  let year = String(today.getFullYear()); // 년도
-  let month = numberPad(today.getMonth() + 1, 2);  // 월
-  let date = numberPad(today.getDate(), 2);  // 날짜
-  var day = today.getDay(); //요일
-  var dateString = year + "년 " + month + "월 " + date+ "일 ";
-
-  switch(day){
-    case 0: dateString+="월요일"; break;
-    case 1: dateString+="화요일"; break;
-    case 2: dateString+="수요일"; break;
-    case 3: dateString+="목요일"; break;
-    case 4: dateString+="금요일"; break;
-    default: return (tm=0?"오늘":"내일") + "은 수업이 없습니다." + day;
-  }
-  
-  var TimeTableString = dateString;
-
-  Timetable = Timetable_Function(tm);
-  if(period == 0){
-    for(i=1;i<=7;i++)
-    {
-      TimeTableString += "\n" + i + "교시 : " + Timetable_Function(tm, i-1);
-    }
-    return TimeTableString;
-  }
-  else return TimeTableString + "\n" + period + "교시 : " + Timetable_Function(tm, period-1);
-}
-
 ///////////////급식///////////////
 function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
   try{
@@ -176,15 +145,17 @@ function RenewMealData(year, month, date, tommorrow) {
       var meal_Data = JSON.parse(Jsoup.connect("http://api.hegelty.me/schoolmeal")
                                               .data("ATPT_OFCDC_SC_CODE",ATPT_OFCDC_SC_CODE)
                                               .data("SD_SCHUL_CODE", SD_SCHUL_CODE)
-                                              .data("date", year + month + date)
+                                              .data("date", year+month+date)
                                               .ignoreContentType(true).get().text());
-      if(meal_Data.success == "실패") return "급식 정보가 없습니다."
-      
-      for(i=0;i<meal_Data.result.length;i++) {
-        mealdata[tommorrow][meal_Data.result[i].meal_code-1]  = meal_Data.result[i].meal_name + "\n"
-                                   + "----------\n"
-                                   + meal_Data.result[i].menu
-                                   + "\n"+ meal_Data.result[i].cal;
+      try{
+        for(i=0;i<meal_Data.result.length;i++) {
+          mealdata[tommorrow][meal_Data.result[i].meal_code-1]  = meal_Data.result[i].meal_name + "\n"
+                                    + "----------\n"
+                                    + meal_Data.result[i].menu
+                                    + "\n"+ meal_Data.result[i].cal;
+        }
+      }catch(e) {
+        for(i=0;i<3;i++) mealdata[tommorrow][i] = "급식이 없습니다.";
       }
     //갱신일시 저장
     MealDataDate[tommorrow] = year+month+date;
