@@ -111,7 +111,6 @@ function command(room, msg, sender, isGroupChat, replier, msg_data) {
       if(sender=="나태양")replier.reply(AS.Autoselfcheck_Function());
       break;
     
-
     //급식
     case "급식":
       var tm=0,type=0,reset=false;
@@ -208,6 +207,8 @@ function command(room, msg, sender, isGroupChat, replier, msg_data) {
     case "긴단어": replier.reply(G.Kkutu_Long(msg_data[1][0])); break;
     //주사위
     case "주사위": replier.reply(G.Dice()); break;
+    //타이머 시작
+    case "시작": return true;
     default: return false;
   }
   return true;
@@ -232,13 +233,15 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
       }
     }
-
+    //기기 옮기기 전까지 막아두기
+    /*
     else {
       if(msg[0]=="!") msg_data[0] = msg_data[0].substr(1);
       if(command(room, msg, sender, isGroupChat, replier, msg_data)==false) {
         replier.reply(M.PingPong(msg));
       }
     }
+    */
   }
   catch(e){
     replier.reply("에러");

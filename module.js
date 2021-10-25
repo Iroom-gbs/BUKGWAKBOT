@@ -14,6 +14,27 @@ const Lw = "\u200b".repeat(500);
 var MealDataDate = new Array("-1","-1");
 var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
 
+//시간표에 필요한 변수들
+var TimeTableMap = {
+  "수1(조아)":"수학(조아름)",
+  "수1(박현)":"수학(박현종)",
+  "물1(김형)":"물리(김형준)",
+  "화1(이은)":"화학(이은실)",
+  "생1(김지)":"생물(김지수)",
+  "지1(오상)":"지구과학(오상림)",
+  "물1(박규)":"물리(박규)",
+  "화1(김재)":"화학(김재균)",
+  "지1(오중)":"지구과학(오중렬)",
+  "생1(김보)":"생물(김보선)",
+  "정1(김현)":"정보(김현철)",
+  "국어(전은)":"국어(전은선)",
+  "사회(이은)":"통합사회(이은영)",
+  "영1(이지)":"영어(이지현)",
+  "영1(서원)":"영어(서원화)",
+  "체1(이기)":"체육(이기성)",
+  "융합(박규)":"융합과학탐구(박규)"
+}
+
 ///////////////시간표///////////////
 function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
   try {
@@ -42,48 +63,14 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
     for(i=0;i<7;i++) {
       t = TimeTableData.시간표[day][i];
       TimeTable += "\n" + String(i+1) + "교시 : "
-      switch (t)
-      {
-          case "수1(조아)":
-              TimeTable += "수학(조아름)"; break;
-          case "수1(박현)":
-              TimeTable += "수학(박현종)"; break;
-          case "물1(김형)":
-              TimeTable += "물리(김형준)"; break;
-          case "화1(이은)":
-              TimeTable += "화학(이은실)"; break;
-          case "생1(김지)":
-              TimeTable += "생물(김지수)"; break;
-          case "지1(오상)":
-              TimeTable += "지구과학(오상림)"; break;
-          case "물1(박규)":
-              TimeTable += "물리(박규)"; break;
-          case "화1(김재)":
-              TimeTable += "화학(김재균)"; break;
-          case "지1(오중)":
-              TimeTable += "지구과학(오중렬)"; break;
-          case "생1(김보)":
-              TimeTable += "생물(김보선)"; break;
-          case "정1(김현)":
-              TimeTable += "정보(김현철)"; break;
-          case "국어(전은)":
-              TimeTable += "국어(전은선)"; break;
-          case "사회(이은)":
-              TimeTable += "통합사회(이은영)"; break;
-          case "영1(이지)":
-              TimeTable += "영어(이지현)"; break;
-          case "영1(서원)":
-              TimeTable += "영어(서원화)"; break;
-          case "체1(이기)":
-              TimeTable += "체육(이기성)"; break;
-          case "융합(박규)":
-              TimeTable += "융합과학탐구(박규)"; break;
-          default:
-              TimeTable += "없음";
-              break;
+      try {
+        TimeTable += TimeTableMap[t];
+      }
+      catch(e) {
+        TimeTable += "없음";
       }
     }
-      return TimeTable;
+    return TimeTable;
   }catch(e) {
     return "에러! : " + e;
   }
