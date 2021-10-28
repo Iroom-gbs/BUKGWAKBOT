@@ -138,10 +138,13 @@ function command(room, msg, sender, isGroupChat, replier, msg_data) {
     
     case "과제":
       if(msg_data[1]=="추가") {
-        replier.reply(M.Homework_Add_Function(msg.substr(6)));
+        replier.reply(M.Homework_Add_Function(msg.substr(6),sender));
       }
       else if(msg_data[1]=="삭제") {
         replier.reply(M.Homework_Remove_Function(msg_data[2]));
+      }
+      else if(msg_data[1]=="수정") {
+        replier.reply(M.Homework_Change_Function(msg_data[2],msg.substr(9)));
       }
       else replier.reply(M.Homework_Show_Function());
       break;
