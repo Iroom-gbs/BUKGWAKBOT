@@ -14,6 +14,27 @@ const Lw = "\u200b".repeat(500);
 var MealDataDate = new Array("-1","-1");
 var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
 
+//시간표에 필요한 변수들
+var TimeTableMap = {
+  "수1(조아)":"수학(조아름)",
+  "수1(박현)":"수학(박현종)",
+  "물1(김형)":"물리(김형준)",
+  "화1(이은)":"화학(이은실)",
+  "생1(김지)":"생물(김지수)",
+  "지1(오상)":"지구과학(오상림)",
+  "물1(박규)":"물리(박규)",
+  "화1(김재)":"화학(김재균)",
+  "지1(오중)":"지구과학(오중렬)",
+  "생1(김보)":"생물(김보선)",
+  "정1(김현)":"정보(김현철)",
+  "국어(전은)":"국어(전은선)",
+  "사회(이은)":"통합사회(이은영)",
+  "영1(이지)":"영어(이지현)",
+  "영1(서원)":"영어(서원화)",
+  "체1(이기)":"체육(이기성)",
+  "융합(박규)":"융합과학탐구(박규)"
+}
+
 ///////////////시간표///////////////
 function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
   try {
@@ -42,82 +63,17 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
     for(i=0;i<7;i++) {
       t = TimeTableData.시간표[day][i];
       TimeTable += "\n" + String(i+1) + "교시 : "
-      switch (t)
-      {
-          case "수1(조아)":
-              TimeTable += "수학(조아름)"; break;
-          case "수1(박현)":
-              TimeTable += "수학(박현종)"; break;
-          case "물1(김형)":
-              TimeTable += "물리(김형준)"; break;
-          case "화1(이은)":
-              TimeTable += "화학(이은실)"; break;
-          case "생1(김지)":
-              TimeTable += "생물(김지수)"; break;
-          case "지1(오상)":
-              TimeTable += "지구과학(오상림)"; break;
-          case "물1(박규)":
-              TimeTable += "물리(박규)"; break;
-          case "화1(김재)":
-              TimeTable += "화학(김재균)"; break;
-          case "지1(오중)":
-              TimeTable += "지구과학(오중렬)"; break;
-          case "생1(김보)":
-              TimeTable += "생물(김보선)"; break;
-          case "정1(김현)":
-              TimeTable += "정보(김현철)"; break;
-          case "국어(전은)":
-              TimeTable += "국어(전은선)"; break;
-          case "사회(이은)":
-              TimeTable += "통합사회(이은영)"; break;
-          case "영1(이지)":
-              TimeTable += "영어(이지현)"; break;
-          case "영1(서원)":
-              TimeTable += "영어(서원화)"; break;
-          case "체1(이기)":
-              TimeTable += "체육(이기성)"; break;
-          case "융합(박규)":
-              TimeTable += "융합과학탐구(박규)"; break;
-          default:
-              TimeTable += "없음";
-              break;
+      try {
+        TimeTable += TimeTableMap[t];
+      }
+      catch(e) {
+        TimeTable += "없음";
       }
     }
-      return TimeTable;
+    return TimeTable;
   }catch(e) {
     return "에러! : " + e;
   }
-}
-
-function Timetable_to_String(tm, period) {
-  let today = new Date();
-  if(tm==true) today = new Date(today.valueOf() + 86400000);
-  let year = String(today.getFullYear()); // 년도
-  let month = numberPad(today.getMonth() + 1, 2);  // 월
-  let date = numberPad(today.getDate(), 2);  // 날짜
-  var day = today.getDay(); //요일
-  var dateString = year + "년 " + month + "월 " + date+ "일 ";
-
-  switch(day){
-    case 0: dateString+="월요일"; break;
-    case 1: dateString+="화요일"; break;
-    case 2: dateString+="수요일"; break;
-    case 3: dateString+="목요일"; break;
-    case 4: dateString+="금요일"; break;
-    default: return (tm=0?"오늘":"내일") + "은 수업이 없습니다." + day;
-  }
-  
-  var TimeTableString = dateString;
-
-  Timetable = Timetable_Function(tm);
-  if(period == 0){
-    for(i=1;i<=7;i++)
-    {
-      TimeTableString += "\n" + i + "교시 : " + Timetable_Function(tm, i-1);
-    }
-    return TimeTableString;
-  }
-  else return TimeTableString + "\n" + period + "교시 : " + Timetable_Function(tm, period-1);
 }
 
 ///////////////급식///////////////
@@ -176,15 +132,17 @@ function RenewMealData(year, month, date, tommorrow) {
       var meal_Data = JSON.parse(Jsoup.connect("http://api.hegelty.me/schoolmeal")
                                               .data("ATPT_OFCDC_SC_CODE",ATPT_OFCDC_SC_CODE)
                                               .data("SD_SCHUL_CODE", SD_SCHUL_CODE)
-                                              .data("date", year + month + date)
+                                              .data("date", year+month+date)
                                               .ignoreContentType(true).get().text());
-      if(meal_Data.success == "실패") return "급식 정보가 없습니다."
-      
-      for(i=0;i<meal_Data.result.length;i++) {
-        mealdata[tommorrow][meal_Data.result[i].meal_code-1]  = meal_Data.result[i].meal_name + "\n"
-                                   + "----------\n"
-                                   + meal_Data.result[i].menu
-                                   + "\n"+ meal_Data.result[i].cal;
+      try{
+        for(i=0;i<meal_Data.result.length;i++) {
+          mealdata[tommorrow][meal_Data.result[i].meal_code-1]  = meal_Data.result[i].meal_name + "\n"
+                                    + "----------\n"
+                                    + meal_Data.result[i].menu
+                                    + "\n"+ meal_Data.result[i].cal;
+        }
+      }catch(e) {
+        for(i=0;i<3;i++) mealdata[tommorrow][i] = "급식이 없습니다.";
       }
     //갱신일시 저장
     MealDataDate[tommorrow] = year+month+date;
