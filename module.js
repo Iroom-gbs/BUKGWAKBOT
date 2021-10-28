@@ -288,13 +288,18 @@ function Library_Search(book_name) {
 }
 
 ///////////////숙제///////////////
-function Homework_Add_Function(s) {
+function Homework_Add_Function(s,sender) {
   if(!s) return "내용을 입력하세요";
   try {
+    let today = new Date();
+    let year = String(today.getFullYear()); // 년도
+    let month = numberPad(today.getMonth() + 1, 2);  // 월
+    let date = numberPad(today.getDate(), 2);  // 날짜
+
     homeworkFile = JSON.parse(FS.read(homework_route));
-    homeworkFile.homework.push(s);
+    homeworkFile.homework.push(s + "\n\t등록 : " + today.toLocaleDateString() + "\n\t등록자 : " + sender);
     FS.write(homework_route, JSON.stringify(homeworkFile));
-    return "등록되었습니다."
+    return "등록되었습니다." + Lw + "\n" + s;
   } catch(e) {
     Log.error(e);
     return "에러";
@@ -323,6 +328,21 @@ function Homework_Remove_Function(n) {
     homeworkFile.homework.splice(n-1,1);
     FS.write(homework_route, JSON.stringify(homeworkFile));
     return "삭제되었습니다.";
+  } catch(e) {
+    Log.error(e);
+    return "에러";
+  }
+}
+
+function Homework_Change_Function(n, s) {
+  if(n.isNaN) return "숫자를 입력하세요.";
+  if(n<1||n>homeworkFile.homework.length) return "잘못된 숫자입니다.";
+  if(!s) return "내용을 입력하세요.";
+  try {
+    homeworkFile = JSON.parse(FS.read(homework_route));
+    homeworkFile.homework[n-1] = s;
+    FS.write(homework_route, JSON.stringify(homeworkFile));
+    return "변경되었습니다." + Lw + "\n" + s;
   } catch(e) {
     Log.error(e);
     return "에러";
