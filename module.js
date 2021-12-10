@@ -11,8 +11,29 @@ let homework_route = "/sdcard/BUKGWAKBOT/homework.json";
 const Lw = "\u200b".repeat(500);
 
 //급식에 필요한 변수들
-var MealDataDate = new Array("-1","-1");
+var MealDataDate = new Array("-1","-1","-1");
 var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
+
+//시간표에 필요한 변수들
+var TimeTableMap = {
+  "수1(조아)":"수학(조아름)",
+  "수1(박현)":"수학(박현종)",
+  "물1(김형)":"물리(김형준)",
+  "화1(이은)":"화학(이은실)",
+  "생1(김지)":"생물(김지수)",
+  "지1(오상)":"지구과학(오상림)",
+  "물1(박규)":"물리(박규)",
+  "화1(김재)":"화학(김재균)",
+  "지1(오중)":"지구과학(오중렬)",
+  "생1(김보)":"생물(김보선)",
+  "정1(김현)":"정보(김현철)",
+  "국어(전은)":"국어(전은선)",
+  "사회(이은)":"통합사회(이은영)",
+  "영1(이지)":"영어(이지현)",
+  "영1(서원)":"영어(서원화)",
+  "체1(이기)":"체육(이기성)",
+  "융합(박규)":"융합과학탐구(박규)"
+}
 
 ///////////////시간표///////////////
 function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
@@ -42,48 +63,14 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
     for(i=0;i<7;i++) {
       t = TimeTableData.시간표[day][i];
       TimeTable += "\n" + String(i+1) + "교시 : "
-      switch (t)
-      {
-          case "수1(조아)":
-              TimeTable += "수학(조아름)"; break;
-          case "수1(박현)":
-              TimeTable += "수학(박현종)"; break;
-          case "물1(김형)":
-              TimeTable += "물리(김형준)"; break;
-          case "화1(이은)":
-              TimeTable += "화학(이은실)"; break;
-          case "생1(김지)":
-              TimeTable += "생물(김지수)"; break;
-          case "지1(오상)":
-              TimeTable += "지구과학(오상림)"; break;
-          case "물1(박규)":
-              TimeTable += "물리(박규)"; break;
-          case "화1(김재)":
-              TimeTable += "화학(김재균)"; break;
-          case "지1(오중)":
-              TimeTable += "지구과학(오중렬)"; break;
-          case "생1(김보)":
-              TimeTable += "생물(김보선)"; break;
-          case "정1(김현)":
-              TimeTable += "정보(김현철)"; break;
-          case "국어(전은)":
-              TimeTable += "국어(전은선)"; break;
-          case "사회(이은)":
-              TimeTable += "통합사회(이은영)"; break;
-          case "영1(이지)":
-              TimeTable += "영어(이지현)"; break;
-          case "영1(서원)":
-              TimeTable += "영어(서원화)"; break;
-          case "체1(이기)":
-              TimeTable += "체육(이기성)"; break;
-          case "융합(박규)":
-              TimeTable += "융합과학탐구(박규)"; break;
-          default:
-              TimeTable += "없음";
-              break;
+      try {
+        TimeTable += TimeTableMap[t];
+      }
+      catch(e) {
+        TimeTable += "없음";
       }
     }
-      return TimeTable;
+    return TimeTable;
   }catch(e) {
     return "에러! : " + e;
   }
@@ -142,7 +129,7 @@ function RenewMealData(year, month, date, tommorrow) {
   try{
       let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
       let SD_SCHUL_CODE = "7530851"; //학교 코드
-      var meal_Data = JSON.parse(Jsoup.connect("http://api.hegelty.me/schoolmeal")
+      var meal_Data = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/schoolmeal")
                                               .data("ATPT_OFCDC_SC_CODE",ATPT_OFCDC_SC_CODE)
                                               .data("SD_SCHUL_CODE", SD_SCHUL_CODE)
                                               .data("date", year+month+date)
@@ -244,7 +231,8 @@ function Hangang_Function(type) {
   try {
     today = new Date();
     hour = today.getHours();  // 시간
-    HangangData = JSON.parse(Jsoup.connect("http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/").ignoreContentType(true).get().text().split('[')[1].split(']')[0]);
+     
+ ​    ​HangangData​ ​=​ ​JSON​.​parse​(​Jsoup​.​connect​(​"http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/"​)​.​ignoreContentType​(​true​)​.​get​(​)​.​text​(​)​.​split​(​'['​)​[​1​]​.​split​(​']'​)​[​0​]​)​;
     hangang_temp = Number(HangangData.W_TEMP); //수온
     hangang_site = HangangData.SITE_ID; //위치
     hangang_time = HangangData.MSR_DATE; 
@@ -253,8 +241,8 @@ function Hangang_Function(type) {
     let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
     let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
     let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
-    if(type == '화씨') return("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n하드디스크는 로우포맷 해야 복구가 불가능합니다.\n자살예방상담전화 1393\n청소년전화 1388");
-    else return("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n지금 죽으면 장례식에 49명만 옴\n자살예방상담전화 1393\n청소년전화 1388");
+    if(type == '화씨') return("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n하드디스크는 로우포맷 해야 복구가 불가능합니다.\n자살예방상담전화 1393\n청소년전화 1388\n라이선스 : CC-BY 서울특별시");
+    else return("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n지금 죽으면 장례식에 49명만 옴\n자살예방상담전화 1393\n청소년전화 1388\n라이선스 : CC-BY 서울특별시");
   }catch(e){
     return("에러!\n" + e);
   }
@@ -301,13 +289,18 @@ function Library_Search(book_name) {
 }
 
 ///////////////숙제///////////////
-function Homework_Add_Function(s) {
+function Homework_Add_Function(s,sender) {
   if(!s) return "내용을 입력하세요";
   try {
+    let today = new Date();
+    let year = String(today.getFullYear()); // 년도
+    let month = numberPad(today.getMonth() + 1, 2);  // 월
+    let date = numberPad(today.getDate(), 2);  // 날짜
+
     homeworkFile = JSON.parse(FS.read(homework_route));
-    homeworkFile.homework.push(s);
+    homeworkFile.homework.push(s + "\n\t등록 : " + today.toLocaleDateString() + "\n\t등록자 : " + sender);
     FS.write(homework_route, JSON.stringify(homeworkFile));
-    return "등록되었습니다."
+    return "등록되었습니다." + Lw + "\n" + s;
   } catch(e) {
     Log.error(e);
     return "에러";
@@ -342,11 +335,26 @@ function Homework_Remove_Function(n) {
   }
 }
 
+function Homework_Change_Function(n, s) {
+  if(n.isNaN) return "숫자를 입력하세요.";
+  if(n<1||n>homeworkFile.homework.length) return "잘못된 숫자입니다.";
+  if(!s) return "내용을 입력하세요.";
+  try {
+    homeworkFile = JSON.parse(FS.read(homework_route));
+    homeworkFile.homework[n-1] = s;
+    FS.write(homework_route, JSON.stringify(homeworkFile));
+    return "변경되었습니다." + Lw + "\n" + s;
+  } catch(e) {
+    Log.error(e);
+    return "에러";
+  }
+}
+
 
 ///////////////폰 상태///////////////
 function PhoneData_Function() {
   var device_profile_name = android.provider.Settings.Global.getString(Api.getContext().getContentResolver(), "device_name");
-  return  "북곽봇상태\n\n휴대폰 이름 : " + device_profile_name
+  return  "북곽봇상태\n"
         + "\n안드로이드버전 : " + Device.getAndroidVersionName()
         + "\n\n배터리 : " + Device.getBatteryLevel()
         + "%\n온도 : " + Device.getBatteryTemperature()/10
@@ -450,7 +458,7 @@ function shorten(url) {
 ///////////////핑퐁///////////////
 function PingPong(str, room) {
   try{
-    result = JSON.parse(Jsoup.connect("http://api.hegelty.me/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
+    result = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
     text = result.text;
     if(text == "급식") return "오늘 급식이에요!\n"+Meal_Function(0,0,false);
     else if(text == "시간표") return "시간표를 알려드릴게요.\n"+Timetable_Function(0);
@@ -461,7 +469,7 @@ function PingPong(str, room) {
 ///////////////시험까지 남은 시간///////////////
 function LeftTimeToExam()
 {
-  var examTime = new Date(2021,12-1,6,9,10,0);
+  var examTime = new Date(2021,12-1,9,11,30,0);
   var nowTime = new Date();
   var timeGap = examTime-nowTime;
 
@@ -579,4 +587,3 @@ function replaceAll(str, searchStr, replaceStr) {
 
   return str.split(searchStr).join(replaceStr);
 }
-
