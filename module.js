@@ -209,19 +209,29 @@ function Weather_Function(area, day) {
 function Corona_Function() {
   var result ="코로나19 현황\n\n";
   try {
-    var url = Jsoup.connect("http://ncov.mohw.go.kr/bdBoardList_Real.do").get();
-    result += "일일 현황" + url.select("#content > div > h5:nth-child(4) > span").text()
-            + "\n----------\n확진자 : " + url.select("div:nth-child(1) > ul > li:nth-child(1) > dl > dd").text() + " 명"
-            + "\n국내 : " +url.select("div:nth-child(1) > ul > li:nth-child(2) > dl > dd > ul > li:nth-child(2) > p").text() + " 명"
-            + "\n해외 : " +url.select("div:nth-child(1) > ul > li:nth-child(2) > dl > dd > ul > li:nth-child(3) > p").text() + " 명"
-            + "\n\n누적 현황\n----------\n확진자 : " +url.select("div:nth-child(1) > ul > li:nth-child(1) > dl > dd").text() + ""
-            + "\n격리해제 : " + url.select("div:nth-child(2) > ul > li:nth-child(1) > dl > dd").text() + " 명"
-            + "(" + url.select("div:nth-child(2) > ul > li:nth-child(2) > dl > dd > span").text() + ")\n"
-            + "격리중 : " + url.select("div:nth-child(3) > ul > li:nth-child(1) > dl > dd").text() + " 명"
-            + "(" + url.select("div:nth-child(3) > ul > li:nth-child(2) > dl > dd > span").text() + ")\n"
-            + "사망자 : " + url.select("div:nth-child(4) > ul > li:nth-child(1) > dl > dd").text() + " 명"
-            + "(" + url.select("div:nth-child(4) > ul > li:nth-child(2) > dl > dd > span").text() + ")"
-            + "\n\n자료 : 보건복지부";  
+    let today = new Date();
+    let dateStringToday = String(today.getFullYear())+numberPad(today.getMonth() + 1, 2)+numberPad(today.getDate(), 2);
+    yesterday = new Date(today.getTime() - 2*(24 * 60 * 60 * 1000));
+    let dateStringYesterday = String(yesterday.getFullYear())+numberPad(yesterday.getMonth() + 1, 2)+numberPad(yesterday.getDate(), 2);
+    var doc = Jsoup.connect("http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson")
+              .data("ServiceKey","oRJ7GkBt1uuzGgsfEjaLHQDjW1l+An2hqpIeVXM+1qx/hL45ARgDP4wdfCVfRtR3HsSYpBNGWiKlIp2/c0CNJA==")
+              .data("startCreateDt",dateStringYesterday)
+              .data("endCreateDt",dateStringToday)
+              .ignoreContentType(true).get();
+    resultCode = doc.select("resultCode")[0].text();
+    if(resultCode != "00") throw("에러 " + doc.select("resultMsg"));
+    
+    STATE_DT = doc.select("stateDt")[0].text();
+    STATE_TIME = doc.select("stateTime")[0].text();
+    DECIDE_CNT = doc.select("decideCnt")[0].text();
+    DECIDE_PLUS = parseInt(doc.select("decideCnt")[0].text()) - parseInt(doc.select("decideCnt")[1].text());
+    DEATH_CNT = doc.select("deathCnt")[0].text();
+    DEATH_PLUS = parseInt(doc.select("deathCnt")[0].text()) - parseInt(doc.select("deathCnt")[1].text());
+    result += "확진자 수 : " + numberComma(DECIDE_CNT) + " 명\n";
+    result += "사망자 수 : " + numberComma(DEATH_CNT) + " 명\n";
+    result += "확진자 증가수 : " + numberComma(DECIDE_PLUS) + " 명\n";
+    result += "사망자 증가수 : " + numberComma(DEATH_PLUS) + "  명\n";
+    result += "\n기준 일시 : " + dateNumToString(STATE_DT) + " " + STATE_TIME ;
     return result;
   }catch(e){return e;}
 }
@@ -586,4 +596,12 @@ function numberPad(n, width) {
 function replaceAll(str, searchStr, replaceStr) {
 
   return str.split(searchStr).join(replaceStr);
+}
+
+function numberComma(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function dateNumToString(n) {
+  return n.substr(0,4)+"년 "+n.substr(4,2)+"월 "+n.substr(6,2)+"일";
 }
