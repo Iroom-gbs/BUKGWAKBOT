@@ -557,7 +557,7 @@ function Giftcon(room, type){
 ///////////////현재 TV////////////////
 //[출처] TV 지상파 방송 편성표 파싱 (카카오톡 봇 커뮤니티) | 작성자 에케
 function TV_Now() {
-  data = org.jsoup.Jsoup.connect("https://m.search.naver.com/search.naver?query=%ED%8E%B8%EC%84%B1%ED%91%9C").get().select("li.program_item.on");
+  data = Jsoup.connect("https://m.search.naver.com/search.naver?query=%ED%8E%B8%EC%84%B1%ED%91%9C").get().select("li.program_item.on");
   k1 = data.get(0).select(".pr_name").text();
   k2 = data.get(1).select(".pr_name").text();
   m = data.get(2).select(".pr_name").text();
@@ -565,6 +565,32 @@ function TV_Now() {
   e1 = data.get(4).select(".pr_name").text();
   e2 = data.get(5).select(".pr_name").text();
   return("현재 방송중인 프로그램입니다.\nKBS1 " + k1 + "\nKBS2 " + k2 + "\nMBC " + m + "\nSBS " + s + "\nEBS1 " + e1 + "\nEBS2 " + e2 + "\n@sh4cker");
+}
+
+///////////////위키////////////////
+function SearchWiki(w) {
+  try {
+    w = w.trim();
+    url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).get();
+    Log.d("http://20.89.159.83:3000/w/"+encodeURI(w))
+    outline = url.select("#main_data").text();
+    Log.d(outline);
+    if(outline.indexOf("#redirect")!=-1){
+      w = outline.split("#redirect")[1].trim();
+      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).get();
+      outline = url.select("#main_data").text();
+    }
+    else if(outline.indexOf("#넘겨주기")!=-1) {
+      w = outline.split("#넘겨주기")[1].trim();
+      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).get();
+      outline = url.select("#main_data").text();
+    }
+    var result = w + "에 대한 GBSWiki 검색 결과\n"
+              + "http://20.89.159.83:3000/w/"+w + "\n"
+              + Lw + "\n"
+              + "개요\n" + outline + "\n\n 자세한 내용은 위 링크로 이동해주세요.";
+    return result;
+  } catch(e) { return "해당 문서가 존재하지 않습니다."};
 }
 
 //[출처] 게이지 함수 (카카오톡 봇 커뮤니티) | 작성자 뀨야

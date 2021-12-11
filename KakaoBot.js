@@ -36,7 +36,7 @@
      case "명령어": replier.reply(
                                  "도움말\n"
                                + "\u200b".repeat(500)
-                               + "() : 선택  [] : 필수\n갠톡으로 대화할 시 '!'와 '북곽아'없이 사용할 수 있습니다.\n"
+                               + "() : 선택  [] : 필수\n1:1 채팅으로 대화할 시 '!'와 '북곽아'없이 사용할 수 있습니다.\n"
                                + "북곽아 [] : 북곽이랑 대화합니다.\n"
                                + "!채널 : 북곽봇 카카오톡 채널을 알려줍니다.\n\n"
                                
@@ -51,7 +51,8 @@
  
                                + "!정보 : 북곽봇 정보를 알려줍니다.\n"
                                + "!상태 : 북곽봇 휴대폰 상태를 알려줍니다.\n\n"
- 
+                               
+                               + "!위키 (내용) : GBSWiki에서 내용을 검색합니다.\n"
                                + "!한강수온 (화씨) : 오늘 한강의 온도를 알려줍니다.\n"
                                + "!날씨 (위치) : 날씨를 알려줍니다.\n"
                                + "!코로나 : 코로나 확진자 정보를 알려줍니다.\n"
@@ -174,6 +175,8 @@
  
        break;
      
+     //위키
+     case "위키": return(M.SearchWiki(msg.substr(3))); break;
      //한강 수온
      case "한강수온": return(M.Hangang_Function(msg_data[1])); break;
  
@@ -206,7 +209,8 @@
      //롤 전적검색, 갱신
      case "롤" :
        if(msg_data[1]=="갱신"){ return(G.opggupdate(msg.replace("!롤 갱신 ",""))); break;}
-       return(G.LOLHistory(msg.replace("!롤 ",""),room)); break;
+       result = G.LOLHistory(msg.replace("!롤 ",""),room); 
+       if(result!="성공") return result; break;
  
      //끄투 긴단어검색
      case "긴단어": return(G.Kkutu_Long(msg_data[1][0])); break;
