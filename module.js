@@ -571,26 +571,33 @@ function TV_Now() {
 function SearchWiki(w) {
   try {
     w = w.trim();
-    url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).get();
-    Log.d("http://20.89.159.83:3000/w/"+encodeURI(w))
+    try {
+      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+    } catch (e) {
+      url = Jsoup.connect("http://20.89.159.83:3000/search/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      w = url.select("#main_data > ul:nth-child(3) > li:nth-child(1) > a").text();
+      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+    }
     outline = url.select("#main_data").text();
-    Log.d(outline);
     if(outline.indexOf("#redirect")!=-1){
       w = outline.split("#redirect")[1].trim();
-      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).get();
+      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
       outline = url.select("#main_data").text();
     }
     else if(outline.indexOf("#넘겨주기")!=-1) {
       w = outline.split("#넘겨주기")[1].trim();
-      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).get();
+      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
       outline = url.select("#main_data").text();
     }
     var result = w + "에 대한 GBSWiki 검색 결과\n"
               + "http://20.89.159.83:3000/w/"+w + "\n"
               + Lw + "\n"
-              + "개요\n" + outline + "\n\n 자세한 내용은 위 링크로 이동해주세요.";
+              + "개요\n" + outline.replace('{"inter_wiki": {}} ',"") + "\n\n 자세한 내용은 위 링크로 이동해주세요.";
     return result;
-  } catch(e) { return "해당 문서가 존재하지 않습니다."};
+  } catch(e) {
+    Log.d("위키 오류" + e);
+    return "해당 문서가 존재하지 않거나, 볼 수 없습니다. 학생/교사 개인 문서는 로그인해야만 볼 수 있습니다."
+  };
 }
 
 //[출처] 게이지 함수 (카카오톡 봇 커뮤니티) | 작성자 뀨야
