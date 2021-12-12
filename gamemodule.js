@@ -61,7 +61,7 @@ function Dice()
 {
     dice = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
     result = Math.floor(Math.random() * 5) + 1;
-    return result+dice[result];
+    return dice[result];
 }
 
 function LOLHistory(name, room)
@@ -70,24 +70,35 @@ function LOLHistory(name, room)
     var url = Jsoup.connect("https://www.op.gg/summoner/userName="+encodeURI(name)).get();
 
     try {
-        var username = url.select("body > div.l-wrap.l-wrap--summoner > div.l-container > div > div > div.Header > div.Profile > div.Information > span").text();
-        var profileimage = url.select("body > div.l-wrap.l-wrap--summoner > div.l-container > div > div > div.Header > div.Face > div > img").attr("src").text().replace("//","https://").replace("?image=q_auto:best&v=1","");
+        var username = url.select("div.Information > span.Name").text();
+        if(!username) return "소환사를 찾을 수 없습니다.";
+        var profileimage = "https:" + url.select("img.ProfileImage").attr("src");
         var lastupdate = url.select("div.Header > div.LastUpdate > span").text();
-        var userlevel = url.select("div.Header > div.Face > div > span").text();
+        var userlevel = url.select("div.ProfileIcon > span").text();
 
-        var solorank_tier = url.select("div.TierRankInfo > div.TierRank").text();
-        var solorank_tierimage = "https://opgg-static.akamaized.net/images/medals/" + solorank_tier.substring(0,solorank_tier.length-2).toLowerCase() + "_" + solorank_tier[solorank_tier.length-1] + ".png";
+        var solorank_tier = url.select("div.TierRank").text();
+        var solorank_tierimage = "https:" + url.select("div.SummonerRatingMedium > div > img.Image").attr("src");
+        if(solorank_tier=="Unranked") {
+            var solorank_win = "-";
+            var solorank_losses = "-";
+            var solorank_winratio = "-";
+        }
         var solorank_win = url.select("div.TierInfo > span.WinLose > span.wins").text();
         var solorank_losses = url.select("div.TierInfo > span.WinLose > span.losses").text();
-        var solorank_winratio = url.select("div.TierInfo > span.WinLose > span.winratio").text();
-        if(solorank_tier=="Unranked") freerank_tierimage = "https://opgg-static.akamaized.net/images/medals/default.png";
-
-        var freerank_tier = url.select("div.sub-tier > div > div.sub-tier__rank-tier").text();
-        var freerank_tierimage = "https://opgg-static.akamaized.net/images/medals/" + freerank_tier.substring(0,freerank_tier.length-2).toLowerCase() + "_" + freerank_tier[freerank_tier.length-1] + ".png";
-        var freerank_winloss = url.select("div.sub-tier > div > div.sub-tier__league-point > span").text();
-        var freerank_winratio = url.select("div.sub-tier > div > div.sub-tier__gray-text").text();
-        if(freerank_tier=="Unranked") freerank_tierimage = "https://opgg-static.akamaized.net/images/medals/default.png";
-
+        var solorank_winratio = url.select("div.TierInfo > span.WinLose > span.winratio").text().replace("Win Ratio ","");
+        
+        var freerank_tier = url.select("div.sub-tier__rank-tier").text();
+        var freerank_tierimage = "https:" + url.select("div.sub-tier > img").attr("src");
+        if(freerank_tier=="Unranked") {
+            var freerank_tierimage = "https://opgg-static.akamaized.net/images/medals/default.png";
+            var freerank_winloss = "-";
+            var freerank_winratio = "-";
+        }
+        else {
+            var freerank_winloss = url.select("div.sub-tier > div > div.sub-tier__league-point > span").text();
+            var freerank_winratio = url.select("div.sub-tier > div > div.sub-tier__gray-text").text().replace("Win Rate ","");
+        }
+        
         Kakao.send(room,{
             link_ver : "4.0",
             template_id : 54842,
@@ -96,19 +107,21 @@ function LOLHistory(name, room)
             name : encodeURI(username),
 
             title1 : username,
-            des1 : userlevel + "레벨(" + lastupdate+" 갱신)",
+            des1 : userlevel + "레벨",
             image1 : profileimage,
 
             title2 : "솔로랭크 : "+solorank_tier,
-            des2 :  solorank_win+solorank_losses + "(" + solorank_winratio+")",
+            des2 :  solorank_win+" "+solorank_losses + "(" + solorank_winratio+")",
             image2 : solorank_tierimage,
 
             title3 : "자유랭크 : " +freerank_tier,
             des3 : freerank_winloss.substring(2,freerank_winloss.length) + "(" + freerank_winratio+")",
             image3 : freerank_tierimage,
+
+            updated : lastupdate,
             }
         }, "custom");
-        return profileimage;
+        return "성공";
     } catch(e) {
         Log.debug(e);
         return "소환사를 찾을 수 없습니다."
