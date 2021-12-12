@@ -68,7 +68,7 @@
                                + "!롤 [소환사명] : OP.GG에서 소환서의 전적을 검색합니다.(미완)\n"
                                + "!롤 갱신 [소환사명] : OP.GG에서 소환사의 전적을 갱신합니다.\n\n"
  
-                               + "!노래검색 [제목] : 노래를 검색합니다.\n"
+                               + "!노래 [제목] : 노래를 검색합니다.\n"
                                + "!가사 [제목] : 노래의 가사를 보여줍니다.\n"
                                + "!TV : 현재 방영중인 TV 프로그램 목록을 보여줍니다.\n"
                                + "!주식 [종목] : 주식 정보를 보여줍니다.\n\n"
@@ -101,12 +101,9 @@
        break;
  
      //상태
-     case "상태": return(M.PhoneData_Function()); break;
+     case "상태": return(M.showPhoneStat()); break;
  
      //단순응답
-     case "반장": return("명물"); break;
-     case "명물": return("반장"); break;
-     case "짜릿짜릿해": return("1.\nsoundcloud.com/seob88861/mp3\n2.\nyoutu.be/oq0VGRQ9J-0"); break;
      case "태양만세": return("태양 만세!"); break;
  
      //자가진단
@@ -125,42 +122,42 @@
    
        if(msg_data[1]=="리로드") reset=true;
    
-       return(M.Meal_Function(tm,type,reset));
+       return(M.showMeal(tm,type,reset));
        break;
      
      //시간표
      case "시간표":
        var tm=0, period=0;
        if(msg_data[1]=="내일") tm=1;
-       return(M.Timetable_Function(tm));
+       return(M.showTimetable(tm));
        break;
  
      //도서검색
-     case "책": return(M.Library_Search(msg.substr(2))); break;
+     case "책": return(M.searchBook(msg.substr(2))); break;
      case "교과서": return("http://di.do/dScIy"); break;
      
      case "과제":
        if(msg_data[1]=="추가") {
-         return(M.Homework_Add_Function(msg.substr(6),sender));
+         return(M.addHomework(msg.substr(6),sender));
        }
        else if(msg_data[1]=="삭제") {
-         return(M.Homework_Remove_Function(msg_data[2]));
+         return(M.removeHomework(msg_data[2]));
        }
        else if(msg_data[1]=="수정") {
-         return(M.Homework_Change_Function(msg_data[2],msg.substr(9)));
+         return(M.modifyHomework(msg_data[2],msg.substr(9)));
        }
-       else return(M.Homework_Show_Function());
+       else return(M.showHomework());
        break;
  
      //코로나 현황
-     case "코로나": return(M.Corona_Function()); break;
+     case "코로나": return(M.showCoronaInfo()); break;
  
-     case "남은시간": return("시험 끝까지 남은 시간 \n"+M.LeftTimeToExam()); break;
+     case "남은시간": return("시험 끝까지 남은 시간 \n"+M.showLeftTimeToExam()); break;
  
      //코드업 정보
      case "코드업":
        if(msg_data.length<2) return("찾으려는 아이디를 입력하세요.\n(!코드업 [아이디])");
-       else return(M.CodeUPRank_Function(msg_data[1]));
+       else return(M.showCodeUPUserInfo(msg_data[1]));
        break;
  
      //날씨
@@ -171,30 +168,33 @@
        if(msg_data[1]=="내일"||msg_data[2]=="내일") day=1;
        else if(msg_data[1]=="모레"||msg_data[2]=="모레") day=2;
        else day=0;
-       return(M.Weather_Function(area,day)); 
+       return(M.showWeather(area,day)); 
  
        break;
      
      //위키
      case "위키": return(M.SearchWiki(msg.substr(3))); break;
      //한강 수온
-     case "한강수온": return(M.Hangang_Function(msg_data[1])); break;
+     case "한강수온": return(M.showHangangTemp(msg_data[1])); break;
  
      //노래검색
-     case "노래검색": M.MusicSearch(msg.replace(msg_data[0],""),room); break;
+     case "노래":
+       result = M.searchMusic(msg.replace(msg_data[0],""),room);
+       if(result!=0) return result;
+       break;
  
      //가사
-     case "가사": return(M.Lyrics(msg.replace(msg_data[0],""))); break;
+     case "가사": return(M.showLyrics(msg.replace(msg_data[0],""))); break;
  
      //현재 TV
-     case "TV": return(M.TV_Now()); break;
+     case "TV": return(M.showTVList()); break;
      //주식
-     case "주식": return(M.Stock(msg_data[1])); break;
+     case "주식": return(M.showStockInfo(msg_data[1])); break;
  
      //번역
      case "번역": return(M.getTranslate(msg_data[1],msg.replace(msg_data[0],"").replace(msg_data[1],""))); break;
      //단축
-     case "단축": return(M.shorten(msg.replace("!단축 ",""))); break;
+     case "단축": return(M.makeShortenURL(msg.replace("!단축 ",""))); break;
  
      //랜덤숫자 뽑기
      case "랜덤숫자": return(G.RandNum(msg_data[1],msg_data[2])); break;
@@ -204,7 +204,10 @@
      case "가위바위보": return(G.RSP(msg_data[1])); break;
  
      //기프티콘 낚시
-     case "기프티콘": M.Giftcon(room, msg_data[1]); break;
+     case "기프티콘":
+       result = M.sendGiftcon(room, msg_data[1]);
+       if(result!=0) return result;
+       break;
      
      //롤 전적검색, 갱신
      case "롤" :

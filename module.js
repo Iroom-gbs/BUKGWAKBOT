@@ -36,7 +36,7 @@ var TimeTableMap = {
 }
 
 ///////////////시간표///////////////
-function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
+function showTimetable(tm) { //tm : 오늘(false)/내일(true)
   try {
     let today = new Date();
     if(tm==true) today = new Date(today.valueOf() + 86400000);
@@ -77,7 +77,7 @@ function Timetable_Function(tm) { //tm : 오늘(false)/내일(true)
 }
 
 ///////////////급식///////////////
-function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
+function showMeal(tm,type,reset) { //tm : 오늘(false)/내일(true)
   try{
     var Result = new String("");
     let today = new Date();
@@ -97,15 +97,13 @@ function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
       day = tommorrow_time.getDay(); //요일
     }
 
-    Result = year+"년 "+String(month)+"월 "+String(date)+"일 급식\n"
     if(day==0||day==6) {
-      weekendMeal = new Array("오늘 주말이야","있겠냐","집밥","굶어","편의점","치킨","피자","족발","우리가 어떤 민족입니까?","궁금하면 500원")
-      Result = weekendMeal[(Math.floor(Math.random() * 10))];
+      return((tommorrow == 1? "내일":"오늘") + "은 급식이 없습니다.");
     }
     else
     {
       if(MealDataDate[tommorrow] != year+month+date||reset==true) { //급식 정보가 최신이 아닐 경우 갱신
-        cr = RenewMealData(year, month, date, tommorrow);
+        cr = renewMealData(year, month, date, tommorrow);
         if(cr!=0) return cr;
       }
 
@@ -125,7 +123,7 @@ function Meal_Function(tm,type,reset) { //tm : 오늘(false)/내일(true)
     return "에러!\n" + e;
   }
 }
-function RenewMealData(year, month, date, tommorrow) {
+function renewMealData(year, month, date, tommorrow) {
   try{
       let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
       let SD_SCHUL_CODE = "7530851"; //학교 코드
@@ -154,7 +152,7 @@ function RenewMealData(year, month, date, tommorrow) {
 }
 
 ///////////////날씨///////////////
-function Weather_Function(area, day) {
+function showWeather(area, day) {
   day=Number(day);
   area = new String(area);
   var result = new String("");
@@ -206,7 +204,7 @@ function Weather_Function(area, day) {
 }
 
 ///////////////코로나///////////////
-function Corona_Function() {
+function showCoronaInfo() {
   var result ="코로나19 현황\n\n";
   try {
     let today = new Date();
@@ -237,7 +235,7 @@ function Corona_Function() {
 }
 
 ///////////////한강수온///////////////
-function Hangang_Function(type) {
+function showHangangTemp(type) {
   try {
     today = new Date();
     hour = today.getHours();  // 시간
@@ -251,15 +249,15 @@ function Hangang_Function(type) {
     let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
     let temp_F = String((hangang_temp * 1.8 + 32).toFixed(2))+ "°F";  //화씨
     let temp_R = String(((hangang_temp + 273.15)*1.8).toFixed(2))+ "°R";  //란씨
-    if(type == '화씨') return("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n하드디스크는 로우포맷 해야 복구가 불가능합니다.\n자살예방상담전화 1393\n청소년전화 1388\n라이선스 : CC-BY 서울특별시");
-    else return("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n지금 죽으면 장례식에 49명만 옴\n자살예방상담전화 1393\n청소년전화 1388\n라이선스 : CC-BY 서울특별시");
+    if(type == '화씨') return("지금 한강의 수온은 " + temp_F + "(" + temp_R +") 입니다.\n("+hangang_time+hangang_site+"기준)\n\n자료 : 서울특별시");
+    else return("지금 한강의 수온은 " + temp_C + "(" + temp_K +") 입니다.\n("+hangang_time+" "+hangang_site+"기준)\n\n자료 : 서울특별시");
   }catch(e){
     return("에러!\n" + e);
   }
 }
 
 ///////////////코드업///////////////
-function CodeUPRank_Function(name) {
+function showCodeUPUserInfo(name) {
   var result = "";
   try {
     var url = Jsoup.connect("https://codeup.kr/userinfo.php?user="+name).get();
@@ -274,7 +272,7 @@ function CodeUPRank_Function(name) {
 }
 
 ///////////////도서검색///////////////
-function Library_Search(book_name) {
+function searchBook(book_name) {
   var result = "";
   try {
     var url = JSON.parse(Jsoup.connect("https://api.book.msub.kr/?book="+book_name+"&school=경기북과학고&local=경기").ignoreContentType(true).get().text());
@@ -299,7 +297,7 @@ function Library_Search(book_name) {
 }
 
 ///////////////숙제///////////////
-function Homework_Add_Function(s,sender) {
+function addHomework(s,sender) {
   if(!s) return "내용을 입력하세요";
   try {
     let today = new Date();
@@ -317,7 +315,7 @@ function Homework_Add_Function(s,sender) {
   }
 } 
 
-function Homework_Show_Function() {
+function showHomework() {
   try {
     homeworkFile = JSON.parse(FS.read(homework_route));
     result = "현재 등록된 과제 : "+homeworkFile.homework.length+"개\n"+Lw;
@@ -331,7 +329,7 @@ function Homework_Show_Function() {
   }
 }
 
-function Homework_Remove_Function(n) {
+function removeHomework(n) {
   if(n.isNaN) return "숫자를 입력하세요.";
   if(n<1||n>homeworkFile.homework.length) return "잘못된 숫자입니다.";
   try {
@@ -345,7 +343,7 @@ function Homework_Remove_Function(n) {
   }
 }
 
-function Homework_Change_Function(n, s) {
+function modifyHomework(n, s) {
   if(n.isNaN) return "숫자를 입력하세요.";
   if(n<1||n>homeworkFile.homework.length) return "잘못된 숫자입니다.";
   if(!s) return "내용을 입력하세요.";
@@ -362,41 +360,44 @@ function Homework_Change_Function(n, s) {
 
 
 ///////////////폰 상태///////////////
-function PhoneData_Function() {
+function showPhoneStat() {
   var device_profile_name = android.provider.Settings.Global.getString(Api.getContext().getContentResolver(), "device_name");
   return  "북곽봇상태\n"
         + "\n안드로이드버전 : " + Device.getAndroidVersionName()
         + "\n\n배터리 : " + Device.getBatteryLevel()
-        + "%\n온도 : " + Device.getBatteryTemperature()/10
+        + "%\n배터리 온도 : " + Device.getBatteryTemperature()/10
         + "°c\n충전여부 : "+Device.isCharging()
         + "\n전압상태 : " + Device.getBatteryVoltage();
 }
 
 ///////////////음악검색///////////////
-function MusicSearch(title, room){
-  var MusicData = JSON.parse(Jsoup.connect("https://api.music.msub.kr/?song=" + title).ignoreContentType(true).get().text());
-  if(MusicData.song.length==0) return "검색 결과가 없습니다."; //실패시 throw
-  MusicData = MusicData.song[0];
-  MusicThumbnail = MusicData.albumimg;
-  MusicTitle = MusicData.name;
-  MusicAlbum = MusicData.album;
-  MusicLink = MusicData.melonlink;
-  MusicArtist = MusicData.artist;
+function searchMusic(title, room){
+  try {
+    var MusicData = JSON.parse(Jsoup.connect("https://api.music.msub.kr/?song=" + title).ignoreContentType(true).get().text());
+    if(MusicData.song.length==0) return "검색 결과가 없습니다.";
+    MusicData = MusicData.song[0];
+    MusicThumbnail = MusicData.albumimg;
+    MusicTitle = MusicData.name;
+    MusicAlbum = MusicData.album;
+    MusicLink = MusicData.melonlink;
+    MusicArtist = MusicData.artist;
 
-  Kakao.send(room,{
-    "link_ver" : "4.0",
-    "template_id" : 55964,
-    "template_args" : {
-      "title": MusicTitle,
-      "image" : MusicThumbnail,
-      "des" : MusicArtist + " [" + MusicAlbum + "]",
-      "link" : MusicLink.replace("http://m.app.melon.com/","")
-    }
-    }, "custom");
+    Kakao.send(room,{
+      "link_ver" : "4.0",
+      "template_id" : 55964,
+      "template_args" : {
+        "title": MusicTitle,
+        "image" : MusicThumbnail,
+        "des" : MusicArtist + " [" + MusicAlbum + "]",
+        "link" : MusicLink.replace("http://m.app.melon.com/","")
+      }
+      }, "custom");
+    return 0;
+    } catch(e) { return "에러" + e; }
 }
 
 ///////////////가사///////////////
-function Lyrics(title) {
+function showLyrics(title) {
   var MusicData = JSON.parse(Jsoup.connect("https://api.music.msub.kr/?song=" + title).ignoreContentType(true).get().text());
   if(MusicData.song.length==0) return "검색 결과가 없습니다."; //실패시 throw
 
@@ -414,7 +415,6 @@ function Lyrics(title) {
 * 상업적 이용 불가, 배포 불가 
 * 라이선스 : MIT
 */
-
 ///////////////번역///////////////
 const getTranslate = (resultLanguage, q) => {
   try{
@@ -459,7 +459,7 @@ const getLanguage = (a) => {
 }
 
 ///////////////링크 단축///////////////
-function shorten(url) {
+function makeShortenURL(url) {
   result = Jsoup.connect("http://di.do/index.php").data("u", url).post().select("input[name^=n]").attr("value");
   if(!result.split("do/")[1]=="EU") return "URL이 올바르지 않습니다.";
   return result;
@@ -477,12 +477,12 @@ function PingPong(str, room) {
 }
 
 ///////////////시험까지 남은 시간///////////////
-function LeftTimeToExam()
+function showLeftTimeToExam()
 {
   var examTime = new Date(2021,12-1,9,11,30,0);
   var nowTime = new Date();
   var timeGap = examTime-nowTime;
-
+  if(timeGap<=0) return "모든 시험이 끝났습니다!";
   let gapSec = parseInt(timeGap/1000);
   let gapMin = parseInt(gapSec / 60);
   gapSec = gapSec % 60;
@@ -495,7 +495,7 @@ function LeftTimeToExam()
 }
 
 ///////////////주식///////////////
-function Stock(name) {
+function showStockInfo(name) {
   var url = "https://search.naver.com/search.naver?query=주식 " + name;
   var data = Jsoup.connect(url).get();
   var name = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.stk_nm").text();
@@ -521,7 +521,7 @@ function Stock(name) {
 }
 
 ///////////////기프티콘 낚시////////////////
-function Giftcon(room, type){
+function sendGiftcon(room, type){
   var image ="";
   switch(type)
   {
@@ -541,7 +541,7 @@ function Giftcon(room, type){
     case "컵밥" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/컵밥.png"; break;
     case "페레레로쉐" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/페레레로쉐.png"; break;
     case "홍삼" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/홍삼.png"; break;
-    default : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/3090.png";
+    default : return "잘못된 기프티콘 종류입니다.\n지원하는 기프티콘 목록 : 3090, 3990X, 기프트카드10, 기프트카드5, 롤, 싸이버거, 아메리카노, 아이스크림케이크, 아이폰12, 아이폰미니, 에어팟, 조기졸업권, 처갓집, 컵밥, 페레레로쉐, 홍삼";
   }
   Kakao.send(room,{
       link_ver : "4.0",
@@ -552,11 +552,12 @@ function Giftcon(room, type){
       image : image
       }
     }, "custom");
+    return 0;
 }
 
 ///////////////현재 TV////////////////
 //[출처] TV 지상파 방송 편성표 파싱 (카카오톡 봇 커뮤니티) | 작성자 에케
-function TV_Now() {
+function showTVList() {
   data = Jsoup.connect("https://m.search.naver.com/search.naver?query=%ED%8E%B8%EC%84%B1%ED%91%9C").get().select("li.program_item.on");
   k1 = data.get(0).select(".pr_name").text();
   k2 = data.get(1).select(".pr_name").text();
@@ -568,7 +569,7 @@ function TV_Now() {
 }
 
 ///////////////위키////////////////
-function SearchWiki(w) {
+function searchWiki(w) {
   try {
     w = w.trim();
     try {
@@ -601,7 +602,7 @@ function SearchWiki(w) {
 }
 
 //[출처] 게이지 함수 (카카오톡 봇 커뮤니티) | 작성자 뀨야
-function Creat_Bar(num, max, p, n){
+function creadtBar(num, max, p, n){
   let bar = ['▏', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
   let per = 100/(max/num)/10;
   let gauge = [];
