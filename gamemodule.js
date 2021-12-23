@@ -9,28 +9,26 @@ const FS = FileStream;
 //////////가위바위보//////////
 function RSP(input)
 {
-    var r;
-    r = (Math.floor(Math.random() * 3))+1;
-
-    if(input=="가위")
-    {
-        if(r==1) return "가위!\n비겼어요";
-        else if(r==2) return "바위!\n내가 이김";
-        else return "보!\n졌다...";
+    Math.rands
+    let r = (Math.floor(Math.random() * 3))+1;
+    let input_num = 0, result = "";
+    switch(input) {
+        case "가위": input_num = 1; break;
+        case "바위": input_num = 2; break;
+        case "보": input_num = 3; break;
+        default: return "!가위바위보 [가위/바위/보]";
     }
-    if(input=="바위")
-    {
-        if(r==1) return "가위!\n졌다...";
-        else if(r==2) return "바위!\n비겼어요";
-        else return "보!\n내가 이김";
+    switch(r) {
+        case 1: result = "가위"; break;
+        case 2: result = "바위"; break;
+        case 3: result = "보"; break;
     }
-    if(input=="보")
-    {
-        if(r==1) return "가위!\n내가 이김";
-        else if(r==2) return "바위!\n졌다...";
-        else return "보!\n비겼어요";
+    switch((input_num - r + 3) % 3) {
+        case 0: result += "!\n비겼습니다."; break;
+        case 1: result += "!\n졌어요ㅠㅠ"; break;
+        case 2: result += "!\n이겼다!"; break;
     }
-    else return "가위바위보 할줄 몰라요?\n!가위바위보 [가위/바위/보]";
+    return result;
 }
 
 //////////랜덤숫자//////////
@@ -67,36 +65,36 @@ function Dice()
 function LOLHistory(name, room)
 {
     if(!name) return "소환사명을 입력하세요.";
-    var url = Jsoup.connect("https://www.op.gg/summoner/userName="+encodeURI(name)).get();
+    let url = Jsoup.connect("https://www.op.gg/summoner/userName="+encodeURI(name)).get();
 
     try {
-        var username = url.select("div.Information > span.Name").text();
+        let username = url.select("div.Information > span.Name").text();
         if(!username) return "소환사를 찾을 수 없습니다.";
-        var profileimage = "https:" + url.select("img.ProfileImage").attr("src");
-        var lastupdate = url.select("div.Header > div.LastUpdate > span").text();
-        var userlevel = url.select("div.ProfileIcon > span").text();
+        let profileimage = "https:" + url.select("img.ProfileImage").attr("src");
+        let lastupdate = url.select("div.Header > div.LastUpdate > span").text();
+        let userlevel = url.select("div.ProfileIcon > span").text();
 
-        var solorank_tier = url.select("div.TierRank").text();
-        var solorank_tierimage = "https:" + url.select("div.SummonerRatingMedium > div > img.Image").attr("src");
+        let solorank_tier = url.select("div.TierRank").text();
+        let solorank_tierimage = "https:" + url.select("div.SummonerRatingMedium > div > img.Image").attr("src");
         if(solorank_tier=="Unranked") {
-            var solorank_win = "-";
-            var solorank_losses = "-";
-            var solorank_winratio = "-";
+            let solorank_win = "-";
+            let solorank_losses = "-";
+            let solorank_winratio = "-";
         }
-        var solorank_win = url.select("div.TierInfo > span.WinLose > span.wins").text();
-        var solorank_losses = url.select("div.TierInfo > span.WinLose > span.losses").text();
-        var solorank_winratio = url.select("div.TierInfo > span.WinLose > span.winratio").text().replace("Win Ratio ","");
+        let solorank_win = url.select("div.TierInfo > span.WinLose > span.wins").text();
+        let solorank_losses = url.select("div.TierInfo > span.WinLose > span.losses").text();
+        let solorank_winratio = url.select("div.TierInfo > span.WinLose > span.winratio").text().replace("Win Ratio ","");
         
-        var freerank_tier = url.select("div.sub-tier__rank-tier").text();
-        var freerank_tierimage = "https:" + url.select("div.sub-tier > img").attr("src");
+        let freerank_tier = url.select("div.sub-tier__rank-tier").text();
+        let freerank_tierimage = "https:" + url.select("div.sub-tier > img").attr("src");
         if(freerank_tier=="Unranked") {
-            var freerank_tierimage = "https://opgg-static.akamaized.net/images/medals/default.png";
-            var freerank_winloss = "-";
-            var freerank_winratio = "-";
+            let freerank_tierimage = "https://opgg-static.akamaized.net/images/medals/default.png";
+            let freerank_winloss = "-";
+            let freerank_winratio = "-";
         }
         else {
-            var freerank_winloss = url.select("div.sub-tier > div > div.sub-tier__league-point > span").text();
-            var freerank_winratio = url.select("div.sub-tier > div > div.sub-tier__gray-text").text().replace("Win Rate ","");
+            let freerank_winloss = url.select("div.sub-tier > div > div.sub-tier__league-point > span").text();
+            let freerank_winratio = url.select("div.sub-tier > div > div.sub-tier__gray-text").text().replace("Win Rate ","");
         }
         
         Kakao.send(room,{
@@ -127,6 +125,7 @@ function LOLHistory(name, room)
         return "소환사를 찾을 수 없습니다."
     }
 }
+
 
 //////////op.gg갱신//////////
 /*
