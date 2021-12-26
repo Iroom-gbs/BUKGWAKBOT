@@ -13,88 +13,55 @@ const Lw = "\u200b".repeat(500);
 //급식에 필요한 변수들
 var MealDataDate = new Array("-1","-1","-1");
 var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
-
-//시간표에 필요한 변수들
-var TimeTableMap = {
-  "수1(조아)":"수학(조아름)",
-  "수1(박현)":"수학(박현종)",
-  "물1(김형)":"물리(김형준)",
-  "화1(이은)":"화학(이은실)",
-  "생1(김지)":"생물(김지수)",
-  "지1(오상)":"지구과학(오상림)",
-  "물1(박규)":"물리(박규)",
-  "화1(김재)":"화학(김재균)",
-  "지1(오중)":"지구과학(오중렬)",
-  "생1(김보)":"생물(김보선)",
-  "정1(김현)":"정보(김현철)",
-  "국어(전은)":"국어(전은선)",
-  "사회(이은)":"통합사회(이은영)",
-  "영1(이지)":"영어(이지현)",
-  "영1(서원)":"영어(서원화)",
-  "체1(이기)":"체육(이기성)",
-  "융합(박규)":"융합과학탐구(박규)"
-}
+var dayString = ["월","화","수","목","금","토","일"];
 
 ///////////////시간표///////////////
-function showTimetable(tm) { //tm : 오늘(false)/내일(true)
+function showTimetable(grade,cls,tm) { //tm 오늘:0, 내일:1, 모레:2
   try {
     let today = new Date();
-    if(tm==true) today = new Date(today.valueOf() + 86400000);
+    if(tm==1||tm==2) today = new Date(today.valueOf() + 86400000*tm);
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
-    var day = today.getDay() - 1; //요일
+    let day = today.getDay() - 1; //요일
 
-    var dateString = year + "년 " + month + "월 " + date+ "일 ";
-
-    switch(day){
-      case 0: dateString+="월요일"; break;
-      case 1: dateString+="화요일"; break;
-      case 2: dateString+="수요일"; break;
-      case 3: dateString+="목요일"; break;
-      case 4: dateString+="금요일"; break;
-      default: return (tm=0?"오늘":"내일") + "은 수업이 없습니다." + day;
+    let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day] + "요일\n";
+    
+    let res = JSON.parse(Jsoup.connect("http://20.196.218.17/api/timetable")
+                              .data("cls",cls).data("grade",grade)               
+                              .ignoreContentType(true).get().text());
+    for(i = 0;i<=res.length;i++) {
+        if(res[i].day_of_week==day+1) break;
     }
-    
-    var TimeTable = dateString;
-    
-    var TimeTableData = comci.getTimeTable(12045,1,2); //시간표 받아오기
-    
-    for(i=0;i<7;i++) {
-      t = TimeTableData.시간표[day][i];
-      TimeTable += "\n" + String(i+1) + "교시 : "
-      try {
-        TimeTable += TimeTableMap[t];
-      }
-      catch(e) {
-        TimeTable += "없음";
-      }
+    if(i>res.length) return "시간표가 없습니다.";
+
+    for(j=0;j<res[i].count;j++) {
+      TimeTable += "\n" + String(res[i].data[j].time) + "교시 : " + res[i].data[j].subject + "(" + res[i].data[j].teacher + ")";
     }
     return TimeTable;
   }catch(e) {
-    return "에러! : " + e;
+    return "에러!! : " + e;
   }
 }
 
 ///////////////급식///////////////
-function showMeal(tm,type,reset) { //tm : 오늘(false)/내일(true)
+function showMeal(tm,type,reset) { //tm 오늘:0, 내일:1, 모레:2
   try{
-    var Result = new String("");
     let today = new Date();
-    var year = String(today.getFullYear()); // 년도
-    var month = numberPad(today.getMonth() + 1, 2);  // 월
-    var date = numberPad(today.getDate(), 2);  // 날짜
-    var day = today.getDay(); //요일
-    var time = today.getTime();
-    var tommorrow = 0;
+    let year = String(today.getFullYear()); // 년도
+    let month = numberPad(today.getMonth() + 1, 2);  // 월
+    let date = numberPad(today.getDate(), 2);  // 날짜
+    let day = today.getDay(); //요일
+    let time = today.getTime();
+    let tommorrow = 0;
 
     if(tm==true) {
-      tommorrow = 1;
-      tommorrow_time = new Date(time + 86400000);
-      year = String(tommorrow_time.getFullYear()); // 년도
-      month = numberPad(tommorrow_time.getMonth() + 1, 2);  // 월
-      date = numberPad(tommorrow_time.getDate(), 2);  // 날짜
-      day = tommorrow_time.getDay(); //요일
+      let tommorrow = 1;
+      let tommorrow_time = new Date(time + 86400000);
+      let year = String(tommorrow_time.getFullYear()); // 년도
+      let month = numberPad(tommorrow_time.getMonth() + 1, 2);  // 월
+      let date = numberPad(tommorrow_time.getDate(), 2);  // 날짜
+      let day = tommorrow_time.getDay(); //요일
     }
 
     if(day==6) return((tm? "내일":"오늘") + "은 급식이 없습니다.");
@@ -102,7 +69,7 @@ function showMeal(tm,type,reset) { //tm : 오늘(false)/내일(true)
     else
     {
       if(MealDataDate[tommorrow] != year+month+date||reset==true) { //급식 정보가 최신이 아닐 경우 갱신
-        cr = renewMealData(year, month, date, tommorrow);
+        let cr = renewMealData(year, month, date, tommorrow);
         if(cr!=0) return cr;
       }
 
@@ -126,7 +93,7 @@ function renewMealData(year, month, date, tommorrow) {
   try{
       let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
       let SD_SCHUL_CODE = "7530851"; //학교 코드
-      var meal_Data = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/schoolmeal")
+      let meal_Data = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/schoolmeal")
                                               .data("ATPT_OFCDC_SC_CODE",ATPT_OFCDC_SC_CODE)
                                               .data("SD_SCHUL_CODE", SD_SCHUL_CODE)
                                               .data("date", year+month+date)
@@ -152,16 +119,16 @@ function renewMealData(year, month, date, tommorrow) {
 
 ///////////////날씨///////////////
 function showWeather(area, day) {
-  day=Number(day);
-  area = new String(area);
-  var result = new String("");
+  let day=Number(day);
+  let area = new String(area);
+  let result = new String("");
   let date1 = new Date();
-  var time = date1.getTime();
+  let time = date1.getTime();
 
   let today = new Date(time+86400000*day); //날짜 맞추기
-  var year = String(today.getFullYear()); // 년도
-  var month = numberPad(today.getMonth() + 1, 2);  // 월
-  var date = numberPad(today.getDate(), 2);  // 날짜
+  let year = String(today.getFullYear()); // 년도
+  let month = numberPad(today.getMonth() + 1, 2);  // 월
+  let date = numberPad(today.getDate(), 2);  // 날짜
 
   if(area=="") area = "녹양동"; //기본장소(학교)
   try{
@@ -208,27 +175,25 @@ function showCoronaInfo() {
   try {
     let today = new Date();
     let dateStringToday = String(today.getFullYear())+numberPad(today.getMonth() + 1, 2)+numberPad(today.getDate(), 2);
-    yesterday = new Date(today.getTime() - 2*(24 * 60 * 60 * 1000));
+    let yesterday = new Date(today.getTime() - 2*(24 * 60 * 60 * 1000));
     let dateStringYesterday = String(yesterday.getFullYear())+numberPad(yesterday.getMonth() + 1, 2)+numberPad(yesterday.getDate(), 2);
-    var doc = Jsoup.connect("http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson")
+    let doc = Jsoup.connect("http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson")
               .data("ServiceKey","oRJ7GkBt1uuzGgsfEjaLHQDjW1l+An2hqpIeVXM+1qx/hL45ARgDP4wdfCVfRtR3HsSYpBNGWiKlIp2/c0CNJA==")
-              .data("startCreateDt",dateStringYesterday)
-              .data("endCreateDt",dateStringToday)
+              .data("startCreateDt",dateStringYesterday).data("endCreateDt",dateStringToday)
               .ignoreContentType(true).get();
-    resultCode = doc.select("resultCode")[0].text();
-    if(resultCode != "00") throw("에러 " + doc.select("resultMsg"));
+    if(doc.select("resultCode")[0].text() != "00") throw("에러 " + doc.select("resultMsg"));
     
-    STATE_DT = doc.select("stateDt")[0].text();
-    STATE_TIME = doc.select("stateTime")[0].text();
-    DECIDE_CNT = doc.select("decideCnt")[0].text();
-    DECIDE_PLUS = parseInt(doc.select("decideCnt")[0].text()) - parseInt(doc.select("decideCnt")[1].text());
-    DEATH_CNT = doc.select("deathCnt")[0].text();
-    DEATH_PLUS = parseInt(doc.select("deathCnt")[0].text()) - parseInt(doc.select("deathCnt")[1].text());
-    result += "확진자 수 : " + numberComma(DECIDE_CNT) + " 명\n";
-    result += "사망자 수 : " + numberComma(DEATH_CNT) + " 명\n";
-    result += "확진자 증가수 : " + numberComma(DECIDE_PLUS) + " 명\n";
-    result += "사망자 증가수 : " + numberComma(DEATH_PLUS) + "  명\n";
-    result += "\n기준 일시 : " + dateNumToString(STATE_DT) + " " + STATE_TIME ;
+    let STATE_DT = doc.select("stateDt")[0].text();
+    let STATE_TIME = doc.select("stateTime")[0].text();
+    let DECIDE_CNT = doc.select("decideCnt")[0].text();
+    let DECIDE_PLUS = parseInt(doc.select("decideCnt")[0].text()) - parseInt(doc.select("decideCnt")[1].text());
+    let DEATH_CNT = doc.select("deathCnt")[0].text();
+    let DEATH_PLUS = parseInt(doc.select("deathCnt")[0].text()) - parseInt(doc.select("deathCnt")[1].text());
+    result += "확진자 수 : " + numberComma(DECIDE_CNT) + " 명\n"
+            + "사망자 수 : " + numberComma(DEATH_CNT) + " 명\n"
+            + "확진자 증가수 : " + numberComma(DECIDE_PLUS) + " 명\n"
+            + "사망자 증가수 : " + numberComma(DEATH_PLUS) + "  명\n"
+            + "\n기준 일시 : " + dateNumToString(STATE_DT) + " " + STATE_TIME ;
     return result;
   }catch(e){return e;}
 }
@@ -236,13 +201,14 @@ function showCoronaInfo() {
 ///////////////한강수온///////////////
 function showHangangTemp(type) {
   try {
-    today = new Date();
-    hour = today.getHours();  // 시간
+    let today = new Date();
+    let hour = today.getHours();  // 시간
      
- ​    ​HangangData​ ​=​ ​JSON​.​parse​(​Jsoup​.​connect​(​"http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/"​)​.​ignoreContentType​(​true​)​.​get​(​)​.​text​(​)​.​split​(​'['​)​[​1​]​.​split​(​']'​)​[​0​]​)​;
-    hangang_temp = Number(HangangData.W_TEMP); //수온
-    hangang_site = HangangData.SITE_ID; //위치
-    hangang_time = HangangData.MSR_DATE; 
+    let HangangData = JSON.parse(Jsoup.connect("http://openapi.seoul.go.kr:8088/5577427a6d736b783130377644627364/json/WPOSInformationTime/4/4/")
+                      .ignoreContentType(true).get().text().split('[')[1].split(']')[0]);
+    let hangang_temp = Number(HangangData.W_TEMP); //수온
+    let hangang_site = HangangData.SITE_ID; //위치
+    let hangang_time = HangangData.MSR_DATE; 
 
     let temp_C = String(hangang_temp) + "°C"; //섭씨
     let temp_K = String((hangang_temp + 273.15).toFixed(2))+ "K"; //절대온도
@@ -257,13 +223,12 @@ function showHangangTemp(type) {
 
 ///////////////코드업///////////////
 function showCodeUPUserInfo(name) {
-  var result = "";
   try {
-    var url = Jsoup.connect("https://codeup.kr/userinfo.php?user="+name).get();
-    result += url.select("#lv > strong > span").text() + "\n"
-            + url.select("body > main > div.container.mt-2 > blockquote > footer").text()
-            + "\n전체순위 : " + url.select("body > main > div.container.mt-2 > div.row > div.col-md-12.col-lg-4 > table > tbody > tr:nth-child(1) > td.text-center").text()
-            + "\n푼 문제 : " + url.select("body > main > div.container.mt-2 > div.row > div.col-md-12.col-lg-4 > table > tbody > tr:nth-child(2) > td.text-center > a").text();
+    let url = Jsoup.connect("https://codeup.kr/userinfo.php?user="+name).get();
+    result = url.select("#lv > strong > span").text() + "\n"
+           + url.select("body > main > div.container.mt-2 > blockquote > footer").text()
+           + "\n전체순위 : " + url.select("body > main > div.container.mt-2 > div.row > div.col-md-12.col-lg-4 > table > tbody > tr:nth-child(1) > td.text-center").text()
+           + "\n푼 문제 : " + url.select("body > main > div.container.mt-2 > div.row > div.col-md-12.col-lg-4 > table > tbody > tr:nth-child(2) > td.text-center > a").text();
     if((url.select("#lv > strong > span").text()).length<1) result = "그런 사용자는 없습니다.\n아이디를 확인하세요.";
 
   }catch(e){ return e;}
@@ -272,16 +237,15 @@ function showCodeUPUserInfo(name) {
 
 ///////////////도서검색///////////////
 function searchBook(book_name) {
-  var result = "";
   try {
-    var url = JSON.parse(Jsoup.connect("https://api.book.msub.kr/?book="+book_name+"&school=경기북과학고&local=경기").ignoreContentType(true).get().text());
+    let url = JSON.parse(Jsoup.connect("https://api.book.msub.kr/?book="+book_name+"&school=경기북과학고&local=경기").ignoreContentType(true).get().text());
     if(url.status!="normal") throw("검색 결과가 없습니다."); //실패시 throw
-    result += "도서검색결과\n"
-            + "검색된 책 : " + url.result.length + "권\n"
-            + "----------\n";
+    result = "도서검색결과\n"
+           + "검색된 책 : " + url.result.length + "권\n"
+           + "----------\n";
     
     for(i=0;i<url.result.length;i++) { //목록출력
-      bookInfo = url.result[i];
+      let bookInfo = url.result[i];
       result += (i+1) + ". " + bookInfo.title + "\n"
               + "  ◈저자 : " + bookInfo.writer.replace(";","\n") + "\n"
               + "  ◈출판사 : " + bookInfo.company + "\n"
@@ -296,7 +260,7 @@ function searchBook(book_name) {
 }
 
 ///////////////숙제///////////////
-function addHomework(s,sender) {
+function addHomework(sender) {
   if(!s) return "내용을 입력하세요";
   try {
     let today = new Date();
@@ -317,7 +281,7 @@ function addHomework(s,sender) {
 function showHomework() {
   try {
     homeworkFile = JSON.parse(FS.read(homework_route));
-    result = "현재 등록된 과제 : "+homeworkFile.homework.length+"개\n"+Lw;
+    let result = "현재 등록된 과제 : "+homeworkFile.homework.length+"개\n"+Lw;
     for(i=0;i<homeworkFile.homework.length;i++) {
       result += "["+(i+1) + "] " + homeworkFile.homework[i] + "\n\n";
     }
@@ -360,7 +324,6 @@ function modifyHomework(n, s) {
 
 ///////////////폰 상태///////////////
 function showPhoneStat() {
-  var device_profile_name = android.provider.Settings.Global.getString(Api.getContext().getContentResolver(), "device_name");
   return  "북곽봇상태\n"
         + "\n안드로이드버전 : " + Device.getAndroidVersionName()
         + "\n\n배터리 : " + Device.getBatteryLevel()
@@ -375,11 +338,11 @@ function searchMusic(title, room){
     var MusicData = JSON.parse(Jsoup.connect("https://api.music.msub.kr/?song=" + title).ignoreContentType(true).get().text());
     if(MusicData.song.length==0) return "검색 결과가 없습니다.";
     MusicData = MusicData.song[0];
-    MusicThumbnail = MusicData.albumimg;
-    MusicTitle = MusicData.name;
-    MusicAlbum = MusicData.album;
-    MusicLink = MusicData.melonlink;
-    MusicArtist = MusicData.artist;
+    let MusicThumbnail = MusicData.albumimg;
+    let MusicTitle = MusicData.name;
+    let MusicAlbum = MusicData.album;
+    let MusicLink = MusicData.melonlink;
+    let MusicArtist = MusicData.artist;
 
     Kakao.send(room,{
       "link_ver" : "4.0",
@@ -401,9 +364,9 @@ function showLyrics(title) {
   if(MusicData.song.length==0) return "검색 결과가 없습니다."; //실패시 throw
 
   MusicData = MusicData.song[0];
-  MusicLyrics = MusicData.lyrics;
-  MusicTitle = MusicData.name;
-  MusicArtist = MusicData.artist;
+  let MusicLyrics = MusicData.lyrics;
+  let MusicTitle = MusicData.name;
+  let MusicArtist = MusicData.artist;
 
   return MusicTitle + "\n" + MusicArtist + "\n▣가사\n" + Lw + MusicLyrics;
 }
@@ -425,8 +388,7 @@ const getTranslate = (resultLanguage, q) => {
       .data('queryLanguage', 'auto')
       .data('resultLanguage', language)
       .data('q', q)
-      .ignoreContentType(true)
-      .ignoreHttpErrors(true)
+      .ignoreContentType(true).ignoreHttpErrors(true)
       .post()
   const json = JSON.parse(parse.text());
   const result = json.result.output;
@@ -435,24 +397,11 @@ const getTranslate = (resultLanguage, q) => {
 }
 const getLanguage = (a) => {
   const language = {
-      '영어': 'en',
-      '일본어': 'jp',
-      '중국어': 'cn',
-      '네덜란드어': 'nl',
-      '독일어': 'de',
-      '러시아어': 'ru',
-      '말레이시아어': 'ms',
-      '벵골어': 'bn', 
-      '베트남어': 'vi',
-      '스페인어': 'es',
-      '아랍어': 'ar',
-      '이탈리아어': 'it',
-      '인도네시아어': 'id',
-      '태국어': 'th',
-      '터키어': 'tr',
-      '포르투갈어': 'pt',
-      '프랑스어': 'fr',
-      '힌디어': 'hi'
+      '영어': 'en', '일본어': 'jp', '중국어': 'cn', '네덜란드어': 'nl',
+      '독일어': 'de', '러시아어': 'ru', '말레이시아어': 'ms', '벵골어': 'bn',
+      '베트남어': 'vi', '스페인어': 'es', '아랍어': 'ar', '이탈리아어': 'it',
+      '인도네시아어': 'id', '태국어': 'th', '터키어': 'tr', '포르투갈어': 'pt',
+      '프랑스어': 'fr', '힌디어': 'hi'
   };
   return language[a];
 }
@@ -467,8 +416,8 @@ function makeShortenURL(url) {
 ///////////////핑퐁///////////////
 function PingPong(str, room) {
   try{
-    result = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
-    text = result.text;
+    let result = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
+    let text = result.text;
     if(text == "급식") return "오늘 급식이에요!\n"+Meal_Function(0,0,false);
     else if(text == "시간표") return "시간표를 알려드릴게요.\n"+Timetable_Function(0);
     return text;
@@ -478,9 +427,9 @@ function PingPong(str, room) {
 ///////////////시험까지 남은 시간///////////////
 function showLeftTimeToExam()
 {
-  var examTime = new Date(2021,12-1,9,11,30,0);
-  var nowTime = new Date();
-  var timeGap = examTime-nowTime;
+  let examTime = new Date(2021,12-1,9,11,30,0);
+  let nowTime = new Date();
+  let timeGap = examTime-nowTime;
   if(timeGap<=0) return "모든 시험이 끝났습니다!";
   let gapSec = parseInt(timeGap/1000);
   let gapMin = parseInt(gapSec / 60);
@@ -495,25 +444,25 @@ function showLeftTimeToExam()
 
 ///////////////주식///////////////
 function showStockInfo(name) {
-  var url = "https://search.naver.com/search.naver?query=주식 " + name;
-  var data = Jsoup.connect(url).get();
-  var name = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.stk_nm").text();
-  var code = data.select("#_cs_root > div.ar_spot > div > h3 > a > em").text();
-  var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > strong").text();
+  let url = "https://search.naver.com/search.naver?query=주식 " + name;
+  let data = Jsoup.connect(url).get();
+  let name = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.stk_nm").text();
+  let code = data.select("#_cs_root > div.ar_spot > div > h3 > a > em").text();
+  let price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > strong").text();
   if(!price) {
-    var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > strong").text();
-    var price_change = "-"+data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > span.n_ch > em:nth-child(3)").text();
-    var change_percent = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > span.n_ch > em:nth-child(4)").text();
+    price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > strong").text();
+    let price_change = "-"+data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > span.n_ch > em:nth-child(3)").text();
+    let change_percent = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.dw > span.n_ch > em:nth-child(4)").text();
   }
   else {
-    var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > strong").text();
-    var price_change = "+"+data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(3)").text();
-    var change_percent = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(4)").text();
+    price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > strong").text();
+    let price_change = "+"+data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(3)").text();
+    let change_percent = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.up > span.n_ch > em:nth-child(4)").text();
   } 
   if(!price) {
-    var price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.eq > strong").text();
-    var price_change = "보합";
-    var change_percent = "";
+    price = data.select("#_cs_root > div.ar_spot > div > h3 > a > span.spt_con.eq > strong").text();
+    let price_change = "보합";
+    let change_percent = "";
   }
 
   return "[주식정보]\n" + name + "(" + code + ")\n현재 주가 : " + price + "\n주가 변동 : " + price_change + change_percent;
@@ -557,13 +506,13 @@ function sendGiftcon(room, type){
 ///////////////현재 TV////////////////
 //[출처] TV 지상파 방송 편성표 파싱 (카카오톡 봇 커뮤니티) | 작성자 에케
 function showTVList() {
-  data = Jsoup.connect("https://m.search.naver.com/search.naver?query=%ED%8E%B8%EC%84%B1%ED%91%9C").get().select("li.program_item.on");
-  k1 = data.get(0).select(".pr_name").text();
-  k2 = data.get(1).select(".pr_name").text();
-  m = data.get(2).select(".pr_name").text();
-  s = data.get(3).select(".pr_name").text();
-  e1 = data.get(4).select(".pr_name").text();
-  e2 = data.get(5).select(".pr_name").text();
+  let data = Jsoup.connect("https://m.search.naver.com/search.naver?query=%ED%8E%B8%EC%84%B1%ED%91%9C").get().select("li.program_item.on");
+  let k1 = data.get(0).select(".pr_name").text();
+  let k2 = data.get(1).select(".pr_name").text();
+  let m = data.get(2).select(".pr_name").text();
+  let s = data.get(3).select(".pr_name").text();
+  let e1 = data.get(4).select(".pr_name").text();
+  let e2 = data.get(5).select(".pr_name").text();
   return("현재 방송중인 프로그램입니다.\nKBS1 " + k1 + "\nKBS2 " + k2 + "\nMBC " + m + "\nSBS " + s + "\nEBS1 " + e1 + "\nEBS2 " + e2 + "\n@sh4cker");
 }
 
