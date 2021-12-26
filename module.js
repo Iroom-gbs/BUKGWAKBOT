@@ -521,25 +521,25 @@ function searchWiki(w) {
   try {
     w = w.trim();
     try {
-      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
     } catch (e) {
-      url = Jsoup.connect("http://20.89.159.83:3000/search/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbswiki.hegelty.me/search/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
       w = url.select("#main_data > ul:nth-child(3) > li:nth-child(1) > a").text();
-      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
     }
     outline = url.select("#main_data").text();
     if(outline.indexOf("#redirect")!=-1){
       w = outline.split("#redirect")[1].trim();
-      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
       outline = url.select("#main_data").text();
     }
     else if(outline.indexOf("#넘겨주기")!=-1) {
       w = outline.split("#넘겨주기")[1].trim();
-      url = Jsoup.connect("http://20.89.159.83:3000/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
       outline = url.select("#main_data").text();
     }
     var result = w + "에 대한 GBSWiki 검색 결과\n"
-              + "http://20.89.159.83:3000/w/"+w + "\n"
+              + "https://gbswiki.hegelty.me/w/"+w + "\n"
               + Lw + "\n"
               + "개요\n" + outline.replace('{"inter_wiki": {}} ',"") + "\n\n 자세한 내용은 위 링크로 이동해주세요.";
     return result;
