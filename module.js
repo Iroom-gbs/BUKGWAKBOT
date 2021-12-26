@@ -97,9 +97,8 @@ function showMeal(tm,type,reset) { //tm : 오늘(false)/내일(true)
       day = tommorrow_time.getDay(); //요일
     }
 
-    if(day==0||day==6) {
-      return((tommorrow == 1? "내일":"오늘") + "은 급식이 없습니다.");
-    }
+    if(day==6) return((tm? "내일":"오늘") + "은 급식이 없습니다.");
+    else if(day==0 && tm==false) return "오늘은 급식이 없습니다.";
     else
     {
       if(MealDataDate[tommorrow] != year+month+date||reset==true) { //급식 정보가 최신이 아닐 경우 갱신
@@ -596,7 +595,7 @@ function searchWiki(w) {
               + "개요\n" + outline.replace('{"inter_wiki": {}} ',"") + "\n\n 자세한 내용은 위 링크로 이동해주세요.";
     return result;
   } catch(e) {
-    Log.d("위키 오류" + e);
+    Log.e("위키 오류" + e);
     return "해당 문서가 존재하지 않거나, 볼 수 없습니다. 학생/교사 개인 문서는 로그인해야만 볼 수 있습니다."
   };
 }

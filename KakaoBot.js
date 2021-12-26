@@ -113,7 +113,7 @@
      
      //급식
      case "급식":
-       var tm=0,type=0,reset=false;
+       tm=0,type=0,reset=false;
        if(msg_data[1]=="내일") tm=1;
    
        if(msg_data[tm+1]=="아침") type=1;
@@ -127,7 +127,7 @@
      
      //시간표
      case "시간표":
-       var tm=0, period=0;
+       tm=0, period=0;
        if(msg_data[1]=="내일") tm=1;
        return(M.showTimetable(tm));
        break;
@@ -138,13 +138,13 @@
      
      case "과제":
        if(msg_data[1]=="추가") {
-         return(M.addHomework(msg.substr(6),sender));
+         return(M.addHomework(1,2,msg.substr(6),sender));
        }
        else if(msg_data[1]=="삭제") {
-         return(M.removeHomework(msg_data[2]));
+         return(M.removeHomework(1,2,msg_data[2]));
        }
        else if(msg_data[1]=="수정") {
-         return(M.modifyHomework(msg_data[2],msg.substr(9)));
+         return(M.modifyHomework(1,2,msg_data[2],msg.substr(9)));
        }
        else return(M.showHomework());
        break;
@@ -173,7 +173,7 @@
        break;
      
      //위키
-     case "위키": return(M.SearchWiki(msg.substr(3))); break;
+     case "위키": return(M.searchWiki(msg.substr(3))); break;
      //한강 수온
      case "한강수온": return(M.showHangangTemp(msg_data[1])); break;
  
@@ -302,15 +302,17 @@
          }}
        }
      }
-     //기기 옮기기 전까지 막아두기
-     /*
      else {
-       if(msg[0]=="!") msg_data[0] = msg_data[0].substr(1);
-       if(command(room, msg, sender, isGroupChat, replier, msg_data)==false) {
+       let result;
+       if(msg[0]=="!") {
+         msg_data[0] = msg_data[0].substr(1);
+       }
+       result = command(room, msg, sender, isGroupChat, replier, msg_data);
+       if(result==false) {
          replier.reply(M.PingPong(msg));
        }
+       else replier.reply(result);
      }
-     */
    }
    catch(e){
      if(packageName=="com.kakao.talk")replier.reply("에러");
