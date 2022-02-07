@@ -57,6 +57,7 @@
                                + "!날씨 (위치) : 날씨를 알려줍니다.\n"
                                + "!코로나 : 코로나 확진자 정보를 알려줍니다.\n"
                                + "!번역 [언어] [내용] : 해당 언어로 내용을 번역합니다.\n\t지원 언어 : 영어/일본어/중국어/네덜란드어/독일어/러시아어/말레이시아어/벵골어/베트남어/스페인어/아랍어/이탈리아어/인도네시아어/태국어/터키어/포르투갈어/프랑스어/힌디어\n"
+                               + "!APOD [년-월-일(ex. 2005-03-05)] : 오늘의 APOD를 보여줍니다.\n"
                                + "!단축 [url] : url을 단축해줍니다.\n\n"
  
                                + "!남은시간 : 다음 시험(중간/기말고사)까지 남은 시간을 알려줍니다.\n"
@@ -208,6 +209,12 @@
        result = M.sendGiftcon(room, msg_data[1]);
        if(result!=0) return result;
        break;
+
+     case "apod":
+     case "APOD":
+       result = M.showAPOD(msg_data[1], room);
+       if(result) replier.reply(result);
+       return true;
      
      //롤 전적검색, 갱신
      case "롤" :

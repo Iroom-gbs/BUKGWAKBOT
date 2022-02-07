@@ -53,6 +53,7 @@ function ditalks(room, replier) {
                     return 1;
                 }
               }
+              if(msg == "") continue;
               if(message.IsForce||Allowed_Channel.indexOf(message.Channel)>-1) replier.reply(sender + " : " + msg)
               if(message.File.length>0) {
                   let filelist = "";
