@@ -503,6 +503,28 @@ function sendGiftcon(room, type){
     return 0;
 }
 
+///////////////APOD///////////////
+function showAPOD(date_string, room){
+  try {
+    if(date_string) date_string = "&date=" + date_string;
+    let apod = JSON.parse(Jsoup.connect("https://api.nasa.gov/planetary/apod?api_key=Q1oKwpJnCk4iCcqI8hte4c145eJNpEdvdJNf6sEs"+(date_string?date_string:"")).ignoreContentType(true).get().text());
+    Log.d(apod.date + apod.url + apod.hdurl + apod.title)
+    if(apod.media_type!="image") return apod.url;
+    
+    Kakao.send(room,{
+      "link_ver" : "4.0",
+      "template_id" : 69481,
+      "template_args" : {
+        "date": apod.date,
+        "image" : apod.url,
+        "url" : apod.hdurl,
+        "title" : apod.title
+        }
+      }, "custom");
+    return 0;
+    } catch(e) { return "에러" + e; }
+}
+
 ///////////////현재 TV////////////////
 //[출처] TV 지상파 방송 편성표 파싱 (카카오톡 봇 커뮤니티) | 작성자 에케
 function showTVList() {
@@ -520,34 +542,36 @@ function showTVList() {
 function searchWiki(w) {
   try {
     w = w.trim();
+    if(!w) return("gbs.wiki")
     try {
-      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbs.wiki/api/raw/"+encodeURI(w)).ignoreContentType(true).userAgent("BUKGWAKBOT").get();
     } catch (e) {
-      url = Jsoup.connect("https://gbswiki.hegelty.me/search/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbs.wiki/search/"+encodeURI(w)).ignoreContentType(true).userAgent("BUKGWAKBOT").get();
       w = url.select("#main_data > ul:nth-child(3) > li:nth-child(1) > a").text();
-      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
+      url = Jsoup.connect("https://gbs.wiki/api/raw/"+encodeURI(w)).ignoreContentType(true).userAgent("BUKGWAKBOT").get();
     }
-    outline = url.select("#main_data").text();
+    outline = JSON.parse(url.text()).data;
     if(outline.indexOf("#redirect")!=-1){
       w = outline.split("#redirect")[1].trim();
-      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
-      outline = url.select("#main_data").text();
+      url = Jsoup.connect("https://gbs.wiki/api/raw/"+encodeURI(w)).ignoreContentType(true).userAgent("BUKGWAKBOT").get();
+      outline = JSON.parse(url.text()).data;
     }
     else if(outline.indexOf("#넘겨주기")!=-1) {
       w = outline.split("#넘겨주기")[1].trim();
-      url = Jsoup.connect("https://gbswiki.hegelty.me/w/"+encodeURI(w)).userAgent("BUKGWAKBOT").get();
-      outline = url.select("#main_data").text();
+      url = Jsoup.connect("https://gbs.wiki/api/raw/"+encodeURI(w)).ignoreContentType(true).userAgent("BUKGWAKBOT").get();
+      outline = JSON.parse(url.text()).data;
     }
     var result = w + "에 대한 GBSWiki 검색 결과\n"
-              + "https://gbswiki.hegelty.me/w/"+w + "\n"
+              + "https://gbs.wiki/w/"+w + "\n"
               + Lw + "\n"
-              + "개요\n" + outline.replace('{"inter_wiki": {}} ',"") + "\n\n 자세한 내용은 위 링크로 이동해주세요.";
+              + outline.substr(0,outline.length>1000?1000:outline.length-1) + "\n\n 자세한 내용은 위 링크로 이동해주세요.";
     return result;
   } catch(e) {
-    Log.e("위키 오류" + e);
+    Log.d("위키 오류" + e);
     return "해당 문서가 존재하지 않거나, 볼 수 없습니다. 학생/교사 개인 문서는 로그인해야만 볼 수 있습니다."
   };
 }
+
 
 //[출처] 게이지 함수 (카카오톡 봇 커뮤니티) | 작성자 뀨야
 function creadtBar(num, max, p, n){
