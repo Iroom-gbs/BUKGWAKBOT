@@ -46,6 +46,7 @@ function RandNum(s,e)
 function RandList(n)
 {
     if(isNaN(n)==true) return "!랜덤목록 [갯수]";
+    if(n>100) return "100개 이상은 안됩니다.";
     var arr = new Array();
     for(i=1;i<=n;i++) arr[i-1]=i;
     arr.sort(function(){return Math.random() - Math.random();});

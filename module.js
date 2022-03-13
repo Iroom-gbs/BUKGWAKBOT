@@ -27,16 +27,11 @@ function showTimetable(grade,cls,tm) { //tm 오늘:0, 내일:1, 모레:2
 
     let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day] + "요일\n";
     
-    let res = JSON.parse(Jsoup.connect("http://20.196.218.17/api/timetable")
-                              .data("cls",cls).data("grade",grade)               
-                              .ignoreContentType(true).get().text());
-    for(i = 0;i<=res.length;i++) {
-        if(res[i].day_of_week==day+1) break;
-    }
-    if(i>res.length) return "시간표가 없습니다.";
-
-    for(j=0;j<res[i].count;j++) {
-      TimeTable += "\n" + String(res[i].data[j].time) + "교시 : " + res[i].data[j].subject + "(" + res[i].data[j].teacher + ")";
+    let res = JSON.parse(Jsoup.connect("http://40.87.96.156/api/timetable/"+ grade + "/" + cls)           
+                              .ignoreContentType(true).get().text())[day];
+    Log.d(res)
+    for(i=0;i<7;i++) {
+      TimeTable += "\n" + String(res[i].Time+1) + "교시 : " + res[i].Subject + "(" + res[i].Teacher + ")";
     }
     return TimeTable;
   }catch(e) {
