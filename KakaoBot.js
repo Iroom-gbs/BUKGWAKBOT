@@ -130,7 +130,7 @@
      case "시간표":
        tm=0, period=0;
        if(msg_data[1]=="내일") tm=1;
-       return(M.showTimetable(1,2,tm));
+       return(M.showTimetable(2,3,tm));
        break;
  
      //도서검색
