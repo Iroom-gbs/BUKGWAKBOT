@@ -29,9 +29,10 @@ function showBOJUserInfo(handle, room) {
                 "tier_image": "https://raw.githubusercontent.com/Iroom-gbs/BUKGWAKBOT/master/solvedac/"+String(res["tier"])+".png",
                 "rating": res["rating"],
                 "badge": res["badge"]["displayName"],
-                "badge_image": res["badge"]["backgroundImageUrl"],
+                "badge_image": res["badge"]["badgeImageUrl"],
                 "exp": res["exp"],
-                "solved": res["solvedCount"]
+                "solved": res["solvedCount"],
+                "organizations": organizations
             }
         }, 'custom').then(e => {
             return 1
