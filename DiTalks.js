@@ -30,7 +30,7 @@ function sendImageToKakao(room, url) {
 function ditalks(room, replier) {
     try {
         //소켓 생성
-        const socket = new java.net.Socket("20.196.218.17", 8080);
+        const socket = new java.net.Socket("", 8080);
         socket.setSoTimeout(300000)
         replier.reply("연결됨")
         const input = socket.getInputStream();
@@ -53,6 +53,7 @@ function ditalks(room, replier) {
                     return 1;
                 }
               }
+              if(!msg||!sender) continue;
               if(message.IsForce||Allowed_Channel.indexOf(message.Channel)>-1) replier.reply(sender + " : " + msg)
               if(message.File.length>0) {
                   let filelist = "";
