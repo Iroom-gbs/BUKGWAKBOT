@@ -1,7 +1,5 @@
 importClass(org.jsoup.Jsoup);
-const M = Bridge.getScopeOf("module");
-const AS = Bridge.getScopeOf("autoselfcheck")
-const K = Bridge.getScopeOf("KakaoLink");
+const K = Bridge.getScopeOf("Kaling");
 const Kakao = K.Kakao
 
 
@@ -119,7 +117,9 @@ function LOLHistory(name, room)
 
             updated : lastupdate,
             }
-        }, "custom");
+        }, "custom").then(e => {}).catch(e => {
+            Log.e(e);
+        });
         return "성공";
     } catch(e) {
         Log.debug(e);
