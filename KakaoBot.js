@@ -2,7 +2,7 @@
  * 북곽봇
  * 제작자 : hegelty(https://github.com/hegelty)
  * 경기북과학고 채팅방들을 위해 만들어진 카톡봇입니다.
- * 현재 버전 2
+ * 현재 버전 2.0.0
  * Copyright (c) 2021 hegelty
  * MIT License
  */

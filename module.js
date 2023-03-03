@@ -53,21 +53,19 @@ function showTimetable(msg_data,tm,room) {
   try{
     let room_data = getRoomInfo(room);
     let grade,cls;
-    if(room_data == -1) {
-      let grade = Number(msg_data[msg_data.length-2])
-      let cls = Number(msg_data[msg_data.length-1])
+    grade = Number(msg_data[msg_data.length-2])
+    cls = Number(msg_data[msg_data.length-1])
 
-      if(Number.isInteger(grade) == false || Number.isInteger(cls) == false ||
-          grade < 1 || grade > 3 || cls < 1 || cls > 5) {
-            return "반을 설정하거나 학년과 반을 입력하세요.\n예시) !반설정 1 2\n!시간표 1 2";
-          }
-      grade = parseInt(grade);
-      cls = parseInt(cls);
-    }
-    else {
+    if(Number.isInteger(grade) == false || Number.isInteger(cls) == false || grade < 1 || grade > 3 || cls < 1 || cls > 5) {
+      if(room_data!=-1)
+      {
       grade = room_data.grade;
       cls = room_data.cls;
+      }
+      else return "반을 설정하거나 학년과 반을 입력하세요.\n예시) !반설정 1 2\n!시간표 1 2";
     }
+    grade = parseInt(grade);
+    cls = parseInt(cls);
 
     let today = new Date();
     let today_day = today.getDay();
@@ -78,18 +76,19 @@ function showTimetable(msg_data,tm,room) {
     let date = numberPad(today.getDate(), 2);  // 날짜
     let day = today.getDay() - 1; //요일
 
-    let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day] + "요일\n";
+    let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day] + "요일\n"+grade+"학년"+cls+"반\n";
     
     let res = JSON.parse(Jsoup.connect("http://bgb.hegelty.space/timetable")
                               .data("school_name","경기북과학고")
                               .data("simple",1)
                               .data("next_week",day<today_day?1:0)
                               .ignoreContentType(true).get().text());
+    
     if(res.success == false) return "시간표가 없습니다.";
 
-    data = res.data[grade][cls].timetable
+    data = res.data[grade][cls].timetable[day+1]
     for(let i=1;i<=7;i++) {
-      TimeTable += "\n" + String(data[i].period) + "교시 : " + data[i].subject + "(" + data[i].teacher + ")" + data[i].replaced? " (대체)":"";
+      TimeTable += "\n" + data[i].period + "교시 : " + data[i].subject + "(" + data[i].teacher + ")" + (data[i].replaced?" (대체)":"");
     }
     TimeTable += "\n갱신: " + res.갱신일시;
     return TimeTable;
@@ -124,7 +123,7 @@ function showMeal(tm,type,reset) {
     }
 
     if(type!=-1) return tmd[tm+3] + "의 " + meal_name[type] + " 메뉴\n\n" + meal[type];
-    return  tmd[tm+3] + "의 메뉴\n"
+    return  tmd[tm+3] + "의 메뉴\n" + Lw
             + "조식\n" + meal[0] + "\n\n"
             + "중식\n" + meal[1] + "\n\n"
             + "석식\n" + meal[2]
