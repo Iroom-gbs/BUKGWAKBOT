@@ -1,7 +1,6 @@
 importClass(org.jsoup.Jsoup);
 const M = Bridge.getScopeOf("module");
-const AS = Bridge.getScopeOf("autoselfcheck")
-const K = Bridge.getScopeOf("KakaoLink");
+const K = Bridge.getScopeOf("Kaling");
 const Kakao = K.Kakao
 
 

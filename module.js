@@ -1,38 +1,97 @@
 importClass(org.jsoup.Jsoup);
-const comci = require('comci.js');
 const scriptName = "module";
 const FS = FileStream;
 
-const K = Bridge.getScopeOf("KakaoLink");
+const K = Bridge.getScopeOf("Kaling");
 const Kakao = K.Kakao
-
-let homework_route = "/sdcard/BUKGWAKBOT/homework.json";
+let room_info = "/sdcard/BUKGWAKBOT/room.json";
 
 const Lw = "\u200b".repeat(500);
 
 //급식에 필요한 변수들
-var MealDataDate = new Array("-1","-1","-1");
-var mealdata = new Array(new Array("","",""), new Array("\n","\n","\n"));
 var dayString = ["월","화","수","목","금","토","일"];
 
+///////////////반 설정///////////////
+function setClass(grade,cls,room) {
+  grade = Number(grade);
+  cls = Number(cls);
+  if(Number.isInteger(grade) == false || Number.isInteger(cls) == false) return "학년과 반은 정수로 입력해주세요.";
+  if(grade < 1 || grade > 3) return "학년은 1~3학년만 입력해주세요.";
+  if(cls < 1 || cls > 5) return "반은 1~5반만 입력해주세요.";
+
+  grade = parseInt(grade);
+  cls = parseInt(cls);
+
+  room_data = JSON.parse(FS.read(room_info));
+  if(room_data[room] == undefined) {
+    room_data[room] = {
+    "grade":grade,
+    "cls":cls
+    };
+  }
+  else {
+    origin = room_data[room];
+    room_data[room].grade = grade;
+    room_data[room].cls = cls;
+  }
+  
+  FS.write(room_info,JSON.stringify(room_data));
+  return "반 설정이 완료되었습니다.";
+}
+
+function getRoomInfo(room) {
+  room_data = JSON.parse(FS.read(room_info));
+  try{
+    return room_data[room]?room_data[room]:-1;
+  } catch(e) {
+    return -1;
+  }
+}
+
 ///////////////시간표///////////////
-function showTimetable(grade,cls,tm) { //tm 오늘:0, 내일:1, 모레:2
-  try {
+function showTimetable(msg_data,tm,room) {
+  try{
+    let room_data = getRoomInfo(room);
+    let grade,cls;
+      grade = Number(msg_data[msg_data.length-2])
+      cls = Number(msg_data[msg_data.length-1])
+
+      if(Number.isInteger(grade) == false || Number.isInteger(cls) == false ||
+          grade < 1 || grade > 3 || cls < 1 || cls > 5) {
+            if(room_data!=-1)
+            {
+            grade = room_data.grade;
+            cls = room_data.cls;
+            }
+            else return "반을 설정하거나 학년과 반을 입력하세요.\n예시) !반설정 1 2\n!시간표 1 2";
+          }
+      grade = parseInt(grade);
+      cls = parseInt(cls);
+
     let today = new Date();
-    if(tm==1||tm==2) today = new Date(today.valueOf() + 86400000*tm);
+    let today_day = today.getDay();
+  
+    today = new Date(today.getTime() + 86400000 * tm)
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
-    let day = today.getDay() - 1; //요일
+    let day = today.getDay(); //요일
 
-    let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day] + "요일\n";
+    let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day-1] + "요일\n"+grade+"학년"+cls+"반\n";
     
-    let res = JSON.parse(Jsoup.connect("http://40.87.96.156/api/timetable/"+ grade + "/" + cls)           
-                              .ignoreContentType(true).get().text())[day];
-    Log.d(res)
-    for(i=0;i<7;i++) {
-      TimeTable += "\n" + String(res[i].Time+1) + "교시 : " + res[i].Subject + "(" + res[i].Teacher + ")";
+    let res = JSON.parse(Jsoup.connect("http://bgb.hegelty.space/timetable")
+                              .data("school_name","경기북과학고")
+                              .data("simple",1)
+                              .data("next_week",(day<today_day)?"1":"0")
+                              .ignoreContentType(true).get().text());
+    
+    if(res.success == false) return "시간표가 없습니다.";
+
+    data = res.data[grade][cls].timetable[day]
+    for(let i=0;i<data.length;i++) {
+      TimeTable += "\n" + data[i].period + "교시 : " + data[i].subject + "(" + data[i].teacher.replace("\*","") + ")" + (data[i].replaced?" (변경)":"");
     }
+    TimeTable += "\n갱신: " + res.갱신일시;
     return TimeTable;
   }catch(e) {
     return "에러!! : " + e;
@@ -40,75 +99,37 @@ function showTimetable(grade,cls,tm) { //tm 오늘:0, 내일:1, 모레:2
 }
 
 ///////////////급식///////////////
-function showMeal(tm,type,reset) { //tm 오늘:0, 내일:1, 모레:2
+function showMeal(tm,type,reset) {
+  tmd = ["그끄저께", "그제", "어제", "오늘","내일","모레", "글피", "그글피"];
   try{
     let today = new Date();
+
+    today = new Date(today.getTime() + 86400000 * tm)
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
-    let day = today.getDay(); //요일
-    let time = today.getTime();
-    let tommorrow = 0;
 
-    if(tm==true) {
-      let tommorrow = 1;
-      let tommorrow_time = new Date(time + 86400000);
-      let year = String(tommorrow_time.getFullYear()); // 년도
-      let month = numberPad(tommorrow_time.getMonth() + 1, 2);  // 월
-      let date = numberPad(tommorrow_time.getDate(), 2);  // 날짜
-      let day = tommorrow_time.getDay(); //요일
+    let res = JSON.parse(Jsoup.connect("http://bgb.hegelty.space/schoolmeal")
+                              .data("school_name","경기북과학고")
+                              .data("date",year+month+date)
+                              .ignoreContentType(true).get().text());
+
+    if(res.success == false) return "급식이 없습니다.";
+
+    let meal = ["","",""];
+    let meal_code = {"조식":0,"중식":1,"석식":2};
+    let meal_name = ["조식","중식","석식"];
+    for(i of res.data) {
+      meal[meal_code[i.type]] = i.menu + "\n" + i.cal;
     }
 
-    if(day==6) return((tm? "내일":"오늘") + "은 급식이 없습니다.");
-    else if(day==0 && tm==false) return "오늘은 급식이 없습니다.";
-    else
-    {
-      if(MealDataDate[tommorrow] != year+month+date||reset==true) { //급식 정보가 최신이 아닐 경우 갱신
-        let cr = renewMealData(year, month, date, tommorrow);
-        if(cr!=0) return cr;
-      }
-
-      if(type==1||type==2||type==3) {
-        return mealdata[tommorrow][type-1];
-      }
-      else {
-        return  (tommorrow == 1? "내일":"오늘")
-                + "의 메뉴\n\n"
-                + "\u200b".repeat(500)
-                + mealdata[tommorrow][0] + "\n\n"
-                + mealdata[tommorrow][1] + "\n\n"
-                + mealdata[tommorrow][2] + "\n\n";
-      }
-    }
+    if(type!=-1) return (tmd[tm+3]?tmd[tm+3]:(month+"월 "+date+"일")) + "의 " + meal_name[type] + " 메뉴\n\n" + meal[type];
+    return (tmd[tm+3]?tmd[tm+3]:(month+"월 "+date+"일")) + "의 메뉴\n" + Lw
+            + "조식\n" + meal[0] + "\n\n"
+            + "중식\n" + meal[1] + "\n\n"
+            + "석식\n" + meal[2]
   }catch(e) {
     return "에러!\n" + e;
-  }
-}
-function renewMealData(year, month, date, tommorrow) {
-  try{
-      let ATPT_OFCDC_SC_CODE = "J10"; //시도교육청코드
-      let SD_SCHUL_CODE = "7530851"; //학교 코드
-      let meal_Data = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/schoolmeal")
-                                              .data("ATPT_OFCDC_SC_CODE",ATPT_OFCDC_SC_CODE)
-                                              .data("SD_SCHUL_CODE", SD_SCHUL_CODE)
-                                              .data("date", year+month+date)
-                                              .ignoreContentType(true).get().text());
-      try{
-        for(i=0;i<meal_Data.result.length;i++) {
-          mealdata[tommorrow][meal_Data.result[i].meal_code-1]  = meal_Data.result[i].meal_name + "\n"
-                                    + "----------\n"
-                                    + meal_Data.result[i].menu
-                                    + "\n"+ meal_Data.result[i].cal;
-        }
-      }catch(e) {
-        for(i=0;i<3;i++) mealdata[tommorrow][i] = "급식이 없습니다.";
-      }
-    //갱신일시 저장
-    MealDataDate[tommorrow] = year+month+date;
-    return 0;
-  }catch(e) {
-    Log.error("에러!\n" + e);
-    return e;
   }
 }
 
@@ -164,35 +185,6 @@ function showWeather(area, day) {
   }
 }
 
-///////////////코로나///////////////
-function showCoronaInfo() {
-  var result ="코로나19 현황\n\n";
-  try {
-    let today = new Date();
-    let dateStringToday = String(today.getFullYear())+numberPad(today.getMonth() + 1, 2)+numberPad(today.getDate(), 2);
-    let yesterday = new Date(today.getTime() - 2*(24 * 60 * 60 * 1000));
-    let dateStringYesterday = String(yesterday.getFullYear())+numberPad(yesterday.getMonth() + 1, 2)+numberPad(yesterday.getDate(), 2);
-    let doc = Jsoup.connect("http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson")
-              .data("ServiceKey","oRJ7GkBt1uuzGgsfEjaLHQDjW1l+An2hqpIeVXM+1qx/hL45ARgDP4wdfCVfRtR3HsSYpBNGWiKlIp2/c0CNJA==")
-              .data("startCreateDt",dateStringYesterday).data("endCreateDt",dateStringToday)
-              .ignoreContentType(true).get();
-    if(doc.select("resultCode")[0].text() != "00") throw("에러 " + doc.select("resultMsg"));
-    
-    let STATE_DT = doc.select("stateDt")[0].text();
-    let STATE_TIME = doc.select("stateTime")[0].text();
-    let DECIDE_CNT = doc.select("decideCnt")[0].text();
-    let DECIDE_PLUS = parseInt(doc.select("decideCnt")[0].text()) - parseInt(doc.select("decideCnt")[1].text());
-    let DEATH_CNT = doc.select("deathCnt")[0].text();
-    let DEATH_PLUS = parseInt(doc.select("deathCnt")[0].text()) - parseInt(doc.select("deathCnt")[1].text());
-    result += "확진자 수 : " + numberComma(DECIDE_CNT) + " 명\n"
-            + "사망자 수 : " + numberComma(DEATH_CNT) + " 명\n"
-            + "확진자 증가수 : " + numberComma(DECIDE_PLUS) + " 명\n"
-            + "사망자 증가수 : " + numberComma(DEATH_PLUS) + "  명\n"
-            + "\n기준 일시 : " + dateNumToString(STATE_DT) + " " + STATE_TIME ;
-    return result;
-  }catch(e){return e;}
-}
-
 ///////////////한강수온///////////////
 function showHangangTemp(type) {
   try {
@@ -230,6 +222,70 @@ function showCodeUPUserInfo(name) {
   return result;
 }
 
+///////////////백준///////////////
+function showBOJUserInfo(handle, room) {
+  let tier_table = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ruby", "Master"]
+  let roman_num = ["I", "II", "III", "IV", "V"]
+  let res = {}
+  try {
+      res = JSON.parse(Jsoup.connect("https://solved.ac/api/v3/user/show")
+                  .data("handle", handle)
+                  .ignoreContentType(true).get().text())
+
+
+      let organizations = ""
+      for (let i=0;i<res["organizations"].length;i++) {
+          Log.d(res["organizations"][i]["name"])
+          organizations += res["organizations"][i]["name"] + ((i==res["organizations"].length-1)?"":", ")
+      }
+      
+      Kakao.sendLink(room, {
+          template_id: 89209,
+          template_args: {
+              "handle": handle,
+              "tier": tier_table[parseInt((res["tier"]-1)/5)]+" "+(res["tier"]==31?"":roman_num[(5-(res["tier"]-1)%5)-1]),
+              "tier_image": "https://raw.githubusercontent.com/Iroom-gbs/BUKGWAKBOT/master/solvedac/"+String(res["tier"])+".png",
+              "rating": res["rating"],
+              "badge": res["badge"]["displayName"],
+              "badge_image": res["badge"]["badgeImageUrl"],
+              "exp": res["exp"],
+              "solved": res["solvedCount"],
+              "organizations": organizations
+          }
+      }, 'custom').then(e => {
+          return 1
+      }).catch(e => {
+          Log.e(e);
+          return {
+              "handle": handle,
+              "bio": res["bio"],
+              "organizations": organizations,
+              "badge": {
+                  "name": res["badge"]["displayName"],
+                  "url": ["displayName"]
+              },
+              "background": {
+                  "name": res["background"]["displayName"],
+                  "url": res["background"]["backgroundImageUrl"]
+              },
+              "profileImage": res["profileImageUrl"],
+              "solved": res["solvedCount"],
+              "voted": res["voteCount"],
+              "exp": res["exp"],
+              "rating": res["rating"],
+              "tier": res["tier"],
+              "tierName": tier_table[parseInt((res["tier"]-1)/5)]+" "+(res["tier"]==31?"":roman_num[(5-(res["tier"]-1)%5)-1]),
+              "tierImage": "https://raw.githubusercontent.com/Iroom-gbs/BUKGWAKBOT/master/solvedac/"+String(res["tier"])+".png",
+              "class": res["class"],
+              "maxStreak": res["maxStreak"]
+          }
+      })
+  } catch(e) {
+      Log.e(e);
+      return "핸들을 찾을 수 없습니다."
+  }
+}
+
 ///////////////도서검색///////////////
 function searchBook(book_name) {
   try {
@@ -254,69 +310,6 @@ function searchBook(book_name) {
   }catch(e){return e;}
 }
 
-///////////////숙제///////////////
-function addHomework(sender) {
-  if(!s) return "내용을 입력하세요";
-  try {
-    let today = new Date();
-    let year = String(today.getFullYear()); // 년도
-    let month = numberPad(today.getMonth() + 1, 2);  // 월
-    let date = numberPad(today.getDate(), 2);  // 날짜
-
-    homeworkFile = JSON.parse(FS.read(homework_route));
-    homeworkFile.homework.push(s + "\n\t등록 : " + today.toLocaleDateString() + "\n\t등록자 : " + sender);
-    FS.write(homework_route, JSON.stringify(homeworkFile));
-    return "등록되었습니다." + Lw + "\n" + s;
-  } catch(e) {
-    Log.error(e);
-    return "에러";
-  }
-} 
-
-function showHomework() {
-  try {
-    homeworkFile = JSON.parse(FS.read(homework_route));
-    let result = "현재 등록된 과제 : "+homeworkFile.homework.length+"개\n"+Lw;
-    for(i=0;i<homeworkFile.homework.length;i++) {
-      result += "["+(i+1) + "] " + homeworkFile.homework[i] + "\n\n";
-    }
-    return result;
-  } catch(e) {
-    Log.error(e);
-    return "에러";
-  }
-}
-
-function removeHomework(n) {
-  if(n.isNaN) return "숫자를 입력하세요.";
-  if(n<1||n>homeworkFile.homework.length) return "잘못된 숫자입니다.";
-  try {
-    homeworkFile = JSON.parse(FS.read(homework_route));
-    homeworkFile.homework.splice(n-1,1);
-    FS.write(homework_route, JSON.stringify(homeworkFile));
-    return "삭제되었습니다.";
-  } catch(e) {
-    Log.error(e);
-    return "에러";
-  }
-}
-
-function modifyHomework(n, s) {
-  if(n.isNaN) return "숫자를 입력하세요.";
-  if(n<1||n>homeworkFile.homework.length) return "잘못된 숫자입니다.";
-  if(!s) return "내용을 입력하세요.";
-  try {
-    homeworkFile = JSON.parse(FS.read(homework_route));
-    homeworkFile.homework[n-1] = s;
-    FS.write(homework_route, JSON.stringify(homeworkFile));
-    return "변경되었습니다." + Lw + "\n" + s;
-  } catch(e) {
-    Log.error(e);
-    return "에러";
-  }
-}
-
-
 ///////////////폰 상태///////////////
 function showPhoneStat() {
   return  "북곽봇상태\n"
@@ -339,7 +332,7 @@ function searchMusic(title, room){
     let MusicLink = MusicData.melonlink;
     let MusicArtist = MusicData.artist;
 
-    Kakao.send(room,{
+    Kakao.sendLink(room,{
       "link_ver" : "4.0",
       "template_id" : 55964,
       "template_args" : {
@@ -365,7 +358,6 @@ function showLyrics(title) {
 
   return MusicTitle + "\n" + MusicArtist + "\n▣가사\n" + Lw + MusicLyrics;
 }
-
 
 /*
 * 이 소스는 조유리즈님이 만드신 번역 소스입니다.
@@ -412,29 +404,27 @@ function makeShortenURL(url) {
 function PingPong(str, room) {
   try{
     let result = JSON.parse(Jsoup.connect("http://121.168.91.34:8000/pingpong?query=" + str + "&sessionId=" + room).ignoreContentType(true).get().text())
-    let text = result.text;
-    if(text == "급식") return "오늘 급식이에요!\n"+Meal_Function(0,0,false);
-    else if(text == "시간표") return "시간표를 알려드릴게요.\n"+Timetable_Function(0);
-    return text;
+    return result.text;
   }catch(e){ return e;}
 }
 
 ///////////////시험까지 남은 시간///////////////
 function showLeftTimeToExam()
 {
-  let examTime = new Date(2021,12-1,9,11,30,0);
-  let nowTime = new Date();
-  let timeGap = examTime-nowTime;
+  examTime = new Date(2023,6-1,30,11,50,0);
+  nowTime = new Date();
+  timeGap = examTime-nowTime;
   if(timeGap<=0) return "모든 시험이 끝났습니다!";
-  let gapSec = parseInt(timeGap/1000);
-  let gapMin = parseInt(gapSec / 60);
+  gapSec = parseInt(timeGap/1000);
+  gapMin = parseInt(gapSec / 60);
   gapSec = gapSec % 60;
-  let gapHour = parseInt(gapMin / 60);
+  gapHour = parseInt(gapMin / 60);
   gapMin = gapMin % 60;
-  let gapDay = parseInt(gapHour / 24);
+  gapDay = parseInt(gapHour / 24);
   gapHour = gapHour % 24;
 
-  return gapDay + "일 " + gapHour + "시간 " + gapMin + "분 " + gapSec + "초(" + parseInt(timeGap/1000) +"초)";
+  return "시험 끝까지\n" + gapDay + "일 " + gapHour + "시간 " + gapMin + "분 " + gapSec + "초(" + parseInt(timeGap/1000) +"초)";
+  
 }
 
 ///////////////주식///////////////
@@ -463,6 +453,55 @@ function showStockInfo(name) {
   return "[주식정보]\n" + name + "(" + code + ")\n현재 주가 : " + price + "\n주가 변동 : " + price_change + change_percent;
 }
 
+///////////////코인///////////////
+function showCoinInfo(coin_name) {
+  let names = {}, symbol_to_korean_name = {}, korean_name_to_symbol = {};
+  let symbol = "";
+  try {
+      names = JSON.parse(Jsoup.connect("https://api.upbit.com/v1/market/all") //업비트 api
+                              .ignoreContentType(true).get().text());
+      for(let i in names) { //이름 수만큼 반복
+          let korean_name = names[i].korean_name; //한글 이름
+          symbol_to_korean_name[names[i].market.split('-')[1]] = korean_name; //키값이 심볼, 값이 한글 이름
+          korean_name_to_symbol[korean_name] = names[i].market.split('-')[1]; //키값이 한글 이름, 값이 심볼
+      }
+  } catch(e) { //에러 발생시
+      return "error(" + e.lineNumber + "): " + e; 
+  }
+
+  coin_name = coin_name.trim().toUpperCase(); //입력받은 코인 이름 전후 공백 제거 후 모두 대문자로 변경
+  if(coin_name in korean_name_to_symbol) { //해당 이름이 한글 이름 목록에 있을 시
+      symbol = korean_name_to_symbol[coin_name]; //심볼을 가져옴
+  }
+  else if(coin_name in symbol_to_korean_name) { //해당 이름이 심볼 목록에 있을 시
+      symbol = coin_name; //입력받은 값을 심볼로 설정
+      coin_name = symbol_to_korean_name[coin_name]; //한글 이름을 가져옴
+  }
+  else {
+      return coin_name + "을 찾을 수 없습니다. 지원하는 코인 목록을 보려면 /코인 을 입력하세요."
+  }
+  price_data = JSON.parse(Jsoup.connect("https://api.upbit.com/v1/ticker?markets=KRW-" + symbol) //업비트 API에 원화-코인 시세 조회
+                                  .ignoreContentType(true).get().text())[0]; //첫번째 항목 선택
+
+  let trade_date_kst = price_data.trade_date_kst.toString(); //기준날짜
+  let trade_time_kst = price_data.trade_time_kst.toString(); //기준시간
+  let opening_price = price_data.opening_price; //당일시가
+  let high_price = price_data.high_price; //당일고가
+  let low_price = price_data.low_price; //당일저가
+  let trade_price = price_data.trade_price; //현재시세
+  let signed_change_price = price_data.signed_change_price; //변동시세
+  let signed_change_rate = price_data.signed_change_rate; //변동률
+  
+  return"❗️ " + coin_name + "(" + symbol + ") 시세정보 ❗️\n"
+          + "▪️ " + trade_date_kst.substr(0,4) + "-" + trade_date_kst.substr(4,2) + "-" + trade_date_kst.substr(6,2) + " " + trade_time_kst.substr(0,2) + ":" + trade_time_kst.substr(2,2) + " 기준 ◾️\n"
+          + "✅️ 현재시세 : " + thousand_separator(trade_price) + "원\n"
+          + "✅️ 변동시세 : " + thousand_separator(signed_change_price) + "원\n"
+          + "✅️ 당일시가 : " + thousand_separator(opening_price) + "원\n"
+          + "📈 당일고가 : " + thousand_separator(high_price) + "원\n"
+          + "📉 당일저가 : " + thousand_separator(low_price) + "원\n"
+          + "📊 변동률 : " + "(" + (signed_change_rate * 100).toFixed(2) + "%)";
+}
+
 ///////////////기프티콘 낚시////////////////
 function sendGiftcon(room, type){
   var image ="";
@@ -486,7 +525,7 @@ function sendGiftcon(room, type){
     case "홍삼" : image = "https://raw.githubusercontent.com/hegelty/BUKGWAKBOT/master/Gifticon/홍삼.png"; break;
     default : return "잘못된 기프티콘 종류입니다.\n지원하는 기프티콘 목록 : 3090, 3990X, 기프트카드10, 기프트카드5, 롤, 싸이버거, 아메리카노, 아이스크림케이크, 아이폰12, 아이폰미니, 에어팟, 조기졸업권, 처갓집, 컵밥, 페레레로쉐, 홍삼";
   }
-  Kakao.send(room,{
+  Kakao.sendLink(room,{
       link_ver : "4.0",
       template_id : 53767,
       template_args : {
@@ -494,30 +533,32 @@ function sendGiftcon(room, type){
       des : "",
       image : image
       }
-    }, "custom");
+    }, "custom").then(e => {}).catch(e => {
+        Log.e(e);
+  });
     return 0;
 }
 
 ///////////////APOD///////////////
 function showAPOD(date_string, room){
-  try {
-    if(date_string) date_string = "&date=" + date_string;
-    let apod = JSON.parse(Jsoup.connect("https://api.nasa.gov/planetary/apod?api_key=Q1oKwpJnCk4iCcqI8hte4c145eJNpEdvdJNf6sEs"+(date_string?date_string:"")).ignoreContentType(true).get().text());
-    Log.d(apod.date + apod.url + apod.hdurl + apod.title)
-    if(apod.media_type!="image") return apod.url;
-    
-    Kakao.send(room,{
-      "link_ver" : "4.0",
-      "template_id" : 69481,
-      "template_args" : {
-        "date": apod.date,
-        "image" : apod.url,
-        "url" : apod.hdurl,
-        "title" : apod.title
-        }
-      }, "custom");
-    return 0;
-    } catch(e) { return "에러" + e; }
+  if(date_string) date_string = "&date=" + date_string;
+  let apod = JSON.parse(Jsoup.connect("https://api.nasa.gov/planetary/apod?api_key=Q1oKwpJnCk4iCcqI8hte4c145eJNpEdvdJNf6sEs"+(date_string?date_string:"")).ignoreContentType(true).get().text());
+  Log.d(apod.date + apod.url + apod.hdurl + apod.title)
+  if(apod.media_type!="image") return apod.url;
+  
+  Kakao.sendLink(room,{
+    "link_ver" : "4.0",
+    "template_id" : 69481,
+    "template_args" : {
+      "date": apod.date,
+      "image" : apod.url,
+      "url" : apod.hdurl,
+      "title" : apod.title
+      }
+    }, "custom").then(e => {}).catch(e => {
+      Log.e(e);
+  });;
+  return 0;
 }
 
 ///////////////현재 TV////////////////
@@ -605,4 +646,8 @@ function numberComma(n) {
 
 function dateNumToString(n) {
   return n.substr(0,4)+"년 "+n.substr(4,2)+"월 "+n.substr(6,2)+"일";
+}
+
+function thousand_separator(num) { //1000 단위로 콤마 찍기
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

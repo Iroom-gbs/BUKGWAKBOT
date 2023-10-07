@@ -1,7 +1,26 @@
 # 북곽봇
 북곽을 위한 카톡봇
 
-현재 버전 1.0.0
+현재 버전 2.0
+
+# 적용법
+* 주의사항
+ * 현재 카카오링크는 사용할 수 없습니다.(모듈 문제)
+ * 현재 DiTalks는 서버가 없어 단방향(카톡->디코)만 가능합니다. 서버 소스는 https://github.com/Iroom-gbs/DiTalks-D2K 참조
+ * 주식 등 많은 기능이 정상적으로 작동하지 않습니다.
+
+1. [메신저봇R](https://play.google.com/store/apps/details?id=com.xfl.msgbot&pcampaignid=web_share) 설치
+2. 카카오톡 9.7.0 이하 버전 설치(혹은 [responseFix](https://cafe.naver.com/msgbot/2067)사용)
+3. msgbot/global_modules 폴더에 [kakaolink.js](https://github.com/naijun0403/kakaolink), crypto.js 모듈 파일 넣기
+4. 봇 만들기
+    1. KakaoBot.js 파일에 있는 내용을 가지고 main이라는 봇 생성
+    2. module.js 파일에 있는 내용을 가지고 module이라는 봇 생성
+    3. manager.js 파일에 있는 내용을 가지고 manager라는 봇 생성
+    4. gamemodule.js 파일에 있는 내용을 가지고 gamemodule이라는 봇 생성
+    5. Kaling.js 파일에 있는 내용을 가지고 Kaling이라는 봇 생성
+5. 소스파일 수정
+    1. manager 봇 스크립트에서 ```if(sender==""&&room=="")``` 부분을 자기 관리방에 맞게 수정
+6. manager 봇을 컴파일하고 킨 후 관리방에서 "!리로드" 입력
 
 기능
 --------
