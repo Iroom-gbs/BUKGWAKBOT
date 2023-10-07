@@ -2,7 +2,7 @@
  * 북곽봇
  * 제작자 : hegelty(https://github.com/hegelty)
  * 경기북과학고 채팅방들을 위해 만들어진 카톡봇입니다.
- * 현재 버전 2.0.0
+ * 현재 버전 2
  * Copyright (c) 2021 hegelty
  * MIT License
  */
@@ -104,7 +104,8 @@ function command(room, msg, sender, isGroupChat, replier, msg_data) {
     //급식
     case "급식":
       tm=0,type=-1,reset=false;
-      switch(msg_data[1]){
+      if(!isNaN(msg_data[1])) tm=parseInt(msg_data[1]);
+      else switch(msg_data[1]){
         case "내일": tm=1; break;
         case "모레": tm=2; break;
         case "글피": tm=3; break;
@@ -137,7 +138,7 @@ function command(room, msg, sender, isGroupChat, replier, msg_data) {
     case "책": return(M.searchBook(msg.substr(2)));
     case "교과서": return("http://di.do/dScIy");
     
-    case "남은시간": return("시험 끝까지 남은 시간 \n"+M.showLeftTimeToExam());
+    case "남은시간": return(M.showLeftTimeToExam());
 
     //코드업 정보
     case "코드업":
@@ -146,7 +147,7 @@ function command(room, msg, sender, isGroupChat, replier, msg_data) {
 
     case "boj":
       if(msg_data.length<2) return("찾으려는 핸들을 입력하세요.\n(!boj [아이디])");
-      M.showBOJUserInfo(msg_data[1]);
+      M.showBOJUserInfo(msg_data[1], room);
       break;
 
     //날씨
@@ -258,9 +259,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       if(msg_data[0]=="북곽아") {
         if(msg.substr(3))
         {
-          pingpong_output = M.PingPong(msg.substr(3));
-          replier.reply(pingpong_output);
-          DiTalks(room,pingpong_output,"북곽봇","com.kakao.talk");
+          //pingpong_output = M.PingPong(msg.substr(3));
+          //replier.reply(pingpong_output);
+          //DiTalks(room,pingpong_output,"북곽봇","com.kakao.talk");
         }
         else replier.reply("네?");
       }
@@ -287,7 +288,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
       }
       result = command(room, msg, sender, isGroupChat, replier, msg_data);
       if(result==false) {
-        replier.reply(M.PingPong(msg));
+        //replier.reply(M.PingPong(msg));
       }
       else replier.reply(result);
     }

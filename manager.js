@@ -5,7 +5,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     Log.d(room)
     roomList.push(room);
   }
-  if(sender=="진짜나태양임"&&room=="진짜관리방") {
+  if(sender==""&&room=="") {
     if(msg.startsWith("!공지")) {
       for(let i=0;i<roomList.length;i++) {
         try {

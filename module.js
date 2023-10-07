@@ -53,19 +53,20 @@ function showTimetable(msg_data,tm,room) {
   try{
     let room_data = getRoomInfo(room);
     let grade,cls;
-    grade = Number(msg_data[msg_data.length-2])
-    cls = Number(msg_data[msg_data.length-1])
+      grade = Number(msg_data[msg_data.length-2])
+      cls = Number(msg_data[msg_data.length-1])
 
-    if(Number.isInteger(grade) == false || Number.isInteger(cls) == false || grade < 1 || grade > 3 || cls < 1 || cls > 5) {
-      if(room_data!=-1)
-      {
-      grade = room_data.grade;
-      cls = room_data.cls;
-      }
-      else return "반을 설정하거나 학년과 반을 입력하세요.\n예시) !반설정 1 2\n!시간표 1 2";
-    }
-    grade = parseInt(grade);
-    cls = parseInt(cls);
+      if(Number.isInteger(grade) == false || Number.isInteger(cls) == false ||
+          grade < 1 || grade > 3 || cls < 1 || cls > 5) {
+            if(room_data!=-1)
+            {
+            grade = room_data.grade;
+            cls = room_data.cls;
+            }
+            else return "반을 설정하거나 학년과 반을 입력하세요.\n예시) !반설정 1 2\n!시간표 1 2";
+          }
+      grade = parseInt(grade);
+      cls = parseInt(cls);
 
     let today = new Date();
     let today_day = today.getDay();
@@ -74,21 +75,21 @@ function showTimetable(msg_data,tm,room) {
     let year = String(today.getFullYear()); // 년도
     let month = numberPad(today.getMonth() + 1, 2);  // 월
     let date = numberPad(today.getDate(), 2);  // 날짜
-    let day = today.getDay() - 1; //요일
+    let day = today.getDay(); //요일
 
-    let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day] + "요일\n"+grade+"학년"+cls+"반\n";
+    let TimeTable =  year + "년 " + month + "월 " + date+ "일 " + dayString[day-1] + "요일\n"+grade+"학년"+cls+"반\n";
     
     let res = JSON.parse(Jsoup.connect("http://bgb.hegelty.space/timetable")
                               .data("school_name","경기북과학고")
                               .data("simple",1)
-                              .data("next_week",day<today_day?1:0)
+                              .data("next_week",(day<today_day)?"1":"0")
                               .ignoreContentType(true).get().text());
     
     if(res.success == false) return "시간표가 없습니다.";
 
-    data = res.data[grade][cls].timetable[day+1]
-    for(let i=1;i<=7;i++) {
-      TimeTable += "\n" + data[i].period + "교시 : " + data[i].subject + "(" + data[i].teacher + ")" + (data[i].replaced?" (대체)":"");
+    data = res.data[grade][cls].timetable[day]
+    for(let i=0;i<data.length;i++) {
+      TimeTable += "\n" + data[i].period + "교시 : " + data[i].subject + "(" + data[i].teacher.replace("\*","") + ")" + (data[i].replaced?" (변경)":"");
     }
     TimeTable += "\n갱신: " + res.갱신일시;
     return TimeTable;
@@ -122,8 +123,8 @@ function showMeal(tm,type,reset) {
       meal[meal_code[i.type]] = i.menu + "\n" + i.cal;
     }
 
-    if(type!=-1) return tmd[tm+3] + "의 " + meal_name[type] + " 메뉴\n\n" + meal[type];
-    return  tmd[tm+3] + "의 메뉴\n" + Lw
+    if(type!=-1) return (tmd[tm+3]?tmd[tm+3]:(month+"월 "+date+"일")) + "의 " + meal_name[type] + " 메뉴\n\n" + meal[type];
+    return (tmd[tm+3]?tmd[tm+3]:(month+"월 "+date+"일")) + "의 메뉴\n" + Lw
             + "조식\n" + meal[0] + "\n\n"
             + "중식\n" + meal[1] + "\n\n"
             + "석식\n" + meal[2]
@@ -410,19 +411,20 @@ function PingPong(str, room) {
 ///////////////시험까지 남은 시간///////////////
 function showLeftTimeToExam()
 {
-  let examTime = new Date(2021,12-1,9,11,30,0);
-  let nowTime = new Date();
-  let timeGap = examTime-nowTime;
+  examTime = new Date(2023,6-1,30,11,50,0);
+  nowTime = new Date();
+  timeGap = examTime-nowTime;
   if(timeGap<=0) return "모든 시험이 끝났습니다!";
-  let gapSec = parseInt(timeGap/1000);
-  let gapMin = parseInt(gapSec / 60);
+  gapSec = parseInt(timeGap/1000);
+  gapMin = parseInt(gapSec / 60);
   gapSec = gapSec % 60;
-  let gapHour = parseInt(gapMin / 60);
+  gapHour = parseInt(gapMin / 60);
   gapMin = gapMin % 60;
-  let gapDay = parseInt(gapHour / 24);
+  gapDay = parseInt(gapHour / 24);
   gapHour = gapHour % 24;
 
-  return gapDay + "일 " + gapHour + "시간 " + gapMin + "분 " + gapSec + "초(" + parseInt(timeGap/1000) +"초)";
+  return "시험 끝까지\n" + gapDay + "일 " + gapHour + "시간 " + gapMin + "분 " + gapSec + "초(" + parseInt(timeGap/1000) +"초)";
+  
 }
 
 ///////////////주식///////////////
